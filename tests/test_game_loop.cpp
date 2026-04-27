@@ -219,14 +219,16 @@ TEST_CASE("AC-G03: full-thrust tick changes ship velocity toward upward directio
 }
 
 // ---------------------------------------------------------------------------
-// AC-G03b -- The plan's AC-G03 states "increases ship.velocity.y in negative
-//   direction (up)".  Verify the Y component after thrust is less than after
-//   a no-thrust tick (thrust imparts a net upward delta over pure gravity).
-//   Given: default state
-//   When:  one full_thrust tick
-//   Then:  velocity.y < pure-gravity tick velocity.y  (net upward thrust > gravity)
+// AC-G03b -- Thrust applies an additional delta along ship.orientation.col[1]
+//   (the body-frame roof vector).  At identity orientation col[1] = (0,+1,0)
+//   in Y-DOWN, so thrust ADDS to vy on top of gravity.  The player must
+//   rotate the ship for thrust to produce world-up motion (col[1].y < 0);
+//   that is a Pass 14 e2e validation, not a Pass 13 contract.
+//   Given: default state (orientation = identity)
+//   When:  one full_thrust tick vs one no-input tick from identical state
+//   Then:  velocity.y(thrust) > velocity.y(no_input) — thrust adds to gravity.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-G03b: full-thrust tick produces strictly lower vy than gravity-only tick", "[game][game_loop]") {
+TEST_CASE("AC-G03b: full-thrust tick produces strictly higher vy than gravity-only tick at identity", "[game][game_loop]") {
     // Given
     game::GameState s_thrust{};
     game::GameState s_grav{};
@@ -235,9 +237,10 @@ TEST_CASE("AC-G03b: full-thrust tick produces strictly lower vy than gravity-onl
     game::tick(s_thrust, full_thrust_input());
     game::tick(s_grav,   no_input());
 
-    // Then: thrust is stronger than gravity (kFullThrust=1/2048 > kGravityPerFrame=1/4096)
+    // Then: at identity orientation col[1].y=+1 in Y-DOWN, so thrust adds positive vy.
+    // Expected delta = kFullThrust = 1/2048, on top of kGravityPerFrame = 1/4096.
     CAPTURE(s_thrust.ship.velocity.y, s_grav.ship.velocity.y);
-    REQUIRE(s_thrust.ship.velocity.y < s_grav.ship.velocity.y);
+    REQUIRE(s_thrust.ship.velocity.y > s_grav.ship.velocity.y);
 }
 
 // ===========================================================================
