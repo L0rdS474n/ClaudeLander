@@ -144,6 +144,22 @@ target_link_libraries(claude_lander_entities PRIVATE
 )
 
 # ----------------------------------------------------------------------------
+# input/ mouse-polar layer -- pure stateless math functions on Vec2/Mat3.
+# Depends on core/ only.  No raylib, no world/, no entities/, no render/,
+# no physics/, no <random>, no <chrono>.  Boundary enforced by the
+# input_no_forbidden_includes CTest tripwire below.
+# (Pass 5 -- src/input/mouse_polar.cpp does not exist yet; red-state intentional)
+# ----------------------------------------------------------------------------
+add_library(claude_lander_input OBJECT
+    src/input/mouse_polar.cpp
+)
+target_include_directories(claude_lander_input PUBLIC src)
+target_link_libraries(claude_lander_input PRIVATE
+    claude_lander_core
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
 # Game executable. As implementation milestones land, modules under src/
 # (core/, world/, render/, ...) will be added as object libraries and linked
 # in here.
@@ -158,6 +174,7 @@ if(CLAUDE_LANDER_BUILD_GAME)
         claude_lander_render
         claude_lander_physics
         claude_lander_entities
+        claude_lander_input
         claude_lander_warnings
     )
 
@@ -196,6 +213,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_projection.cpp
         tests/test_kinematics.cpp
         tests/test_ship.cpp
+        tests/test_mouse_polar.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
@@ -205,6 +223,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         claude_lander_render
         claude_lander_physics
         claude_lander_entities
+        claude_lander_input
         claude_lander_warnings
     )
     catch_discover_tests(claude_lander_tests)
@@ -252,5 +271,15 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         NAME entities_no_forbidden_includes
         COMMAND ${CMAKE_COMMAND} -E env
                 bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|render/)' ${CMAKE_SOURCE_DIR}/src/entities/ ; then exit 1 ; else exit 0 ; fi"
+    )
+
+    # ------------------------------------------------------------------------
+    # AC-I80 boundary tripwire: src/input/ must not include raylib, world/,
+    # entities/, render/, physics/, <random>, or <chrono>.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME input_no_forbidden_includes
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|entities/|render/|physics/|random|chrono)' ${CMAKE_SOURCE_DIR}/src/input/ ; then exit 1 ; else exit 0 ; fi"
     )
 endif()
