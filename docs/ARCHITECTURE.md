@@ -72,6 +72,81 @@ against the same object libraries, which means:
 Pass 0 ships a single `add_executable(ClaudeLander src/main.cpp)` without
 this layering, because Pass 0 only proves that the toolchain works.
 
+## Matrix layout convention
+
+`Mat3` is stored in **column-major** order following the bbcelite Lander
+disassembly:
+
+```
+Mat3 m {
+    Vec3{ nx, ny, nz },   // col[0] = nose  axis (forward)
+    Vec3{ rx, ry, rz },   // col[1] = roof  axis (up relative to the ship)
+    Vec3{ sx, sy, sz }    // col[2] = side  axis (right-hand side)
+};
+```
+
+Element access:
+
+```
+at(m, row, col)  == m.col[col].{x,y,z}[row]
+```
+
+Equivalently, for `c` in 0..2 and `r` in 0..2:
+`at(m, 0, c) == m.col[c].x`, `at(m, 1, c) == m.col[c].y`,
+`at(m, 2, c) == m.col[c].z`.
+
+Matrix-vector multiplication `multiply(M, v)` treats `v` as a column vector
+on the right and produces `M * v` (not `v * M`).  Matrix-matrix
+multiplication `multiply(A, B)` is composed as `A * B` so that
+`multiply(A, multiply(B, v)) == multiply(multiply(A, B), v)` -- standard
+column-vector convention.
+
+Rotation matrices are constructed by writing the **image** of each basis
+vector into the corresponding column.  E.g. a rotation that maps `x_hat` to
+`y_hat`, `y_hat` to `-x_hat`, `z_hat` to itself is:
+
+```
+Mat3 Rz90 {
+    Vec3{ 0.0f,  1.0f, 0.0f},   // x_hat -> y_hat
+    Vec3{-1.0f,  0.0f, 0.0f},   // y_hat -> -x_hat
+    Vec3{ 0.0f,  0.0f, 1.0f}    // z_hat -> z_hat
+};
+```
+
+The transpose of a rotation matrix is its inverse: `multiply(R, transpose(R))`
+equals `identity()` (verified by AC-M08).
+
+## Build flags: `CLAUDE_LANDER_BUILD_GAME`
+
+CMake exposes the option `CLAUDE_LANDER_BUILD_GAME` (default **ON**) to
+control whether the raylib-backed game executable is built.
+
+* `ON`  -- raylib is fetched, the `ClaudeLander` executable is built, the
+            Windows DLL link block is applied.  CI uses this default on every
+            run so the production build path is always exercised.
+* `OFF` -- raylib fetch and the game target are skipped entirely.  Only the
+            pure-C++ `claude_lander_core` OBJECT library and the Catch2 test
+            binary are built.  This lets a developer build and run the math
+            layer tests on a Linux box that does not have raylib's X11 /
+            OpenGL development packages installed (Wayland-only desktops,
+            headless containers, freshly provisioned VMs, etc.).
+
+Test-only local invocation:
+
+```
+cmake -S . -B build-tests -G Ninja \
+      -DCLAUDE_LANDER_BUILD_GAME=OFF \
+      -DCLAUDE_LANDER_BUILD_TESTS=ON \
+      -DCMAKE_BUILD_TYPE=Release
+cmake --build build-tests -j
+ctest --test-dir build-tests --output-on-failure
+```
+
+The `claude_lander_core` OBJECT library has no raylib dependency by
+construction, so the OFF path is sound for every Pass 1 test.  Higher layers
+introduced in later passes that legitimately need raylib types must keep that
+dependency confined to layers above `core/` per the layer-dependency rules.
+
 ## What is NOT in scope for Pass 0
 
 * No game logic. `src/main.cpp` is a window-opens-and-paints-a-gradient
