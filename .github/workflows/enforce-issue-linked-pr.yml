@@ -1,0 +1,82 @@
+name: enforce-issue-linked-pr
+
+# Pass 1.5 -- enforce that every pull request body or title links an
+# issue using one of GitHub's closing keywords (Closes / Fixes / Resolves
+# and conjugations) followed by '#<number>' or 'owner/repo#<number>'.
+#
+# The actual matcher lives in scripts/check_pr_link.sh, which is the
+# single source of truth for the regex and is testable in isolation
+# against fixtures in tests/fixtures/pr_bodies/.
+#
+# Required status check name: this job is named 'enforce-issue-linked-pr'
+# (matches scripts/setup-branch-protection.sh and ADR-0003 D4).
+#
+# Acceptance criteria covered:
+#   AC-1.5-080  workflow file exists
+#   AC-1.5-081  starts with 'name:'
+#   AC-1.5-082  triggers on pull_request
+#   AC-1.5-083  types: [opened, edited, synchronize, reopened]
+#   AC-1.5-084  job named enforce-issue-linked-pr
+#   AC-1.5-085  regex covers closes / fixes / resolves
+#   AC-1.5-086  regex requires '#<digits>'
+#
+# Reference regex (POSIX ERE, case-insensitive; canonical copy in
+# scripts/check_pr_link.sh):
+#
+#   (close[sd]?|fix(e[sd])?|resolve[sd]?)[[:space:]]+([A-Za-z0-9_.-]+/[A-Za-z0-9._-]+)?#[0-9]+
+#
+# The trailing '#[0-9]+' enforces a numeric issue reference.
+#
+# Security note: the PR body and PR title are untrusted user input.
+# We pass them via the `env:` block (NEVER inlined into shell strings)
+# so the workflow is immune to script-injection via crafted PR titles.
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  enforce-issue-linked-pr:
+    name: enforce-issue-linked-pr
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify the matcher script exists and is executable
+        run: |
+          test -x scripts/check_pr_link.sh \
+            || { echo "ERROR: scripts/check_pr_link.sh missing or not executable"; exit 1; }
+
+      - name: Self-test the matcher against fixtures
+        run: bash tests/scripts/check_pr_link_keyword.sh
+
+      - name: Validate PR body / title for issue link
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          # PR_BODY and PR_TITLE are quoted shell variables -- never
+          # interpolated into the script template -- to avoid shell
+          # injection from crafted PR titles or bodies.
+          printf '%s' "${PR_BODY}" \
+              | bash scripts/check_pr_link.sh --title "${PR_TITLE}"
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "PR body or title contains a valid issue-linking keyword."
+          echo "Accepted forms: Closes #N, Fixes #N, Resolves #N (or owner/repo#N)."

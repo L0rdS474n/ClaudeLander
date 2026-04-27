@@ -272,8 +272,12 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_object_map.cpp
         tests/test_hud.cpp
         tests/test_game_loop.cpp
+        tests/test_repo_policy.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
+    target_compile_definitions(claude_lander_tests PRIVATE
+        CLAUDE_LANDER_REPO_ROOT="${CMAKE_SOURCE_DIR}"
+    )
     target_link_libraries(claude_lander_tests PRIVATE
         Catch2::Catch2WithMain
         claude_lander_game
@@ -286,6 +290,17 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         claude_lander_warnings
     )
     catch_discover_tests(claude_lander_tests)
+
+    # ------------------------------------------------------------------------
+    # AC-1.5-087..091: shell-script test harness for the PR-link regex.
+    # Verifies that scripts/check_pr_link.sh accepts the documented keywords
+    # ("Closes #N", "Fixes #N", "Resolves owner/repo#N", case-insensitive).
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME pr_link_regex_shell_harness
+        COMMAND bash ${CMAKE_SOURCE_DIR}/tests/scripts/check_pr_link_keyword.sh
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
 
     # ------------------------------------------------------------------------
     # AC-W40 boundary tripwire: src/world/ must not include any raylib header.
