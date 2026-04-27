@@ -82,6 +82,20 @@ target_include_directories(claude_lander_core PUBLIC src)
 target_link_libraries(claude_lander_core PRIVATE claude_lander_warnings)
 
 # ----------------------------------------------------------------------------
+# world/ procedural terrain layer -- depends on core/, no raylib (ADR-0004).
+# Declared unconditionally (not gated on BUILD_GAME) so the test executable
+# can link against it on a Linux box without raylib's X11/OpenGL deps.
+# ----------------------------------------------------------------------------
+add_library(claude_lander_world OBJECT
+    src/world/terrain.cpp
+)
+target_include_directories(claude_lander_world PUBLIC src)
+target_link_libraries(claude_lander_world PRIVATE
+    claude_lander_core
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
 # Game executable. As implementation milestones land, modules under src/
 # (core/, world/, render/, ...) will be added as object libraries and linked
 # in here.
@@ -92,6 +106,7 @@ if(CLAUDE_LANDER_BUILD_GAME)
     target_link_libraries(ClaudeLander PRIVATE
         raylib
         claude_lander_core
+        claude_lander_world
         claude_lander_warnings
     )
 
@@ -132,7 +147,23 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
     target_link_libraries(claude_lander_tests PRIVATE
         Catch2::Catch2WithMain
         claude_lander_core
+        claude_lander_world
         claude_lander_warnings
     )
     catch_discover_tests(claude_lander_tests)
+
+    # ------------------------------------------------------------------------
+    # AC-W40 boundary tripwire: src/world/ must not include any raylib header.
+    # We grep all headers and translation units under src/world/ for the
+    # substring "raylib" appearing on a #include line; the test fails if any
+    # match is found.  Using -L (files-without-match) inverts the semantics so
+    # a clean tree exits 0 on every file and grep returns zero overall only
+    # when all files lack the match.  We use -E and a regex that matches
+    # #include lines pulling in raylib.h, rlgl.h, raymath.h, etc.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME world_no_raylib_includes
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath)' ${CMAKE_SOURCE_DIR}/src/world/ ; then exit 1 ; else exit 0 ; fi"
+    )
 endif()
