@@ -460,9 +460,11 @@ TEST_CASE("AC-C14: forward and reverse-order sweep produce the same set of (inpu
         reverse_pairs.emplace_back(ships[i], world::follow_camera_position(ships[i]));
     }
 
-    // Then: sort both by ship.z (deterministic tie-break key) and compare
+    // Then: sort both by ship.{z,x,y} (deterministic tie-break) and compare
     auto by_ship_z = [](const Pair& a, const Pair& b) {
-        return a.first.z < b.first.z;
+        if (a.first.z != b.first.z) return a.first.z < b.first.z;
+        if (a.first.x != b.first.x) return a.first.x < b.first.x;
+        return a.first.y < b.first.y;
     };
     std::sort(forward_pairs.begin(), forward_pairs.end(), by_ship_z);
     std::sort(reverse_pairs.begin(), reverse_pairs.end(), by_ship_z);
