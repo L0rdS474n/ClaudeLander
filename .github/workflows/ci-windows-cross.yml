@@ -1,0 +1,64 @@
+name: CI -- Windows cross-compile (Linux host)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-windows-cross-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Cross-build (Ubuntu / MinGW-w64 / Ninja)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install MinGW-w64 + Ninja (apt)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            mingw-w64 \
+            ninja-build \
+            file
+
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: build-win/_deps
+          key: win-cross-fetchcontent-${{ hashFiles('CMakeLists.txt', 'cmake/mingw-w64-x86_64.cmake') }}
+          restore-keys: |
+            win-cross-fetchcontent-
+
+      - name: Configure (CMake / Ninja / MinGW-w64 toolchain)
+        run: |
+          cmake -S . -B build-win \
+                -G Ninja \
+                -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-x86_64.cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCLAUDE_LANDER_BUILD_TESTS=OFF
+
+      - name: Build
+        run: |
+          cmake --build build-win -j
+
+      - name: Verify .exe is a Windows PE binary
+        run: |
+          set -euo pipefail
+          EXE=build-win/bin/ClaudeLander.exe
+          test -f "$EXE" || { echo "ERROR: $EXE not found"; exit 1; }
+          file "$EXE"
+          file "$EXE" | grep -q 'PE32+ executable.*x86-64.*MS Windows'
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClaudeLander-windows-x64
+          path: build-win/bin/ClaudeLander.exe
+          if-no-files-found: error

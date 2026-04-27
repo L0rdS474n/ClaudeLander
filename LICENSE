@@ -1,0 +1,39 @@
+MIT License
+
+Copyright (c) 2026 ClaudeLander contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+
+This project is a clean-room reimplementation. It is NOT affiliated with,
+endorsed by, or derived from the original game's source code.
+
+The original game "Lander" (1987) for the Acorn Archimedes is the work of
+David Braben and remains his copyright.
+
+The reverse-engineered, annotated source code published at
+https://lander.bbcelite.com is the work of Mark Moxon and remains his
+copyright. No code, comments, constants, or asset files from that project
+are included or copied in this repository. The site was used solely as a
+behavioral specification: gameplay mechanics, formulas, and architectural
+notes — none of which are themselves protected by copyright.
+
+If you want to read or build the original game's reverse-engineered source,
+visit https://lander.bbcelite.com. We strongly recommend it.
