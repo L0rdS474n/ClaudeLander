@@ -1,4 +1,4 @@
-// tests/test_matrix3.cpp — Pass 1 Mat3 math layer tests.
+// tests/test_matrix3.cpp - Pass 1 Mat3 math layer tests.
 //
 // Covers AC-M01 through AC-M10.
 // All tests are deterministic: no clocks, no filesystem, no random_device.
@@ -81,7 +81,7 @@ TEST_CASE("AC-M03: det of 90-degree Z-rotation is 1", "[core][matrix3]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-M04: multiply(matrix, vector) — 90-degree rotation maps x_hat to y_hat
+// AC-M04: multiply(matrix, vector) - 90-degree rotation maps x_hat to y_hat
 // Given: R_z90 as above, v = x_hat = {1,0,0}
 // When:  multiply(R_z90, v)
 // Then:  result == {0,1,0}  (y_hat)

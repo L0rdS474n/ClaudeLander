@@ -71,7 +71,7 @@ static constexpr float kParticleEps = 1e-6f;
 //   A default-constructed Particle has ttl=0 by the spec; step must leave
 //   everything unchanged.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R11: Particle with default ttl=0 — step is a no-op (position, velocity, ttl unchanged)", "[entities][particle]") {
+TEST_CASE("AC-R11: Particle with default ttl=0 - step is a no-op (position, velocity, ttl unchanged)", "[entities][particle]") {
     // Given: a Particle with ttl=0 (default / dead)
     // When:  step() called
     // Then:  position unchanged, velocity unchanged, ttl still 0
@@ -102,7 +102,7 @@ TEST_CASE("AC-R11: Particle with default ttl=0 — step is a no-op (position, ve
 // ---------------------------------------------------------------------------
 // AC-R12: ttl=10 → step decrements ttl to 9.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R12: Particle with ttl=10 — step decrements ttl to 9", "[entities][particle]") {
+TEST_CASE("AC-R12: Particle with ttl=10 - step decrements ttl to 9", "[entities][particle]") {
     // Given: Particle with ttl=10, kind=Explosion, velocity=zero
     // When:  step() called once
     // Then:  ttl == 9
@@ -127,7 +127,7 @@ TEST_CASE("AC-R12: Particle with ttl=10 — step decrements ttl to 9", "[entitie
 //   After the first step ttl reaches zero; the second step must not
 //   change position or velocity.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R13: Particle with ttl=1 — step decrements to 0; next step is no-op", "[entities][particle]") {
+TEST_CASE("AC-R13: Particle with ttl=1 - step decrements to 0; next step is no-op", "[entities][particle]") {
     // Given: Particle with ttl=1, non-zero velocity, kind=Bullet
     // When:  step() called once (ttl → 0), then again (no-op)
     // Then:
@@ -163,7 +163,7 @@ TEST_CASE("AC-R13: Particle with ttl=1 — step decrements to 0; next step is no
 }
 
 // ===========================================================================
-// GROUP 4: Kind dispatch — gravity (AC-R14..R17)
+// GROUP 4: Kind dispatch - gravity (AC-R14..R17)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
@@ -171,7 +171,7 @@ TEST_CASE("AC-R13: Particle with ttl=1 — step decrements to 0; next step is no
 //   After one step on an Exhaust particle with zero velocity, velocity.y
 //   must still be 0 (gravity was not added).
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R14: Exhaust particle — gravity is NOT applied to velocity across a step", "[entities][particle]") {
+TEST_CASE("AC-R14: Exhaust particle - gravity is NOT applied to velocity across a step", "[entities][particle]") {
     // Given: Exhaust particle, zero velocity, ttl=5
     // When:  step() called once
     // Then:  velocity.y == 0 (gravity not applied; Exhaust exception to gravity)
@@ -193,7 +193,7 @@ TEST_CASE("AC-R14: Exhaust particle — gravity is NOT applied to velocity acros
 // AC-R15: Explosion kind: gravity applied to velocity.
 //   After one step with zero velocity, velocity.y must equal kGravityPerFrame.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R15: Explosion particle — gravity IS applied to velocity across a step", "[entities][particle]") {
+TEST_CASE("AC-R15: Explosion particle - gravity IS applied to velocity across a step", "[entities][particle]") {
     // Given: Explosion particle, zero velocity, ttl=5
     // When:  step() called once
     // Then:  velocity.y == kGravityPerFrame (gravity was added)
@@ -213,7 +213,7 @@ TEST_CASE("AC-R15: Explosion particle — gravity IS applied to velocity across 
 // ---------------------------------------------------------------------------
 // AC-R16: Bullet kind: gravity applied to velocity.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R16: Bullet particle — gravity IS applied to velocity across a step", "[entities][particle]") {
+TEST_CASE("AC-R16: Bullet particle - gravity IS applied to velocity across a step", "[entities][particle]") {
     // Given: Bullet particle, zero velocity, ttl=5
     // When:  step() called once
     // Then:  velocity.y == kGravityPerFrame
@@ -233,7 +233,7 @@ TEST_CASE("AC-R16: Bullet particle — gravity IS applied to velocity across a s
 // ---------------------------------------------------------------------------
 // AC-R17: Spark kind: gravity applied to velocity.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R17: Spark particle — gravity IS applied to velocity across a step", "[entities][particle]") {
+TEST_CASE("AC-R17: Spark particle - gravity IS applied to velocity across a step", "[entities][particle]") {
     // Given: Spark particle, zero velocity, ttl=5
     // When:  step() called once
     // Then:  velocity.y == kGravityPerFrame
@@ -259,7 +259,7 @@ TEST_CASE("AC-R17: Spark particle — gravity IS applied to velocity across a st
 //   Uses an Explosion particle (gravity applies) with non-zero initial state
 //   to exercise the full step path including gravity accumulation.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R18: 1000 step(particle) calls are deterministic — bit-identical to a fresh independent run", "[entities][particle]") {
+TEST_CASE("AC-R18: 1000 step(particle) calls are deterministic - bit-identical to a fresh independent run", "[entities][particle]") {
     // Given: two Particle objects with identical initial state, kind=Explosion
     // When:  each is advanced 1000 steps independently
     // Then:  final position, velocity, and ttl are bit-identical
@@ -297,14 +297,14 @@ TEST_CASE("AC-R18: 1000 step(particle) calls are deterministic — bit-identical
 }
 
 // ===========================================================================
-// GROUP 6: Bug-class fence — dead particle is complete no-op (AC-R19 / AC-Pttl)
+// GROUP 6: Bug-class fence - dead particle is complete no-op (AC-R19 / AC-Pttl)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
 // AC-R19 (AC-Pttl): step on dead particle (ttl==0) does absolutely nothing.
 //
 // ============================================================================
-//  DEAD-PARTICLE NO-OP FENCE — bug-class fence
+//  DEAD-PARTICLE NO-OP FENCE - bug-class fence
 // ============================================================================
 //
 //  A common mistake is to decrement ttl before the early-exit guard, reaching
@@ -315,7 +315,7 @@ TEST_CASE("AC-R18: 1000 step(particle) calls are deterministic — bit-identical
 //  Correct:   if (p.ttl == 0) return; // then decrement at end
 //  Bug (underflow): --p.ttl; if (p.ttl == 65535u) ... // silent wrap
 // ============================================================================
-TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op — no underflow, no mutation", "[entities][particle]") {
+TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op - no underflow, no mutation", "[entities][particle]") {
     // Given: Explosion particle with ttl=0 (dead) and non-zero velocity
     // When:  step() called
     // Then:  position unchanged, velocity unchanged, ttl still 0 (no underflow)
@@ -341,7 +341,7 @@ TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op �
 }
 
 // ===========================================================================
-// GROUP 7: Bug-class fence — exhaust velocity preserved (AC-R20 / AC-Pexh)
+// GROUP 7: Bug-class fence - exhaust velocity preserved (AC-R20 / AC-Pexh)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
@@ -349,7 +349,7 @@ TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op �
 //         changes from the existing velocity; gravity is NOT added).
 //
 // ============================================================================
-//  EXHAUST-GRAVITY-BYPASS FENCE — bug-class fence
+//  EXHAUST-GRAVITY-BYPASS FENCE - bug-class fence
 // ============================================================================
 //
 //  D-ExhaustNoGravity: Exhaust particles do not receive gravity.  A missing
@@ -362,7 +362,7 @@ TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op �
 //  The exact value {0.1f, 0.0f, -0.1f} will differ from the correct
 //  {0.1f, kGravityPerFrame, -0.1f} if the guard is missing.
 // ============================================================================
-TEST_CASE("AC-R20 (AC-Pexh): Exhaust particle velocity is exactly preserved across step — gravity not applied", "[entities][particle]") {
+TEST_CASE("AC-R20 (AC-Pexh): Exhaust particle velocity is exactly preserved across step - gravity not applied", "[entities][particle]") {
     // Given: Exhaust particle with non-zero velocity {0.1, 0.0, -0.1}, ttl=5
     // When:  step() called once
     // Then:  velocity is EXACTLY {0.1, 0.0, -0.1} (gravity not applied)
@@ -409,9 +409,9 @@ TEST_CASE("AC-R20 (AC-Pexh): Exhaust particle velocity is exactly preserved acro
 TEST_CASE("AC-R80: entities/particle header and library compile and link without raylib (BUILD_GAME=OFF)", "[entities][particle]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means particle.hpp compiled and linked without raylib,
+    // Then:  it ran - which means particle.hpp compiled and linked without raylib,
     //        satisfying AC-R80.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-R80 (particle) satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-R80 (particle) satisfied");
 }
 
 // ---------------------------------------------------------------------------
@@ -425,11 +425,11 @@ TEST_CASE("AC-R82: step(Particle&) is declared noexcept", "[entities][particle]"
     entities::Particle p{};
     static_assert(noexcept(entities::step(p)),
         "AC-R82 VIOLATED: entities::step(Particle&) must be declared noexcept.");
-    SUCCEED("static_assert(noexcept(step(particle))) passed — AC-R82 satisfied");
+    SUCCEED("static_assert(noexcept(step(particle))) passed - AC-R82 satisfied");
 }
 
 // ---------------------------------------------------------------------------
-// AC-R83: std::is_aggregate_v<Particle> — Particle must be a plain aggregate.
+// AC-R83: std::is_aggregate_v<Particle> - Particle must be a plain aggregate.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R83: Particle is an aggregate type (no virtual, no user-declared constructors)", "[entities][particle]") {
     // Given: the Particle type
@@ -438,5 +438,5 @@ TEST_CASE("AC-R83: Particle is an aggregate type (no virtual, no user-declared c
     static_assert(std::is_aggregate_v<entities::Particle>,
         "AC-R83 VIOLATED: entities::Particle must be an aggregate (no virtual, "
         "no user-declared constructors).");
-    SUCCEED("std::is_aggregate_v<Particle> is true — AC-R83 satisfied");
+    SUCCEED("std::is_aggregate_v<Particle> is true - AC-R83 satisfied");
 }

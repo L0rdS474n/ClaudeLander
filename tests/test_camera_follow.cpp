@@ -1,4 +1,4 @@
-// tests/test_camera_follow.cpp — Pass 7 world/camera_follow tests.
+// tests/test_camera_follow.cpp - Pass 7 world/camera_follow tests.
 //
 // Covers AC-C01..C21 and AC-Cback, AC-Cground, AC-Cnose, AC-C80..C82
 // (24 ACs total, numbered per pass-7-camera-follow.md §4).
@@ -23,9 +23,9 @@
 //
 // === Bug-class fences ===
 // Three developer-mistake patterns are caught with prominent banner comments:
-//   (a) AC-Cback   — sign-flip catch: cam.z = ship.z - 5*TILE_SIZE, NOT + 5.
-//   (b) AC-Cground — ground clamp: cam.y uses floor_y, NOT ship.y, when deep.
-//   (c) AC-Cnose   — return type must be Vec3, not Mat3 or any other type.
+//   (a) AC-Cback   - sign-flip catch: cam.z = ship.z - 5*TILE_SIZE, NOT + 5.
+//   (b) AC-Cground - ground clamp: cam.y uses floor_y, NOT ship.y, when deep.
+//   (c) AC-Cnose   - return type must be Vec3, not Mat3 or any other type.
 //
 // === AC-C82 noexcept verification ===
 // static_assert checks noexcept on follow_camera_position placed after the
@@ -74,13 +74,13 @@ static_assert(false,
 #endif
 
 // ---------------------------------------------------------------------------
-// AC-Cnose — return type must be Vec3, not Mat3 or any other type.
+// AC-Cnose - return type must be Vec3, not Mat3 or any other type.
 // ===========================================================================
 //
 //  BUG-CLASS FENCE (AC-Cnose)
 // ===========================================================================
 //
-//  D-NoCameraTilt: follow_camera_position returns Vec3 only — no rotation,
+//  D-NoCameraTilt: follow_camera_position returns Vec3 only - no rotation,
 //  no Mat3, no orientation struct.  This static_assert fires at compile time
 //  if the return type is changed to anything other than Vec3.
 //
@@ -92,7 +92,7 @@ static_assert(
     "AC-Cnose: follow_camera_position must return Vec3 (not Mat3, not a struct with rotation)");
 
 // ---------------------------------------------------------------------------
-// AC-C82 — follow_camera_position must be declared noexcept.
+// AC-C82 - follow_camera_position must be declared noexcept.
 // ===========================================================================
 //
 //  D-Stateless: pure noexcept function, no globals.
@@ -123,7 +123,7 @@ static float expected_cam_y(float ship_x, float ship_y, float ship_z) noexcept {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C01 — Ship {0,5,0}: cam = {0, max(5, alt(0,-5)+0.1), -5}.
+// AC-C01 - Ship {0,5,0}: cam = {0, max(5, alt(0,-5)+0.1), -5}.
 //   Given: ship_position = {0, 5, 0}
 //   When:  follow_camera_position is called
 //   Then:  cam.x == 0, cam.z == -5,
@@ -146,7 +146,7 @@ TEST_CASE("AC-C01: ship {0,5,0} gives cam.x=0 cam.z=-5 cam.y=max(5,floor)", "[wo
 }
 
 // ---------------------------------------------------------------------------
-// AC-C02 — Ship {10,5,0}: cam.x=10, cam.z=-5.
+// AC-C02 - Ship {10,5,0}: cam.x=10, cam.z=-5.
 //   Given: ship_position = {10, 5, 0}
 //   When:  follow_camera_position is called
 //   Then:  cam.x == 10.0f, cam.z == -5.0f (ship.z - 5*TILE_SIZE)
@@ -165,7 +165,7 @@ TEST_CASE("AC-C02: ship {10,5,0} gives cam.x=10 cam.z=-5", "[world][camera_follo
 }
 
 // ---------------------------------------------------------------------------
-// AC-C03 — Ship {0,5,100}: cam.z=95.
+// AC-C03 - Ship {0,5,100}: cam.z=95.
 //   Given: ship_position = {0, 5, 100}
 //   When:  follow_camera_position is called
 //   Then:  cam.z == 95.0f (100 - 5*1.0)
@@ -184,7 +184,7 @@ TEST_CASE("AC-C03: ship {0,5,100} gives cam.z=95", "[world][camera_follow]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-C04 — cam.x == ship.x for ship.x in {-50,-1,0,1,50} when ship.y high.
+// AC-C04 - cam.x == ship.x for ship.x in {-50,-1,0,1,50} when ship.y high.
 //   Given: ship_position with various x values, ship.y=1000 (above any terrain)
 //   When:  follow_camera_position is called for each
 //   Then:  cam.x == ship.x exactly within kCamEps for all inputs
@@ -206,7 +206,7 @@ TEST_CASE("AC-C04: cam.x == ship.x for ship.x in {-50,-1,0,1,50} with high ship.
 }
 
 // ---------------------------------------------------------------------------
-// AC-C05 — cam.z == ship.z - 5*TILE_SIZE for ship.z in {-50,-1,0,1,50,100}.
+// AC-C05 - cam.z == ship.z - 5*TILE_SIZE for ship.z in {-50,-1,0,1,50,100}.
 //   Given: ship_position with various z values, ship.y=1000 (above terrain)
 //   When:  follow_camera_position is called for each
 //   Then:  cam.z == ship.z - kCameraBackOffset * TILE_SIZE within kCamEps
@@ -233,8 +233,8 @@ TEST_CASE("AC-C05: cam.z == ship.z - 5*TILE_SIZE for ship.z in {-50,-1,0,1,50,10
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C06 — Ship.y=100 (well above): cam.y = ship.y exactly.
-//   Given: ship_position = {0, 100, 0} — ship.y far above any terrain floor
+// AC-C06 - Ship.y=100 (well above): cam.y = ship.y exactly.
+//   Given: ship_position = {0, 100, 0} - ship.y far above any terrain floor
 //   When:  follow_camera_position is called
 //   Then:  cam.y == 100.0f (ship.y wins the max; terrain is near 5.0)
 // ---------------------------------------------------------------------------
@@ -254,8 +254,8 @@ TEST_CASE("AC-C06: ship.y=100 (well above floor) gives cam.y == ship.y exactly",
 }
 
 // ---------------------------------------------------------------------------
-// AC-C07 — Ship.y=-1000: cam.y = altitude(cam.x, cam.z) + clearance.
-//   Given: ship_position = {0, -1000, 0} — ship deeply below terrain
+// AC-C07 - Ship.y=-1000: cam.y = altitude(cam.x, cam.z) + clearance.
+//   Given: ship_position = {0, -1000, 0} - ship deeply below terrain
 //   When:  follow_camera_position is called
 //   Then:  cam.y == terrain::altitude(0, cam.z) + kCameraGroundClearance
 //          (ground clamp activates; ship.y is discarded as the smaller value)
@@ -277,7 +277,7 @@ TEST_CASE("AC-C07: ship.y=-1000 (deep below floor) gives cam.y clamped to floor+
 }
 
 // ---------------------------------------------------------------------------
-// AC-C08 — Threshold at floor: cam.y == floor when ship.y == floor.
+// AC-C08 - Threshold at floor: cam.y == floor when ship.y == floor.
 //   Given: ship.y == altitude(cam.x, cam.z) + clearance (exactly at boundary)
 //   When:  follow_camera_position is called
 //   Then:  cam.y == floor_y (max of two equal values)
@@ -299,7 +299,7 @@ TEST_CASE("AC-C08: ship.y == floor_y gives cam.y == floor_y (threshold: max of e
 }
 
 // ---------------------------------------------------------------------------
-// AC-C09 — Threshold − ε: cam.y clamped up to floor.
+// AC-C09 - Threshold − ε: cam.y clamped up to floor.
 //   Given: ship.y = floor_y - kCamEps*10 (just below floor)
 //   When:  follow_camera_position is called
 //   Then:  cam.y == floor_y (ground clamp activates)
@@ -327,14 +327,14 @@ TEST_CASE("AC-C09: ship.y just below floor_y gives cam.y clamped up to floor_y",
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C10 — Two runs over 1000-iter sweep: bit-identical.
+// AC-C10 - Two runs over 1000-iter sweep: bit-identical.
 //   Given: a fixed sequence of 1000 ship positions (deterministic formula,
 //          no PRNG)
 //   When:  follow_camera_position is called twice over the same sequence
 //   Then:  every (cam.x, cam.y, cam.z) pair is bit-identical between runs
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-C10: 1000-iteration sweep is deterministic — bit-identical across two runs", "[world][camera_follow]") {
-    // Given: deterministic position sequence — no PRNG, no clock
+TEST_CASE("AC-C10: 1000-iteration sweep is deterministic - bit-identical across two runs", "[world][camera_follow]") {
+    // Given: deterministic position sequence - no PRNG, no clock
     auto run_sweep = [&]() -> std::vector<Vec3> {
         std::vector<Vec3> results;
         results.reserve(1000);
@@ -350,7 +350,7 @@ TEST_CASE("AC-C10: 1000-iteration sweep is deterministic — bit-identical acros
     const auto run_a = run_sweep();
     const auto run_b = run_sweep();
 
-    // Then — bit-identical (exact equality, NOT Approx)
+    // Then - bit-identical (exact equality, NOT Approx)
     REQUIRE(run_a.size() == run_b.size());
     for (std::size_t i = 0; i < run_a.size(); ++i) {
         CAPTURE(i, run_a[i].x, run_b[i].x);
@@ -361,7 +361,7 @@ TEST_CASE("AC-C10: 1000-iteration sweep is deterministic — bit-identical acros
 }
 
 // ---------------------------------------------------------------------------
-// AC-C11 — Pure: same input, identical output.
+// AC-C11 - Pure: same input, identical output.
 //   Given: a single ship position called twice in sequence
 //   When:  follow_camera_position is called twice with the same argument
 //   Then:  both results are bit-identical
@@ -382,7 +382,7 @@ TEST_CASE("AC-C11: same ship position called twice returns bit-identical camera 
 }
 
 // ---------------------------------------------------------------------------
-// AC-C12 — No <random>, <chrono> in source.
+// AC-C12 - No <random>, <chrono> in source.
 //   Verified architecturally: world_no_raylib_includes CTest tripwire.
 //   Runtime proxy: the test executable reached this point, confirming the
 //   binary was compiled with the no-forbidden-includes build.
@@ -391,18 +391,18 @@ TEST_CASE("AC-C12: world/camera_follow.hpp compiled without <random> or <chrono>
     // Given: this test executable was built with BUILD_GAME=OFF and the
     //        world_no_raylib_includes CTest tripwire active.
     // When:  this test is reached
-    // Then:  the compilation succeeded without forbidden headers — AC-C12 satisfied.
-    SUCCEED("architecture tripwire confirms no <random>/<chrono> in world/ — AC-C12 satisfied");
+    // Then:  the compilation succeeded without forbidden headers - AC-C12 satisfied.
+    SUCCEED("architecture tripwire confirms no <random>/<chrono> in world/ - AC-C12 satisfied");
 }
 
 // ---------------------------------------------------------------------------
-// AC-C13 — 10×10×10 grid sweep: stable (no crash, all results finite).
+// AC-C13 - 10×10×10 grid sweep: stable (no crash, all results finite).
 //   Given: 10×10×10 grid of ship positions (x in [-5,5], y in [0,10], z in [-5,5])
 //   When:  follow_camera_position is called for each
 //   Then:  all cam.x, cam.y, cam.z are finite (no NaN, no Inf)
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-C13: 10x10x10 grid sweep produces finite camera positions", "[world][camera_follow]") {
-    // Given: 1000 grid positions (no PRNG — deterministic lattice)
+    // Given: 1000 grid positions (no PRNG - deterministic lattice)
     for (int ix = 0; ix < 10; ++ix) {
         for (int iy = 0; iy < 10; ++iy) {
             for (int iz = 0; iz < 10; ++iz) {
@@ -425,7 +425,7 @@ TEST_CASE("AC-C13: 10x10x10 grid sweep produces finite camera positions", "[worl
 }
 
 // ---------------------------------------------------------------------------
-// AC-C14 — Reverse-order sweep: same set of pairs.
+// AC-C14 - Reverse-order sweep: same set of pairs.
 //   Given: a list of N ship positions traversed forward and backward
 //   When:  follow_camera_position is called for each
 //   Then:  {input, output} pairs collected from both traversals form the same
@@ -499,7 +499,7 @@ TEST_CASE("AC-C14: forward and reverse-order sweep produce the same set of (inpu
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C15 — Vertex at ship pos {0,5,0} projects within ±1 px of (160, 64).
+// AC-C15 - Vertex at ship pos {0,5,0} projects within ±1 px of (160, 64).
 //   Given: ship = {0,5,0}, cam = follow_camera_position(ship)
 //   When:  render::project(ship_pos, render::Camera{cam}) is called
 //   Then:  |x_screen - 160| <= 1.0f, |y_screen - 64| <= 1.0f
@@ -521,7 +521,7 @@ TEST_CASE("AC-C15: ship at {0,5,0} with follow camera projects within 1px of scr
 }
 
 // ---------------------------------------------------------------------------
-// AC-C16 — Ship {10,5,0}: vertex at ship pos still near (160, 64).
+// AC-C16 - Ship {10,5,0}: vertex at ship pos still near (160, 64).
 //   Given: ship = {10,5,0}, cam = follow_camera_position(ship)
 //   When:  render::project(ship, cam) is called
 //   Then:  |x_screen - 160| <= 1.0f, |y_screen - 64| <= 1.0f
@@ -543,8 +543,8 @@ TEST_CASE("AC-C16: ship at {10,5,0} with follow camera projects within 1px of sc
 }
 
 // ---------------------------------------------------------------------------
-// AC-C17 — Ship {0,20,0}: cam.y=20, vertex at ship pos near (160, 64).
-//   Given: ship = {0,20,0} — ship.y=20 well above terrain; cam.y = ship.y
+// AC-C17 - Ship {0,20,0}: cam.y=20, vertex at ship pos near (160, 64).
+//   Given: ship = {0,20,0} - ship.y=20 well above terrain; cam.y = ship.y
 //   When:  render::project(ship, cam) is called
 //   Then:  |x_screen - 160| <= 1.0f, |y_screen - 64| <= 1.0f
 // ---------------------------------------------------------------------------
@@ -565,7 +565,7 @@ TEST_CASE("AC-C17: ship at {0,20,0} (cam.y=20) with follow camera projects withi
 }
 
 // ---------------------------------------------------------------------------
-// AC-C18 — Vertex at {ship.x+1, ship.y, ship.z} projects RIGHT of centre.
+// AC-C18 - Vertex at {ship.x+1, ship.y, ship.z} projects RIGHT of centre.
 //   Given: ship = {0,5,0}, follow-camera; extra vertex = {1, 5, 0}
 //   When:  render::project(extra_vertex, cam) is called
 //   Then:  pixel.x > render::kScreenCenterX (160)
@@ -592,7 +592,7 @@ TEST_CASE("AC-C18: vertex at ship.x+1 with follow camera projects to the RIGHT o
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C19 — Negative ship.z: ship {0,5,-100} → cam.z=-105.
+// AC-C19 - Negative ship.z: ship {0,5,-100} → cam.z=-105.
 //   Given: ship_position = {0, 5, -100}
 //   When:  follow_camera_position is called
 //   Then:  cam.z == -100 - 5*1.0 = -105.0
@@ -612,9 +612,9 @@ TEST_CASE("AC-C19: ship {0,5,-100} gives cam.z=-105 (negative z back-offset)", "
 }
 
 // ---------------------------------------------------------------------------
-// AC-C20 — Ship near terrain: cam.y clamped to floor.
+// AC-C20 - Ship near terrain: cam.y clamped to floor.
 //   Given: ship_position whose ship.y is below the camera floor
-//          (ship.y = terrain::altitude(ship.x, cam.z) - 0.5 — clearly below)
+//          (ship.y = terrain::altitude(ship.x, cam.z) - 0.5 - clearly below)
 //   When:  follow_camera_position is called
 //   Then:  cam.y > ship.y (clamped up to floor + clearance)
 // ---------------------------------------------------------------------------
@@ -639,7 +639,7 @@ TEST_CASE("AC-C20: ship near (below) terrain gives cam.y clamped to floor+cleara
 }
 
 // ---------------------------------------------------------------------------
-// AC-C21 — NaN propagation: {NaN,5,0} → cam.x is NaN.
+// AC-C21 - NaN propagation: {NaN,5,0} → cam.x is NaN.
 //   Given: ship_position.x = NaN
 //   When:  follow_camera_position is called
 //   Then:  cam.x is NaN (D-NaNPropagate: no special-case; NaN flows through)
@@ -661,7 +661,7 @@ TEST_CASE("AC-C21: NaN in ship.x propagates to cam.x (D-NaNPropagate)", "[world]
 // ===========================================================================
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Cback) — SIGN-FLIP CATCH
+//  BUG-CLASS FENCE (AC-Cback) - SIGN-FLIP CATCH
 // ===========================================================================
 //
 //  D-BackOffsetSign (locked): cam.z = ship.z - kCameraBackOffset * TILE_SIZE
@@ -673,7 +673,7 @@ TEST_CASE("AC-C21: NaN in ship.x propagates to cam.x (D-NaNPropagate)", "[world]
 //  This test fires immediately and unambiguously if the sign is flipped.
 //
 //  If this test fails: re-read D-BackOffsetSign.  The camera is BEHIND the
-//  ship along z, so cam.z < ship.z.  Do NOT change the test — fix the sign.
+//  ship along z, so cam.z < ship.z.  Do NOT change the test - fix the sign.
 // ===========================================================================
 TEST_CASE("AC-Cback (BUG-CLASS FENCE): ship {0,5,10} gives cam.z=5 NOT 15 (sign-flip catch)", "[world][camera_follow]") {
     // Given
@@ -691,7 +691,7 @@ TEST_CASE("AC-Cback (BUG-CLASS FENCE): ship {0,5,10} gives cam.z=5 NOT 15 (sign-
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Cground) — GROUND CLAMP MUST USE FLOOR, NOT SHIP.Y
+//  BUG-CLASS FENCE (AC-Cground) - GROUND CLAMP MUST USE FLOOR, NOT SHIP.Y
 // ===========================================================================
 //
 //  D-GroundClampViaTerrain (locked): when ship.y is very low, cam.y must be
@@ -702,7 +702,7 @@ TEST_CASE("AC-Cback (BUG-CLASS FENCE): ship {0,5,10} gives cam.z=5 NOT 15 (sign-
 //  A buggy implementation that skips the clamp returns cam.y = -1000.
 //
 //  If this test fails: the ground clamp (std::max) is missing or inverted.
-//  Do NOT change the test — ensure cam.y = max(ship.y, floor_y).
+//  Do NOT change the test - ensure cam.y = max(ship.y, floor_y).
 // ===========================================================================
 TEST_CASE("AC-Cground (BUG-CLASS FENCE): ship {0,-1000,0} gives cam.y=floor+clearance NOT -1000", "[world][camera_follow]") {
     // Given
@@ -733,17 +733,17 @@ TEST_CASE("AC-Cground (BUG-CLASS FENCE): ship {0,-1000,0} gives cam.y=floor+clea
 TEST_CASE("AC-C80: world/camera_follow.hpp compiles without raylib, render/, entities/, input/, <random>, <chrono>", "[world][camera_follow]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means the headers compiled and linked without
+    // Then:  it ran - which means the headers compiled and linked without
     //        forbidden dependencies, satisfying AC-C80.
-    SUCCEED("compilation without raylib/forbidden deps succeeded — AC-C80 satisfied");
+    SUCCEED("compilation without raylib/forbidden deps succeeded - AC-C80 satisfied");
 }
 
-TEST_CASE("AC-C81: claude_lander_world link list unchanged — world library links against core+warnings only", "[world][camera_follow]") {
+TEST_CASE("AC-C81: claude_lander_world link list unchanged - world library links against core+warnings only", "[world][camera_follow]") {
     // Given: this test binary was linked with claude_lander_world which links
     //        against claude_lander_core + claude_lander_warnings only (CMakeLists.txt).
     // When:  it reaches this TEST_CASE
-    // Then:  it ran without link errors — AC-C81 satisfied
-    SUCCEED("world library link list unchanged (core+warnings only) — AC-C81 satisfied");
+    // Then:  it ran without link errors - AC-C81 satisfied
+    SUCCEED("world library link list unchanged (core+warnings only) - AC-C81 satisfied");
 }
 
 TEST_CASE("AC-C82: follow_camera_position is noexcept (verified by static_assert at top of TU)", "[world][camera_follow]") {
@@ -751,12 +751,12 @@ TEST_CASE("AC-C82: follow_camera_position is noexcept (verified by static_assert
     //        the top of this file.
     // When:  this test is reached (compile succeeded means static_assert passed)
     // Then:  AC-C82 is satisfied.
-    SUCCEED("static_assert(noexcept(follow_camera_position(Vec3{}))) passed at compile time — AC-C82 satisfied");
+    SUCCEED("static_assert(noexcept(follow_camera_position(Vec3{}))) passed at compile time - AC-C82 satisfied");
 }
 
 TEST_CASE("AC-Cnose: follow_camera_position return type is Vec3 (verified by static_assert at top of TU)", "[world][camera_follow]") {
     // Given: static_assert(std::is_same_v<decltype(...), Vec3>) at top of file.
     // When:  this test is reached
     // Then:  AC-Cnose is satisfied.
-    SUCCEED("static_assert(is_same_v<decltype(...), Vec3>) passed at compile time — AC-Cnose satisfied");
+    SUCCEED("static_assert(is_same_v<decltype(...), Vec3>) passed at compile time - AC-Cnose satisfied");
 }

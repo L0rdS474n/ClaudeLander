@@ -1,4 +1,4 @@
-// tests/test_prng.cpp — Pass 1 LFSR PRNG tests.
+// tests/test_prng.cpp - Pass 1 LFSR PRNG tests.
 //
 // Covers AC-P01 through AC-P07.
 // AC-P05 is tagged [.golden] and SKIPPED by default (see note below).
@@ -78,12 +78,12 @@ TEST_CASE("AC-P04: next_unit_float always returns value in 0.0..1.0 exclusive", 
 }
 
 // ---------------------------------------------------------------------------
-// AC-P05: golden-sequence test — SKIPPED by default [.golden]
+// AC-P05: golden-sequence test - SKIPPED by default [.golden]
 //
 // This test verifies that next() produces a byte-exact match to the reference
 // ARM2 LFSR sequence from the original Lander binary (bbcelite disassembly).
 //
-// STATUS: PLACEHOLDER — expected values are NOT yet known.
+// STATUS: PLACEHOLDER - expected values are NOT yet known.
 //
 // FIXME(Gate-2-followup): expected values to be captured from reference
 // disassembly or empirically-verified ARM2 emulator.  DO NOT GUESS.
@@ -96,7 +96,7 @@ TEST_CASE("AC-P04: next_unit_float always returns value in 0.0..1.0 exclusive", 
 // Then:  exact hex values match the ARM2 reference sequence
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-P05: PRNG golden sequence matches ARM2 reference", "[core][prng][.golden]") {
-    // PLACEHOLDER VALUES — these are NOT real expected outputs.
+    // PLACEHOLDER VALUES - these are NOT real expected outputs.
     // Replace with verified reference values before enabling this test.
     static constexpr std::uint32_t kExpectedR0_step1 = 0xDEADBEEFu;
     static constexpr std::uint32_t kExpectedR1_step1 = 0xCAFEBABEu;

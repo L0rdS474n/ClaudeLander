@@ -1,4 +1,4 @@
-// tests/test_vec3.cpp — Pass 1 Vec3 math layer tests.
+// tests/test_vec3.cpp - Pass 1 Vec3 math layer tests.
 //
 // Covers AC-V01 through AC-V11.
 // All tests are deterministic: no clocks, no filesystem, no random_device.
@@ -12,7 +12,7 @@
 #include "core/vec3.hpp"
 
 // ---------------------------------------------------------------------------
-// Local epsilon — tighter than the default_state Approx epsilon.
+// Local epsilon - tighter than the default_state Approx epsilon.
 // ---------------------------------------------------------------------------
 static constexpr float kEps = 1e-5f;
 
@@ -123,7 +123,7 @@ TEST_CASE("AC-V08: add then subtract is identity", "[core][vec3]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-V09: scalar multiplication — both orderings agree
+// AC-V09: scalar multiplication - both orderings agree
 // Given: v = {1,2,3}, s = 3.0f
 // When:  v*s and s*v
 // Then:  both produce {3,6,9}
@@ -152,7 +152,7 @@ TEST_CASE("AC-V10: cross product of parallel vectors is zero", "[core][vec3]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-V11: scalar triple product — cross(a,b) is orthogonal to both a and b
+// AC-V11: scalar triple product - cross(a,b) is orthogonal to both a and b
 // Given: a = {1,0,0}, b = {0,1,0}
 // When:  c = cross(a,b) = {0,0,1}
 // Then:  dot(a,c) == 0  and  dot(b,c) == 0

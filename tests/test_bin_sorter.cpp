@@ -1,4 +1,4 @@
-// tests/test_bin_sorter.cpp — Pass 8 render/bin_sorter tests.
+// tests/test_bin_sorter.cpp - Pass 8 render/bin_sorter tests.
 //
 // Covers AC-B01..B05, AC-B06..B10, AC-B11..B14, AC-B15..B17, AC-B18..B20,
 // AC-Bfar, AC-Bnear, AC-Boor, AC-B80..B82 (24 ACs total, numbered per
@@ -13,9 +13,9 @@
 //
 // === Bug-class fences ===
 // Three developer-mistake patterns are caught with prominent banner comments:
-//   (a) AC-Bfar  — painter order must start at bin 0 (far), NOT bin 10.
-//   (b) AC-Bnear — painter order must end at bin 10 (near), NOT bin 0.
-//   (c) AC-Boor  — out-of-range inserts must be REJECTED, not clamped.
+//   (a) AC-Bfar  - painter order must start at bin 0 (far), NOT bin 10.
+//   (b) AC-Bnear - painter order must end at bin 10 (near), NOT bin 0.
+//   (c) AC-Boor  - out-of-range inserts must be REJECTED, not clamped.
 //
 // === Hygiene (AC-B80) ===
 // RAYLIB_VERSION is defined by raylib.h.  If it appears here, the include
@@ -55,7 +55,7 @@ static_assert(false,
 #endif
 
 // ---------------------------------------------------------------------------
-// AC-B82 — BinSorter<int>::clear() and bin_for_z must be noexcept.
+// AC-B82 - BinSorter<int>::clear() and bin_for_z must be noexcept.
 // Verified at compile time here in the same TU as the #include.
 // ---------------------------------------------------------------------------
 static_assert(
@@ -67,11 +67,11 @@ static_assert(
     "AC-B82: render::bin_for_z must be declared noexcept");
 
 // ===========================================================================
-// GROUP 1: Bin assignment — bin_for_z (AC-B01..B05)
+// GROUP 1: Bin assignment - bin_for_z (AC-B01..B05)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B01 — bin_for_z(10.0f, 10.0f) == 0 (z exactly at landscape_z).
+// AC-B01 - bin_for_z(10.0f, 10.0f) == 0 (z exactly at landscape_z).
 //   Given: landscape_z = 10.0f, z = 10.0f
 //   When:  bin_for_z is called
 //   Then:  result == 0 (bin = 10 - 10 = 0)
@@ -86,7 +86,7 @@ TEST_CASE("AC-B01: bin_for_z(10, 10) == 0 (z at landscape_z gives bin 0)", "[ren
 }
 
 // ---------------------------------------------------------------------------
-// AC-B02 — bin_for_z(10.0f, 0.0f) == 10 (z = 0, furthest practical).
+// AC-B02 - bin_for_z(10.0f, 0.0f) == 10 (z = 0, furthest practical).
 //   Given: landscape_z = 10.0f, z = 0.0f
 //   When:  bin_for_z is called
 //   Then:  result == 10 (bin = 10 - 0 = 10)
@@ -101,7 +101,7 @@ TEST_CASE("AC-B02: bin_for_z(10, 0) == 10 (z=0 gives furthest valid bin)", "[ren
 }
 
 // ---------------------------------------------------------------------------
-// AC-B03 — bin_for_z(10.0f, 11.0f) == nullopt (negative bin).
+// AC-B03 - bin_for_z(10.0f, 11.0f) == nullopt (negative bin).
 //   Given: landscape_z = 10.0f, z = 11.0f
 //   When:  bin_for_z is called
 //   Then:  result == nullopt (bin = 10 - 11 = -1, out of [0, kBinCount))
@@ -115,7 +115,7 @@ TEST_CASE("AC-B03: bin_for_z(10, 11) == nullopt (negative bin rejected)", "[rend
 }
 
 // ---------------------------------------------------------------------------
-// AC-B04 — bin_for_z(10.0f, -1.0f) == nullopt (bin 11 >= kBinCount).
+// AC-B04 - bin_for_z(10.0f, -1.0f) == nullopt (bin 11 >= kBinCount).
 //   Given: landscape_z = 10.0f, z = -1.0f
 //   When:  bin_for_z is called
 //   Then:  result == nullopt (bin = 10 - (-1) = 11 >= kBinCount = 11)
@@ -129,24 +129,24 @@ TEST_CASE("AC-B04: bin_for_z(10, -1) == nullopt (bin 11 >= kBinCount rejected)",
 }
 
 // ---------------------------------------------------------------------------
-// AC-B05 — bin_for_z is deterministic: bit-identical across two calls.
+// AC-B05 - bin_for_z is deterministic: bit-identical across two calls.
 //   Given: landscape_z = 7.0f, z = 3.0f
 //   When:  bin_for_z is called twice with identical arguments
 //   Then:  both results are bit-identical (same value, same has_value())
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-B05: bin_for_z is deterministic — bit-identical on repeated calls", "[render][bin_sorter]") {
+TEST_CASE("AC-B05: bin_for_z is deterministic - bit-identical on repeated calls", "[render][bin_sorter]") {
     // Given / When
     const auto a = render::bin_for_z(7.0f, 3.0f);
     const auto b = render::bin_for_z(7.0f, 3.0f);
 
-    // Then — exact equality (not Approx; these are size_t values)
+    // Then - exact equality (not Approx; these are size_t values)
     REQUIRE(a.has_value() == b.has_value());
     REQUIRE(a.has_value());
     REQUIRE(*a == *b);
 }
 
 // ---------------------------------------------------------------------------
-// AC-Bnan — bin_for_z rejects NaN inputs without invoking UB.
+// AC-Bnan - bin_for_z rejects NaN inputs without invoking UB.
 //
 //   Bug class: an earlier draft used `delta < 0 || delta >= kBinCount`,
 //   both of which evaluate to `false` when delta is NaN (per IEEE 754,
@@ -175,7 +175,7 @@ TEST_CASE("AC-Bnan: bin_for_z(NaN, _) and bin_for_z(_, NaN) return std::nullopt"
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B06 — Default-constructed BinSorter<int> is fully empty.
+// AC-B06 - Default-constructed BinSorter<int> is fully empty.
 //   Given: freshly default-constructed BinSorter<int>
 //   When:  total_size() and bin(i).empty() are queried for all i
 //   Then:  total_size() == 0 and every bin is empty
@@ -194,7 +194,7 @@ TEST_CASE("AC-B06: default-constructed BinSorter has total_size==0 and all bins 
 }
 
 // ---------------------------------------------------------------------------
-// AC-B07 — add(0, 42) places 42 into bin 0.
+// AC-B07 - add(0, 42) places 42 into bin 0.
 //   Given: fresh BinSorter<int>
 //   When:  add(0, 42) is called
 //   Then:  bin(0).size() == 1 and bin(0)[0] == 42
@@ -213,7 +213,7 @@ TEST_CASE("AC-B07: add(0, 42) gives bin(0).size()==1 and bin(0)[0]==42", "[rende
 }
 
 // ---------------------------------------------------------------------------
-// AC-B08 — add to out-of-range bin returns false; sizes unchanged.
+// AC-B08 - add to out-of-range bin returns false; sizes unchanged.
 //   Given: fresh BinSorter<int>
 //   When:  add(kBinCount, 99) is called (one past the last valid bin)
 //   Then:  returns false and total_size() remains 0
@@ -236,7 +236,7 @@ TEST_CASE("AC-B08: add to out-of-range bin index returns false and leaves sizes 
 }
 
 // ---------------------------------------------------------------------------
-// AC-B09 — add_by_z(10.0f, 10.0f, 99) inserts into bin 0.
+// AC-B09 - add_by_z(10.0f, 10.0f, 99) inserts into bin 0.
 //   Given: fresh BinSorter<int>
 //   When:  add_by_z(10.0f, 10.0f, 99) is called
 //   Then:  bin(0)[0] == 99 (bin = 10 - 10 = 0)
@@ -255,7 +255,7 @@ TEST_CASE("AC-B09: add_by_z(10, 10, 99) gives bin(0)[0]==99", "[render][bin_sort
 }
 
 // ---------------------------------------------------------------------------
-// AC-B10 — add_by_z with z far out-of-range returns false; sizes unchanged.
+// AC-B10 - add_by_z with z far out-of-range returns false; sizes unchanged.
 //   Given: fresh BinSorter<int>
 //   When:  add_by_z(10.0f, 100.0f, 0) is called (bin = 10-100 = -90, negative)
 //   Then:  returns false and total_size() == 0
@@ -277,7 +277,7 @@ TEST_CASE("AC-B10: add_by_z(10, 100, 0) returns false (out of range); sizes unch
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B11 — Adding 1, 2, 3 to bin 0 yields bin(0) == {1, 2, 3} exactly.
+// AC-B11 - Adding 1, 2, 3 to bin 0 yields bin(0) == {1, 2, 3} exactly.
 //   Given: fresh BinSorter<int>
 //   When:  add(0, 1), add(0, 2), add(0, 3) are called in order
 //   Then:  bin(0) == {1, 2, 3} (push order preserved, no sort)
@@ -300,7 +300,7 @@ TEST_CASE("AC-B11: adding 1,2,3 to bin 0 yields bin(0)=={1,2,3} in insertion ord
 }
 
 // ---------------------------------------------------------------------------
-// AC-B12 — Adding to multiple bins preserves per-bin order independently.
+// AC-B12 - Adding to multiple bins preserves per-bin order independently.
 //   Given: fresh BinSorter<int>
 //   When:  elements are added to bins 0, 5, and 10 in interleaved order
 //   Then:  each bin holds its elements in the order they were added to that bin
@@ -309,7 +309,7 @@ TEST_CASE("AC-B12: adding to multiple bins preserves per-bin insertion order ind
     // Given
     render::BinSorter<int> sorter;
 
-    // When — interleaved adds across bins
+    // When - interleaved adds across bins
     sorter.add(0u,  10);
     sorter.add(5u,  50);
     sorter.add(10u, 100);
@@ -318,7 +318,7 @@ TEST_CASE("AC-B12: adding to multiple bins preserves per-bin insertion order ind
     sorter.add(10u, 101);
     sorter.add(0u,  12);
 
-    // Then — each bin is in its own insertion order
+    // Then - each bin is in its own insertion order
     {
         const auto s = sorter.bin(0u);
         REQUIRE(s.size() == 3u);
@@ -341,7 +341,7 @@ TEST_CASE("AC-B12: adding to multiple bins preserves per-bin insertion order ind
 }
 
 // ---------------------------------------------------------------------------
-// AC-B13 — for_each_back_to_front walks bin 0 first, bin 10 last.
+// AC-B13 - for_each_back_to_front walks bin 0 first, bin 10 last.
 //   Given: BinSorter with one item in bin 0 and one item in bin 10
 //   When:  for_each_back_to_front is called and visit order recorded
 //   Then:  the bin-0 item is visited BEFORE the bin-10 item
@@ -364,7 +364,7 @@ TEST_CASE("AC-B13: for_each_back_to_front visits bin 0 first (far) and bin 10 la
 }
 
 // ---------------------------------------------------------------------------
-// AC-B14 — Within for_each_back_to_front, items in bin i appear in insertion order.
+// AC-B14 - Within for_each_back_to_front, items in bin i appear in insertion order.
 //   Given: BinSorter with items 7, 8, 9 added to bin 3 in that order
 //   When:  for_each_back_to_front is called
 //   Then:  7 appears before 8, 8 before 9 in the visited sequence
@@ -392,7 +392,7 @@ TEST_CASE("AC-B14: within for_each_back_to_front items in a bin appear in insert
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B15 — After clear(), all bins empty; total_size() == 0.
+// AC-B15 - After clear(), all bins empty; total_size() == 0.
 //   Given: BinSorter with items in several bins
 //   When:  clear() is called
 //   Then:  total_size() == 0 and all bins are empty
@@ -418,7 +418,7 @@ TEST_CASE("AC-B15: clear() empties all bins and resets total_size to 0", "[rende
 }
 
 // ---------------------------------------------------------------------------
-// AC-B16 — Reuse after clear() works exactly like a fresh-constructed instance.
+// AC-B16 - Reuse after clear() works exactly like a fresh-constructed instance.
 //   Given: BinSorter used once and cleared
 //   When:  same items are added again after clear()
 //   Then:  results are identical to adding to a fresh BinSorter
@@ -431,12 +431,12 @@ TEST_CASE("AC-B16: reuse after clear() gives identical results to fresh construc
     sorter.add(7u, 30);
     sorter.clear();
 
-    // When — add same sequence as if fresh
+    // When - add same sequence as if fresh
     sorter.add(0u, 10);
     sorter.add(0u, 20);
     sorter.add(7u, 30);
 
-    // Then — matches a freshly-constructed sorter with the same sequence
+    // Then - matches a freshly-constructed sorter with the same sequence
     render::BinSorter<int> fresh;
     fresh.add(0u, 10);
     fresh.add(0u, 20);
@@ -457,13 +457,13 @@ TEST_CASE("AC-B16: reuse after clear() gives identical results to fresh construc
 }
 
 // ---------------------------------------------------------------------------
-// AC-B17 — clear() does not reduce capacity (perf invariant; non-binding).
+// AC-B17 - clear() does not reduce capacity (perf invariant; non-binding).
 //   Given: BinSorter with many items inserted, then cleared
 //   When:  clear() is called
 //   Then:  the same number of items can be added again without observable error
 //          (capacity was not shrunk; test is behavioural: no crash/false-return)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-B17: clear() does not reduce capacity — reinsert succeeds without error", "[render][bin_sorter]") {
+TEST_CASE("AC-B17: clear() does not reduce capacity - reinsert succeeds without error", "[render][bin_sorter]") {
     // Given: fill all bins with multiple items
     render::BinSorter<int> sorter;
     for (std::size_t i = 0; i < render::kBinCount; ++i) {
@@ -492,13 +492,13 @@ TEST_CASE("AC-B17: clear() does not reduce capacity — reinsert succeeds withou
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B18 — Same insertion sequence → identical iteration sequence (1000 items).
+// AC-B18 - Same insertion sequence → identical iteration sequence (1000 items).
 //   Given: a deterministic sequence of 1000 (bin_index, value) pairs
 //   When:  the sequence is inserted and iterated twice (two independent sorters)
 //   Then:  both visited sequences are bit-identical
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-B18: same 1000-item insertion sequence gives bit-identical iteration across two runs", "[render][bin_sorter]") {
-    // Given: deterministic sequence — no PRNG, no clock
+    // Given: deterministic sequence - no PRNG, no clock
     auto build_sorter = [&]() -> render::BinSorter<int> {
         render::BinSorter<int> s;
         for (int i = 0; i < 1000; ++i) {
@@ -521,7 +521,7 @@ TEST_CASE("AC-B18: same 1000-item insertion sequence gives bit-identical iterati
     const auto seq_a = collect(sa);
     const auto seq_b = collect(sb);
 
-    // Then — exact (bit-identical) equality
+    // Then - exact (bit-identical) equality
     REQUIRE(seq_a.size() == seq_b.size());
     for (std::size_t i = 0; i < seq_a.size(); ++i) {
         CAPTURE(i, seq_a[i], seq_b[i]);
@@ -530,7 +530,7 @@ TEST_CASE("AC-B18: same 1000-item insertion sequence gives bit-identical iterati
 }
 
 // ---------------------------------------------------------------------------
-// AC-B19 — total_size() matches sum of size(i) for all i.
+// AC-B19 - total_size() matches sum of size(i) for all i.
 //   Given: BinSorter with varying item counts per bin
 //   When:  total_size() is compared to the manual sum of size(i)
 //   Then:  they are equal
@@ -557,7 +557,7 @@ TEST_CASE("AC-B19: total_size() == sum of size(i) for all bins", "[render][bin_s
 }
 
 // ---------------------------------------------------------------------------
-// AC-B20 — Iteration order is stable across two clear-and-refill cycles.
+// AC-B20 - Iteration order is stable across two clear-and-refill cycles.
 //   Given: a fixed insertion sequence
 //   When:  the sorter is filled, iterated (cycle 1), cleared, refilled with
 //          the same sequence, and iterated again (cycle 2)
@@ -582,11 +582,11 @@ TEST_CASE("AC-B20: iteration order is stable across two clear-and-refill cycles"
         return out;
     };
 
-    // When — cycle 1
+    // When - cycle 1
     fill();
     const auto cycle1 = collect();
 
-    // When — cycle 2: clear and refill with identical sequence
+    // When - cycle 2: clear and refill with identical sequence
     sorter.clear();
     fill();
     const auto cycle2 = collect();
@@ -629,7 +629,7 @@ TEST_CASE("AC-Bfar (BUG-CLASS FENCE): for_each_back_to_front visits bin 0 (far) 
 
     // Then
     REQUIRE(visited.size() == 2u);
-    REQUIRE(visited[0] == 111);   // FAR item visited first — NOT 222
+    REQUIRE(visited[0] == 111);   // FAR item visited first - NOT 222
     REQUIRE(visited[1] == 222);   // NEAR item visited last
 
     // Explicit guard: catches the reversed-order bug
@@ -702,17 +702,17 @@ TEST_CASE("AC-Boor (BUG-CLASS FENCE): out-of-range add is REJECTED not clamped t
     sorter.add(10u, 200);    // sentinel in bin 10
     REQUIRE(sorter.total_size() == 2u);
 
-    // When — attempt to add to out-of-range indices
+    // When - attempt to add to out-of-range indices
     const bool r1 = sorter.add(render::kBinCount,      999);   // == 11, one past end
     const bool r2 = sorter.add(render::kBinCount + 5u, 888);   // clearly OOR
     const bool r3 = sorter.add(std::size_t{9999},      777);   // absurdly OOR
 
-    // Then — all rejected
+    // Then - all rejected
     REQUIRE_FALSE(r1);
     REQUIRE_FALSE(r2);
     REQUIRE_FALSE(r3);
 
-    // And sizes are UNCHANGED — no silent clamping to bin 0 or bin 10
+    // And sizes are UNCHANGED - no silent clamping to bin 0 or bin 10
     REQUIRE(sorter.total_size() == 2u);
     REQUIRE(sorter.size(0u)  == 1u);
     REQUIRE(sorter.size(10u) == 1u);
@@ -733,20 +733,20 @@ TEST_CASE("AC-B80: render/bin_sorter.hpp compiles without raylib, world/, entiti
     // Given: this file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
     // Then:  the headers compiled without forbidden dependencies
-    SUCCEED("compilation without raylib/forbidden deps succeeded — AC-B80 satisfied");
+    SUCCEED("compilation without raylib/forbidden deps succeeded - AC-B80 satisfied");
 }
 
-TEST_CASE("AC-B81: claude_lander_render link list unchanged — render library links against core+warnings only", "[render][bin_sorter]") {
+TEST_CASE("AC-B81: claude_lander_render link list unchanged - render library links against core+warnings only", "[render][bin_sorter]") {
     // Given: this test binary linked with claude_lander_render which links
     //        against claude_lander_core + claude_lander_warnings only.
     // When:  this test is reached
-    // Then:  no link errors — AC-B81 satisfied
-    SUCCEED("render library link list unchanged (core+warnings only) — AC-B81 satisfied");
+    // Then:  no link errors - AC-B81 satisfied
+    SUCCEED("render library link list unchanged (core+warnings only) - AC-B81 satisfied");
 }
 
 TEST_CASE("AC-B82: BinSorter::clear() and bin_for_z are noexcept (verified by static_assert at top of TU)", "[render][bin_sorter]") {
     // Given: static_assert(noexcept(...)) at the top of this file
     // When:  this test is reached (compile succeeded means static_assert passed)
     // Then:  AC-B82 is satisfied
-    SUCCEED("static_assert(noexcept) passed at compile time — AC-B82 satisfied");
+    SUCCEED("static_assert(noexcept) passed at compile time - AC-B82 satisfied");
 }

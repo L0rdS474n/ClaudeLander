@@ -1,4 +1,4 @@
-// tests/test_mouse_polar.cpp — Pass 5 input/mouse_polar tests.
+// tests/test_mouse_polar.cpp - Pass 5 input/mouse_polar tests.
 //
 // Covers AC-I01..I23 and AC-I80..I82 (24 ACs total).
 // All tests tagged [input][mouse_polar].
@@ -237,7 +237,7 @@ TEST_CASE("AC-I05: to_polar round-trip: radius*cos(angle) and radius*sin(angle) 
 // ===========================================================================
 
 // ===========================================================================
-//  DAMP RATIO BUG FENCE (AC-Idamp) — bug-class fence
+//  DAMP RATIO BUG FENCE (AC-Idamp) - bug-class fence
 // ===========================================================================
 //
 //  D-DampRatio locks: damp(prev, input) = 0.5f * prev + 0.5f * input.
@@ -252,7 +252,7 @@ TEST_CASE("AC-I05: to_polar round-trip: radius*cos(angle) and radius*sin(angle) 
 //  Common mistake: `prev - (prev - input) / 2` is mathematically identical
 //  and must also produce 0.5f when prev=0, input=1.
 // ===========================================================================
-TEST_CASE("AC-I06 (AC-Idamp): damp(0, 1) == 0.5f exactly — 50/50 blend ratio", "[input][mouse_polar]") {
+TEST_CASE("AC-I06 (AC-Idamp): damp(0, 1) == 0.5f exactly - 50/50 blend ratio", "[input][mouse_polar]") {
     // Given: prev = 0.0f, input = 1.0f
     // When:  damp is called
     // Then:  result == 0.5f exactly (50/50 blend)
@@ -261,7 +261,7 @@ TEST_CASE("AC-I06 (AC-Idamp): damp(0, 1) == 0.5f exactly — 50/50 blend ratio",
 }
 
 // ---------------------------------------------------------------------------
-// AC-I07: Identity at fixpoint — damp(x, x) == x for several x values.
+// AC-I07: Identity at fixpoint - damp(x, x) == x for several x values.
 //   If prev and input are already equal, the blend must return the same value.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I07: damp(x, x) == x for several representative x values", "[input][mouse_polar]") {
@@ -277,7 +277,7 @@ TEST_CASE("AC-I07: damp(x, x) == x for several representative x values", "[input
 }
 
 // ---------------------------------------------------------------------------
-// AC-I08: Decay to input — 30 iterations from prev=0 towards input=1.0f
+// AC-I08: Decay to input - 30 iterations from prev=0 towards input=1.0f
 //   After 30 frames with constant target 1.0f, |prev - 1.0f| < 1e-6f.
 //   With ratio 0.5, after n frames: |error| = (0.5)^n.  (0.5)^30 ≈ 9.3e-10.
 // ---------------------------------------------------------------------------
@@ -294,7 +294,7 @@ TEST_CASE("AC-I08: 30 damp iterations from 0 towards 1.0f converge within 1e-6f"
 }
 
 // ---------------------------------------------------------------------------
-// AC-I09: NaN propagation — both argument positions must propagate NaN.
+// AC-I09: NaN propagation - both argument positions must propagate NaN.
 //   damp(NaN, 0) is NaN; damp(0, NaN) is NaN.
 //   This matches D-Stateless / KOQ-6: NaN is not masked; it propagates.
 // ---------------------------------------------------------------------------
@@ -332,7 +332,7 @@ TEST_CASE("AC-I10: orientation_from_pitch_yaw(0, 0) equals identity within kMatE
 }
 
 // ---------------------------------------------------------------------------
-// AC-I11: Determinant invariant — det(M) == 1 for four representative inputs.
+// AC-I11: Determinant invariant - det(M) == 1 for four representative inputs.
 //   (0,0), (π/4, π/4), (π/3, -π/6), (-π/4, π/2).
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I11: det(orientation_from_pitch_yaw) == 1 for representative angle pairs", "[input][mouse_polar]") {
@@ -353,7 +353,7 @@ TEST_CASE("AC-I11: det(orientation_from_pitch_yaw) == 1 for representative angle
 }
 
 // ===========================================================================
-//  ROOF-IS-Y-UP FENCE (AC-Iy-up) — bug-class fence
+//  ROOF-IS-Y-UP FENCE (AC-Iy-up) - bug-class fence
 // ===========================================================================
 //
 //  D-RoofAtCol1 locks: at zero angles, col[1] (the roof axis) MUST be
@@ -402,7 +402,7 @@ TEST_CASE("AC-I13: orientation_from_pitch_yaw(pi/2, 0).col[0] == {0,1,0} (nose t
 }
 
 // ===========================================================================
-//  YAW-MUST-NOT-ROLL FENCE (AC-Iyaw-roll) — bug-class fence
+//  YAW-MUST-NOT-ROLL FENCE (AC-Iyaw-roll) - bug-class fence
 // ===========================================================================
 //
 //  D-MatrixLayout: pure yaw rotation changes col[0] and col[2] (nose and
@@ -444,7 +444,7 @@ TEST_CASE("AC-I14 (AC-Iyaw-roll): orientation_from_pitch_yaw(0, pi/2) has correc
     REQUIRE(m.col[0].y == Catch::Approx(0.0f).margin(kMatEps));
     REQUIRE(m.col[0].z == Catch::Approx(-1.0f).margin(kMatEps));
 
-    // col[1] = roof = {0, 1, 0} — must NOT roll
+    // col[1] = roof = {0, 1, 0} - must NOT roll
     REQUIRE(m.col[1].x == Catch::Approx(0.0f).margin(kMatEps));
     REQUIRE(m.col[1].y == Catch::Approx(1.0f).margin(kMatEps));
     REQUIRE(m.col[1].z == Catch::Approx(0.0f).margin(kMatEps));
@@ -567,10 +567,10 @@ TEST_CASE("AC-I19: build_orientation(angles) is element-wise identical to orient
 }
 
 // ---------------------------------------------------------------------------
-// AC-I20: 1000 deterministic iterations — bit-identical between two fresh runs.
+// AC-I20: 1000 deterministic iterations - bit-identical between two fresh runs.
 //   Confirms no PRNG, clock, or global mutable state inside the pipeline.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-I20: 1000 update_angles iterations are deterministic — bit-identical to a fresh independent run", "[input][mouse_polar]") {
+TEST_CASE("AC-I20: 1000 update_angles iterations are deterministic - bit-identical to a fresh independent run", "[input][mouse_polar]") {
     // Given: two identical initial ShipAngles; same fixed mouse_offset sequence
     // When:  each is advanced 1000 steps independently
     // Then:  final angles are bit-identical between the two runs
@@ -672,17 +672,17 @@ TEST_CASE("AC-I23: 50 frames with constant offset {1,0}: build_orientation gives
 TEST_CASE("AC-I80: input/mouse_polar header and library compile and link without raylib (BUILD_GAME=OFF)", "[input][mouse_polar]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means mouse_polar.hpp compiled and linked without
+    // Then:  it ran - which means mouse_polar.hpp compiled and linked without
     //        raylib, satisfying AC-I80.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-I80 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-I80 satisfied");
 }
 
-TEST_CASE("AC-I81: input library compiles and links against core only — no forbidden deps at runtime", "[input][mouse_polar]") {
+TEST_CASE("AC-I81: input library compiles and links against core only - no forbidden deps at runtime", "[input][mouse_polar]") {
     // Given: this test binary was linked with claude_lander_input depending on
     //        core + warnings only (verified by CMakeLists.txt)
     // When:  it reaches this TEST_CASE
     // Then:  it ran without link errors, so AC-I81 is satisfied
-    SUCCEED("link against core+warnings only — AC-I81 satisfied");
+    SUCCEED("link against core+warnings only - AC-I81 satisfied");
 }
 
 TEST_CASE("AC-I82: all 5 public input functions are noexcept (verified by static_assert at top of TU)", "[input][mouse_polar]") {
@@ -690,5 +690,5 @@ TEST_CASE("AC-I82: all 5 public input functions are noexcept (verified by static
     //        to_polar, damp, orientation_from_pitch_yaw, update_angles, build_orientation
     // When:  this test is reached (compile succeeded means all static_asserts passed)
     // Then:  AC-I82 is satisfied
-    SUCCEED("all static_assert(noexcept(...)) checks passed at compile time — AC-I82 satisfied");
+    SUCCEED("all static_assert(noexcept(...)) checks passed at compile time - AC-I82 satisfied");
 }

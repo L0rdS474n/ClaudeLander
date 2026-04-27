@@ -1,4 +1,4 @@
-// tests/test_faces.cpp — Pass 6 render/faces tests.
+// tests/test_faces.cpp - Pass 6 render/faces tests.
 //
 // Covers AC-F01..F23 and AC-F80..F82 (24 ACs total).
 // All tests tagged [render][faces].
@@ -18,7 +18,7 @@
 //   Face centroid = (v[v0] + v[v1] + v[v2]) / 3
 //
 // === Winding (D-OutwardNormals) ===
-//   normal = normalize(cross(v1 - v0, v2 - v0))  — outward CCW from outside
+//   normal = normalize(cross(v1 - v0, v2 - v0))  - outward CCW from outside
 //
 // === Bug-class fences ===
 // Three developer-mistake patterns are caught by dedicated tests with banner comments:
@@ -71,7 +71,7 @@ static_assert(false,
 // Checked at compile time here in the same TU as the #include.
 // ---------------------------------------------------------------------------
 namespace {
-    // Build a minimal span for the noexcept probe — we only need the
+    // Build a minimal span for the noexcept probe - we only need the
     // call expression to be syntactically valid; it will never execute.
     inline const Vec3 kProbeVerts[3] = {{0,0,0},{1,0,0},{0,1,0}};
     inline const core::ShipFace kProbeFace{0, 1, 2, 0x000};
@@ -126,7 +126,7 @@ static Vec3 compute_normal(Vec3 v0, Vec3 v1, Vec3 v2) noexcept {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-F01 — Identity orient + zero translation = pass-through, exact.
+// AC-F01 - Identity orient + zero translation = pass-through, exact.
 //   Given: 9 body-frame vertices, orientation=identity, translation={0,0,0}
 //   When:  rotate_vertices is called
 //   Then:  each output vertex equals the corresponding input vertex exactly
@@ -153,7 +153,7 @@ TEST_CASE("AC-F01: rotate_vertices with identity and zero translation is exact p
 }
 
 // ---------------------------------------------------------------------------
-// AC-F02 — Identity orient + translation {3,-2,7} = body+t element-wise within kFaceEps.
+// AC-F02 - Identity orient + translation {3,-2,7} = body+t element-wise within kFaceEps.
 //   Given: 9 body-frame vertices, orientation=identity, translation={3,-2,7}
 //   When:  rotate_vertices is called
 //   Then:  world[i] == body[i] + {3,-2,7} within kFaceEps for all i
@@ -181,7 +181,7 @@ TEST_CASE("AC-F02: rotate_vertices with identity and non-zero translation adds t
 }
 
 // ---------------------------------------------------------------------------
-// AC-F03 — Pure 90° yaw on kShipVertices: lengths preserved within kFaceEps.
+// AC-F03 - Pure 90° yaw on kShipVertices: lengths preserved within kFaceEps.
 //   Given: 9 body-frame vertices, orientation=90-degree yaw around Y, translation={0,0,0}
 //   When:  rotate_vertices is called
 //   Then:  magnitude of each output vertex equals magnitude of corresponding input
@@ -209,7 +209,7 @@ TEST_CASE("AC-F03: rotate_vertices with 90-degree yaw preserves vertex distances
         Vec3{0.0f, 0.0f, 0.0f},
         std::span<Vec3>(world.data(), world.size()));
 
-    // Then — lengths preserved
+    // Then - lengths preserved
     for (std::size_t i = 0; i < entities::kShipVertexCount; ++i) {
         const float body_len  = vec_magnitude(body[i]);
         const float world_len = vec_magnitude(world[i]);
@@ -219,12 +219,12 @@ TEST_CASE("AC-F03: rotate_vertices with 90-degree yaw preserves vertex distances
 }
 
 // ---------------------------------------------------------------------------
-// AC-F04 — Determinism: bit-identical between two fresh runs.
+// AC-F04 - Determinism: bit-identical between two fresh runs.
 //   Given: two independent calls with the same input (90-degree yaw on kShipVertices)
 //   When:  rotate_vertices is called twice in sequence
 //   Then:  both output arrays are bit-identical (exact equality, NOT Approx)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-F04: rotate_vertices is deterministic — bit-identical across two fresh calls", "[render][faces]") {
+TEST_CASE("AC-F04: rotate_vertices is deterministic - bit-identical across two fresh calls", "[render][faces]") {
     // Given
     const auto& body = entities::kShipVertices;
     const Mat3 yaw90{
@@ -247,7 +247,7 @@ TEST_CASE("AC-F04: rotate_vertices is deterministic — bit-identical across two
         yaw90, translation,
         std::span<Vec3>(world_b.data(), world_b.size()));
 
-    // Then — bit-identical
+    // Then - bit-identical
     for (std::size_t i = 0; i < entities::kShipVertexCount; ++i) {
         CAPTURE(i, world_a[i].x, world_b[i].x);
         REQUIRE(world_a[i].x == world_b[i].x);
@@ -257,7 +257,7 @@ TEST_CASE("AC-F04: rotate_vertices is deterministic — bit-identical across two
 }
 
 // ---------------------------------------------------------------------------
-// AC-F05 — Span contract: body.size() == world_out.size() == 9 honoured.
+// AC-F05 - Span contract: body.size() == world_out.size() == 9 honoured.
 //   Given: the kShipVertices span (size 9) and an output span of the same size
 //   When:  rotate_vertices is called
 //   Then:  all 9 output slots are populated (no crash, no partial write)
@@ -276,7 +276,7 @@ TEST_CASE("AC-F05: rotate_vertices with size-9 spans populates all 9 output vert
         Vec3{0.0f, 0.0f, 0.0f},
         std::span<Vec3>(world.data(), world.size()));
 
-    // Then — all slots populated and finite
+    // Then - all slots populated and finite
     for (std::size_t i = 0; i < 9; ++i) {
         CAPTURE(i, world[i].x, world[i].y, world[i].z);
         REQUIRE(std::isfinite(world[i].x));
@@ -290,7 +290,7 @@ TEST_CASE("AC-F05: rotate_vertices with size-9 spans populates all 9 output vert
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-F06 — Front-face visible: outward-pointing normal toward camera returns populated optional.
+// AC-F06 - Front-face visible: outward-pointing normal toward camera returns populated optional.
 //   Given: a triangle in the XY plane at z=0 with normal pointing toward +z,
 //          camera at {0,0,-5} (looking at the face from -z direction)
 //   When:  shade_face is called
@@ -303,13 +303,13 @@ TEST_CASE("AC-F06: shade_face on front-facing triangle toward camera returns pop
     // cross((v1-v0),(v2-v0)) = cross({2,0,0},{1,1,0}) = {0*0-0*1, 0*1-2*0, 2*1-0*1} = {0,0,2}
     // normalize → {0,0,1}
     // centroid = {0, 1/3, 0}
-    // dot({0,0,1}, {0,1/3,0} - {0,0,-5}) = dot({0,0,1},{0,1/3,5}) = 5 > 0 — CULLED
+    // dot({0,0,1}, {0,1/3,0} - {0,0,-5}) = dot({0,0,1},{0,1/3,5}) = 5 > 0 - CULLED
     //
     // Flip winding: v0={-1,0,0}, v1={0,1,0}, v2={1,0,0}
     // cross({1,1,0},{2,0,0}) = {1*0-0*0, 0*2-1*0, 1*0-1*2} = {0,0,-2}
     // normalize → {0,0,-1}
     // centroid = {0, 1/3, 0}
-    // dot({0,0,-1}, {0,1/3,5}) = -5 < 0 — VISIBLE
+    // dot({0,0,-1}, {0,1/3,5}) = -5 < 0 - VISIBLE
     const std::array<Vec3, 3> verts{{
         {-1.0f, 0.0f, 0.0f},
         { 0.0f, 1.0f, 0.0f},
@@ -328,7 +328,7 @@ TEST_CASE("AC-F06: shade_face on front-facing triangle toward camera returns pop
 }
 
 // ---------------------------------------------------------------------------
-// AC-F07 — Back-face culled: returns std::nullopt.
+// AC-F07 - Back-face culled: returns std::nullopt.
 //   Given: same triangle geometry but winding producing normal {0,0,1} (away from camera)
 //   When:  shade_face is called with camera at {0,0,-5}
 //   Then:  returns std::nullopt
@@ -338,7 +338,7 @@ TEST_CASE("AC-F07: shade_face on back-facing triangle away from camera returns n
     // v0={-1,0,0}, v1={1,0,0}, v2={0,1,0}
     // cross({2,0,0},{1,1,0}) = {0,0,2} → normal {0,0,1}
     // centroid = {0, 1/3, 0}
-    // dot({0,0,1}, {0,1/3,5}) = 5 >= 0 — CULLED
+    // dot({0,0,1}, {0,1/3,5}) = 5 >= 0 - CULLED
     const std::array<Vec3, 3> verts{{
         {-1.0f, 0.0f, 0.0f},
         { 1.0f, 0.0f, 0.0f},
@@ -357,7 +357,7 @@ TEST_CASE("AC-F07: shade_face on back-facing triangle away from camera returns n
 }
 
 // ---------------------------------------------------------------------------
-// AC-F08 — Edge-on (dot == 0): culled (>= test).
+// AC-F08 - Edge-on (dot == 0): culled (>= test).
 //   Given: camera placed exactly in the plane of the triangle normal
 //          so dot(normal, centroid - camera) == 0
 //   When:  shade_face is called
@@ -372,7 +372,7 @@ TEST_CASE("AC-F08: shade_face with edge-on triangle (dot==0) returns nullopt (cu
     // Vertices: v0={-1,-1,0}, v1={1,-1,0}, v2={0,1,0}
     // centroid = {0, -1/3, 0}
     // normal via cross((v1-v0),(v2-v0)) = cross({2,0,0},{1,2,0}) = {0,0,4} → {0,0,1}
-    // camera perpendicular to normal: camera at {0, -1/3 + t, 0} for any t — centroid-camera is +z
+    // camera perpendicular to normal: camera at {0, -1/3 + t, 0} for any t - centroid-camera is +z
     // Actually: dot({0,0,1}, centroid - camera) = (centroid.z - camera.z)
     // For dot == 0 need camera.z == centroid.z == 0.
     // Place camera at {0, -1.0f/3.0f, 0.0f}: centroid - camera = {0,0,0}, dot = 0
@@ -395,7 +395,7 @@ TEST_CASE("AC-F08: shade_face with edge-on triangle (dot==0) returns nullopt (cu
 }
 
 // ---------------------------------------------------------------------------
-// AC-F09 — Returned normal_world is unit length within kFaceEps.
+// AC-F09 - Returned normal_world is unit length within kFaceEps.
 //   Given: a visible face
 //   When:  shade_face returns a VisibleFace
 //   Then:  |magnitude(normal_world) - 1.0f| < kFaceEps
@@ -423,7 +423,7 @@ TEST_CASE("AC-F09: shade_face returns normal_world with unit length within kFace
 }
 
 // ---------------------------------------------------------------------------
-// AC-F10 — Brightness in [0, 1] for all sweeps.
+// AC-F10 - Brightness in [0, 1] for all sweeps.
 //   Given: a set of visible faces with normals spanning multiple orientations
 //   When:  shade_face is called on each
 //   Then:  brightness is in [0.0f, 1.0f] for every returned VisibleFace
@@ -522,7 +522,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
 // ===========================================================================
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-F-y-up) — AC-F11
+//  BUG-CLASS FENCE (AC-F-y-up) - AC-F11
 // ===========================================================================
 //
 //  D-RoofUpBrightness: at normal_world = {0, -1, 0} (roof pointing up in
@@ -542,7 +542,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
 // ===========================================================================
 TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brightness≈1.0 (Y-DOWN fence)", "[render][faces]") {
     // Given: a face whose CCW winding produces an outward normal of {0,-1,0}
-    // In Y-DOWN world, {0,-1,0} points "up" — the roof-up direction.
+    // In Y-DOWN world, {0,-1,0} points "up" - the roof-up direction.
     // The brightness formula must return 1.0 for this normal.
     //
     // Build triangle with normal {0,-1,0}:
@@ -576,7 +576,7 @@ TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brigh
 }
 
 // ---------------------------------------------------------------------------
-// AC-F12 — normal_world={0,1,0} → brightness ≈ 0.0 (clamp at floor).
+// AC-F12 - normal_world={0,1,0} → brightness ≈ 0.0 (clamp at floor).
 //   Formula: clamp(0.5 + 0.5*(-1) + 0.1*(0), 0, 1) = clamp(0.0, 0, 1) = 0.0
 //   Given: face with outward normal {0,1,0}
 //   When:  shade_face is called with camera on the +y side (visible)
@@ -611,7 +611,7 @@ TEST_CASE("AC-F12: shade_face with normal_world={0,1,0} gives brightness≈0.0 (
 }
 
 // ---------------------------------------------------------------------------
-// AC-F13 — X-tweak sign: {-1,0,0} → 0.6, {1,0,0} → 0.4 within kBrightEps.
+// AC-F13 - X-tweak sign: {-1,0,0} → 0.6, {1,0,0} → 0.4 within kBrightEps.
 //   {-1,0,0}: formula = clamp(0.5 + 0.5*(0) + 0.1*(-(-1)), 0, 1) = clamp(0.6, 0, 1) = 0.6
 //   {1,0,0}:  formula = clamp(0.5 + 0.5*(0) + 0.1*(-(1)),  0, 1) = clamp(0.4, 0, 1) = 0.4
 //   Given: two faces with normals pointing left and right respectively
@@ -625,7 +625,7 @@ TEST_CASE("AC-F13: shade_face X-tweak: normal={-1,0,0}→brightness≈0.6, {1,0,
     //   cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0}
     //   Wait: cross(a,b) = {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x}
     //   cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0}
-    //   normalize → {1,0,0} — WRONG direction. Swap v1 and v2:
+    //   normalize → {1,0,0} - WRONG direction. Swap v1 and v2:
     //   v0={0,1,0}, v1={0,-1,0}, v2={0,0,1}
     //   edge1={0,-2,0}, edge2={0,-1,1}
     //   cross({0,-2,0},{0,-1,1}) = {(-2)*1-0*(-1), 0*0-0*1, 0*(-1)-(-2)*0} = {-2,0,0}
@@ -684,7 +684,7 @@ TEST_CASE("AC-F13: shade_face X-tweak: normal={-1,0,0}→brightness≈0.6, {1,0,
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-F14 — kShipFaces.size() == 9.
+// AC-F14 - kShipFaces.size() == 9.
 //   Given: the kShipFaces constant array
 //   When:  its size is checked at compile time and runtime
 //   Then:  exactly 9 elements
@@ -697,7 +697,7 @@ TEST_CASE("AC-F14: kShipFaces has exactly 9 entries", "[render][faces]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-F15 — All face indices < kShipVertexCount.
+// AC-F15 - All face indices < kShipVertexCount.
 //   Given: kShipFaces
 //   When:  each face's v0, v1, v2 are checked
 //   Then:  all indices are < kShipVertexCount (9)
@@ -714,7 +714,7 @@ TEST_CASE("AC-F15: all kShipFaces vertex indices are less than kShipVertexCount"
 }
 
 // ---------------------------------------------------------------------------
-// AC-F16 — Distinct indices per face (no degenerate triangles).
+// AC-F16 - Distinct indices per face (no degenerate triangles).
 //   Given: kShipFaces
 //   When:  each face's v0, v1, v2 are checked
 //   Then:  v0 != v1, v1 != v2, v0 != v2 for every face
@@ -731,7 +731,7 @@ TEST_CASE("AC-F16: all kShipFaces have distinct vertex indices (no degenerate tr
 }
 
 // ---------------------------------------------------------------------------
-// AC-F17 — Recomputed normals are unit length within kFaceEps.
+// AC-F17 - Recomputed normals are unit length within kFaceEps.
 //   Given: kShipFaces and kShipVertices
 //   When:  the normal is recomputed via normalize(cross(v1-v0, v2-v0)) for each face
 //   Then:  |magnitude - 1.0f| < kFaceEps for all 9 faces
@@ -752,7 +752,7 @@ TEST_CASE("AC-F17: recomputed normals from kShipFaces are unit length within kFa
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-F-winding) — AC-F18
+//  BUG-CLASS FENCE (AC-F-winding) - AC-F18
 // ===========================================================================
 //
 //  D-OutwardNormals: all normals point outward from the hull.
@@ -769,7 +769,7 @@ TEST_CASE("AC-F17: recomputed normals from kShipFaces are unit length within kFa
 //    edge2 = v5-v0 = {-1.9, -0.8435, -0.5}
 //    cross(edge1, edge2) = {0*(-0.5)-(-1)*(-0.8435),  (-1)*(-1.9)-0*(-0.5),  0*(-0.8435)-0*(-1.9)}
 //                        = {-0.8435, 1.9, 0}
-//    normalize → roughly {-0.406, 0.914, 0} — points roughly in +y and -x direction
+//    normalize → roughly {-0.406, 0.914, 0} - points roughly in +y and -x direction
 //    centroid_body_origin dot = centroid . n:
 //      0.3667*(-0.406) + 0.0313*(0.914) + 0*0 ≈ -0.149 + 0.028 ≈ -0.12 < 0
 //
@@ -779,7 +779,7 @@ TEST_CASE("AC-F17: recomputed normals from kShipFaces are unit length within kFa
 //
 //  If this test fails: the face list has wrong winding for face 0, or the
 //  cross product arguments are in the wrong order (v1-v0, v2-v0 must be correct).
-//  Do NOT swap the test — fix the face list or the normal computation.
+//  Do NOT swap the test - fix the face list or the normal computation.
 // ===========================================================================
 TEST_CASE("AC-F18 (AC-F-winding): face 0 outward-normal dot(n, centroid - mesh_centroid) > 0", "[render][faces]") {
     // Given: kShipFaces face 0 = {v0=0, v1=1, v2=5}; kShipVertices body frame
@@ -828,7 +828,7 @@ TEST_CASE("AC-F18 (AC-F-winding): face 0 outward-normal dot(n, centroid - mesh_c
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-F19 — Identity ship at origin, camera {0,0,-5}: at least one face visible.
+// AC-F19 - Identity ship at origin, camera {0,0,-5}: at least one face visible.
 //   Given: kShipVertices transformed by identity + zero translation (world == body)
 //          camera at {0, 0, -5}
 //   When:  shade_face is called for all 9 faces
@@ -863,7 +863,7 @@ TEST_CASE("AC-F19: identity-oriented ship at origin with camera at {0,0,-5} has 
 }
 
 // ---------------------------------------------------------------------------
-// AC-F20 — After 90° yaw: visible-face SET differs from AC-F19 (set inequality).
+// AC-F20 - After 90° yaw: visible-face SET differs from AC-F19 (set inequality).
 //   Given: kShipVertices rotated by 90-degree yaw (same camera at {0,0,-5})
 //   When:  shade_face is called for all 9 faces
 //   Then:  the set of visible face indices differs from the identity-orient set
@@ -908,7 +908,7 @@ TEST_CASE("AC-F20: after 90-degree yaw the visible-face set differs from identit
 }
 
 // ---------------------------------------------------------------------------
-// AC-F21 — Visible face count ∈ [1, 9] (closed convex hull).
+// AC-F21 - Visible face count ∈ [1, 9] (closed convex hull).
 //   Given: identity ship, camera at {0,0,-5}
 //   When:  shade_face is called for all 9 faces
 //   Then:  visible count is in [1, 9]
@@ -941,7 +941,7 @@ TEST_CASE("AC-F21: visible face count is in [1, 9] for identity-oriented ship", 
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-F-cull-sense) — AC-F22
+//  BUG-CLASS FENCE (AC-F-cull-sense) - AC-F22
 // ===========================================================================
 //
 //  D-CullSense: visible iff dot(normal_world, face_centroid - camera) < 0.
@@ -963,7 +963,7 @@ TEST_CASE("AC-F21: visible face count is in [1, 9] for identity-oriented ship", 
 //  This test catches that class of bug with maximum clarity.
 //
 //  If this test fails: re-read D-CullSense in the planner output before
-//  modifying.  Do NOT swap the REQUIRE / REQUIRE_FALSE — fix the implementation.
+//  modifying.  Do NOT swap the REQUIRE / REQUIRE_FALSE - fix the implementation.
 // ===========================================================================
 TEST_CASE("AC-F22 (AC-F-cull-sense): normal {0,0,-1} toward camera is VISIBLE; {0,0,1} is CULLED", "[render][faces]") {
     // Given: camera at {0,0,-5}; centroid at {0,0,0}
@@ -1016,13 +1016,13 @@ TEST_CASE("AC-F22 (AC-F-cull-sense): normal {0,0,-1} toward camera is VISIBLE; {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-F23 — 1000-iter deterministic sweep: bit-identical between two fresh runs.
+// AC-F23 - 1000-iter deterministic sweep: bit-identical between two fresh runs.
 //   Given: a fixed sequence of 1000 (vertices, face, camera) inputs
 //   When:  shade_face is called twice over the same sequence
 //   Then:  every returned brightness and normal component is bit-identical
 //          Confirms no PRNG, clock, or global mutable state inside shade_face.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-F23: 1000-iteration shade_face sweep is deterministic — bit-identical across two runs", "[render][faces]") {
+TEST_CASE("AC-F23: 1000-iteration shade_face sweep is deterministic - bit-identical across two runs", "[render][faces]") {
     // Given
     std::array<Vec3, entities::kShipVertexCount> world{};
     render::rotate_vertices(
@@ -1063,7 +1063,7 @@ TEST_CASE("AC-F23: 1000-iteration shade_face sweep is deterministic — bit-iden
     const auto [sum_a_b, sum_a_n] = run_sweep();
     const auto [sum_b_b, sum_b_n] = run_sweep();
 
-    // Then — bit-identical (exact equality, NOT Approx)
+    // Then - bit-identical (exact equality, NOT Approx)
     CAPTURE(sum_a_b, sum_b_b, sum_a_n.x, sum_b_n.x);
     REQUIRE(sum_a_b == sum_b_b);
     REQUIRE(sum_a_n.x == sum_b_n.x);
@@ -1089,17 +1089,17 @@ TEST_CASE("AC-F23: 1000-iteration shade_face sweep is deterministic — bit-iden
 TEST_CASE("AC-F80: render/faces.hpp and core/face_types.hpp compile and link without raylib (BUILD_GAME=OFF)", "[render][faces]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means the headers compiled and linked without raylib,
+    // Then:  it ran - which means the headers compiled and linked without raylib,
     //        satisfying AC-F80.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-F80 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-F80 satisfied");
 }
 
-TEST_CASE("AC-F81: render library compiles and links against core+warnings only — no forbidden deps at runtime", "[render][faces]") {
+TEST_CASE("AC-F81: render library compiles and links against core+warnings only - no forbidden deps at runtime", "[render][faces]") {
     // Given: this test binary was linked with claude_lander_render depending on
     //        core + warnings only (verified by CMakeLists.txt)
     // When:  it reaches this TEST_CASE
     // Then:  it ran without link errors, so AC-F81 is satisfied
-    SUCCEED("link against core+warnings only — AC-F81 satisfied");
+    SUCCEED("link against core+warnings only - AC-F81 satisfied");
 }
 
 TEST_CASE("AC-F82: both public render/faces functions are noexcept (verified by static_assert at top of TU)", "[render][faces]") {
@@ -1107,5 +1107,5 @@ TEST_CASE("AC-F82: both public render/faces functions are noexcept (verified by 
     //        render::shade_face and render::rotate_vertices
     // When:  this test is reached (compile succeeded means all static_asserts passed)
     // Then:  AC-F82 is satisfied
-    SUCCEED("all static_assert(noexcept(...)) checks passed at compile time — AC-F82 satisfied");
+    SUCCEED("all static_assert(noexcept(...)) checks passed at compile time - AC-F82 satisfied");
 }

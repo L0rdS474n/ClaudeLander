@@ -1,4 +1,4 @@
-// tests/test_ship.cpp — Pass 4 entities/ship tests.
+// tests/test_ship.cpp - Pass 4 entities/ship tests.
 //
 // Covers AC-S01..S04 (Ship defaults, vertex count + values, face count)
 // and AC-S80 (hygiene).
@@ -144,7 +144,7 @@ TEST_CASE("AC-S02: kShipVertices.size() equals 9 and matches kShipVertexCount", 
 // REQUIRE with the affected vertex index captured.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-S03: all 9 ship vertices match spec table within 5e-4", "[entities][ship]") {
-    // Given: kShipVertices — the body-frame vertex constant array
+    // Given: kShipVertices - the body-frame vertex constant array
     // When:  each of the 9 vertices is checked against the spec table
     // Then:  every component is within kVertexEps = 5e-4f of the expected value
 
@@ -198,7 +198,7 @@ TEST_CASE("AC-S04: kShipFaceCount equals 9 (face index list deferred to Pass 6)"
 TEST_CASE("AC-S80: entities/ship header and library compile and link without raylib (BUILD_GAME=OFF)", "[entities][ship]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means ship.hpp compiled and linked without raylib,
+    // Then:  it ran - which means ship.hpp compiled and linked without raylib,
     //        satisfying AC-S80.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-S80 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-S80 satisfied");
 }

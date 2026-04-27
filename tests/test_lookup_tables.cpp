@@ -1,4 +1,4 @@
-// tests/test_lookup_tables.cpp — Pass 1 lookup table tests.
+// tests/test_lookup_tables.cpp - Pass 1 lookup table tests.
 //
 // Covers AC-L01 through AC-L20.
 // All tests are deterministic: no clocks, no filesystem, no random_device.
@@ -114,7 +114,7 @@ TEST_CASE("AC-L09: sin_lut(pi/2) returns approximately 1.0", "[core][lookup_tabl
 }
 
 // ---------------------------------------------------------------------------
-// AC-L10: full sin_q31 sweep — LUT vs std::sin within 1e-3
+// AC-L10: full sin_q31 sweep - LUT vs std::sin within 1e-3
 // For every index i in [0, 1024), compare:
 //   lut_value_float = sin_q31[i] / float(INT32_MAX)
 //   ref_value       = std::sin(i * 2π / 1024)

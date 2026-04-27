@@ -1,4 +1,4 @@
-// tests/test_terrain.cpp — Pass 2 procedural terrain tests.
+// tests/test_terrain.cpp - Pass 2 procedural terrain tests.
 //
 // Covers AC-W01..W40 (26 non-golden ACs) and AC-W50..W52 (3 golden ACs).
 // All tests tagged [world][terrain]; goldens additionally tagged [.golden].
@@ -22,7 +22,7 @@
 // AC-W04 and AC-W05 are therefore declared as "covered by determinism suite"
 // and do not have separate TEST_CASE blocks.
 //
-// === AC-W13..W18 (term decomposition) — hook requirement ===
+// === AC-W13..W18 (term decomposition) - hook requirement ===
 // These tests require a test hook exposed by the implementer:
 //
 //   namespace terrain::detail {
@@ -45,7 +45,7 @@
 // Implemented as a static_assert after the include: a header that pulls in
 // raylib would define RAYLIB_VERSION (or similar); we assert it is not defined.
 // The cleaner guard is to verify terrain.hpp compiles without raylib on the
-// include path — which the BUILD_GAME=OFF build already guarantees because
+// include path - which the BUILD_GAME=OFF build already guarantees because
 // raylib is never fetched.  The static_assert below provides an explicit
 // in-translation-unit tripwire for documentation purposes.
 //
@@ -168,7 +168,7 @@ TEST_CASE("AC-W06: altitude(5,11) unchanged after thousands of intervening calls
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// AC-W07: x-axis periodicity — altitude(x,z) == altitude(x+1024, z)
+// AC-W07: x-axis periodicity - altitude(x,z) == altitude(x+1024, z)
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W07: altitude is periodic in x with period 1024", "[world][terrain]") {
     // Given: (x, z) = (5, 7)
@@ -181,7 +181,7 @@ TEST_CASE("AC-W07: altitude is periodic in x with period 1024", "[world][terrain
 }
 
 // ---------------------------------------------------------------------------
-// AC-W08: z-axis periodicity — altitude(x,z) == altitude(x, z+1024)
+// AC-W08: z-axis periodicity - altitude(x,z) == altitude(x, z+1024)
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W08: altitude is periodic in z with period 1024", "[world][terrain]") {
     // Given: (x, z) = (5, 7)
@@ -419,7 +419,7 @@ TEST_CASE("AC-W21: altitude max deviation from LAND_MID_HEIGHT over [0..63]^2 gr
 // AC-W22: altitude(512, 512) and altitude(0, 0) are both within 0.05 of LAND_MID_HEIGHT
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W22: altitude(512,512) is within 0.05f of LAND_MID_HEIGHT (half-period diagonal)", "[world][terrain]") {
-    // Given: (x, z) = (512, 512) — the half-period diagonal
+    // Given: (x, z) = (512, 512) - the half-period diagonal
     // When:  altitude(512, 512) and altitude(0, 0) are computed
     // Then:  both within 0.05f of LAND_MID_HEIGHT
     const float r512 = terrain::altitude(512.0f, 512.0f);
@@ -497,7 +497,7 @@ TEST_CASE("AC-W33: every vertex.y in build_mesh equals altitude(vertex.x, vertex
 // AC-W34: x-coordinates of each row form an arithmetic sequence with step TILE_SIZE
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W34: x-coordinates of every row form an arithmetic sequence with step TILE_SIZE (1.0f)", "[world][terrain]") {
-    // Given: build_mesh(0.0f, 0.0f) — centre at (0, 0)
+    // Given: build_mesh(0.0f, 0.0f) - centre at (0, 0)
     // When:  the 13 x-coordinates of row 0 (and row 5, the centre row) are inspected
     // Then:  they form a sequence from floor(cx)-6 to floor(cx)+6 with step TILE_SIZE=1.0f
     const auto mesh = terrain::build_mesh(0.0f, 0.0f);
@@ -521,7 +521,7 @@ TEST_CASE("AC-W34: x-coordinates of every row form an arithmetic sequence with s
 // AC-W35: z-coordinates of each column form an arithmetic sequence with step TILE_SIZE
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W35: z-coordinates of every column form an arithmetic sequence with step TILE_SIZE (1.0f)", "[world][terrain]") {
-    // Given: build_mesh(0.0f, 0.0f) — centre at (0, 0)
+    // Given: build_mesh(0.0f, 0.0f) - centre at (0, 0)
     // When:  the 11 z-coordinates of column 0 (and column 6, the centre column) are inspected
     // Then:  they form a sequence from floor(cz)-5 to floor(cz)+5 with step TILE_SIZE=1.0f
     const auto mesh = terrain::build_mesh(0.0f, 0.0f);
@@ -543,7 +543,7 @@ TEST_CASE("AC-W35: z-coordinates of every column form an arithmetic sequence wit
 }
 
 // ---------------------------------------------------------------------------
-// Golden tests (AC-W50..W52) — tagged [.golden]; skipped by default
+// Golden tests (AC-W50..W52) - tagged [.golden]; skipped by default
 //
 // Run with: ctest --test-dir build-tests -L golden
 //        or: ./claude_lander_tests "[.golden]"
@@ -552,7 +552,7 @@ TEST_CASE("AC-W35: z-coordinates of every column form an arithmetic sequence wit
 //   Derivation: every sin term has argument a*0 + b*0 = 0;
 //               sin_q31[0] == 0 (confirmed AC-L04); sum = 0;
 //               altitude = LAND_MID_HEIGHT - 0/256 = 5.0f.
-//   This value is LOCKED — safe to assert exactly.
+//   This value is LOCKED - safe to assert exactly.
 //
 // AC-W51 / AC-W52: DEFERRED.
 //   The implementer MUST run the Python recipe from docs/plans/pass-2-terrain.md:
@@ -581,7 +581,7 @@ TEST_CASE("AC-W50: altitude(0,0) matches Python recipe golden value of 5.0f", "[
     // Given: (x, z) = (0, 0)
     // When:  altitude(0, 0) is computed
     // Then:  result == 5.0f exactly (all six sin terms are 0 at origin)
-    static constexpr float kExpected_W50 = 5.0f; // LOCKED — safe to assert
+    static constexpr float kExpected_W50 = 5.0f; // LOCKED - safe to assert
     const float r = terrain::altitude(0.0f, 0.0f);
     CAPTURE(r, kExpected_W50);
     REQUIRE(r == Catch::Approx(kExpected_W50).margin(kGoldenMargin));

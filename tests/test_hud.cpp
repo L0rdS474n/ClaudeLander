@@ -1,4 +1,4 @@
-// tests/test_hud.cpp — Pass 12 render/hud tests.
+// tests/test_hud.cpp - Pass 12 render/hud tests.
 //
 // Covers AC-H01..H05, AC-H06..H10, AC-H11..H15, AC-H16..H20,
 // AC-Hpad, AC-Hclamp, AC-Htop16, AC-H80..H82 (24 ACs total, numbered per
@@ -14,9 +14,9 @@
 //
 // === Bug-class fences ===
 // Three developer-mistake patterns are caught with prominent banner comments:
-//   (a) AC-Hpad   — format_score must zero-pad: "000800", NOT "800".
-//   (b) AC-Hclamp — fuel_bar_width clamps BOTH above 1.0 AND below 0.0.
-//   (c) AC-Htop16 — ALL HudLayout y-positions must be < 16 (upper HUD band).
+//   (a) AC-Hpad   - format_score must zero-pad: "000800", NOT "800".
+//   (b) AC-Hclamp - fuel_bar_width clamps BOTH above 1.0 AND below 0.0.
+//   (c) AC-Htop16 - ALL HudLayout y-positions must be < 16 (upper HUD band).
 //
 // === Hygiene (AC-H80) ===
 // RAYLIB_VERSION is defined by raylib.h.  If it appears here, the include
@@ -57,7 +57,7 @@ static_assert(false,
 #endif
 
 // ---------------------------------------------------------------------------
-// AC-H82 — format_score, fuel_bar_width, and format_ammo must be noexcept.
+// AC-H82 - format_score, fuel_bar_width, and format_ammo must be noexcept.
 // Verified at compile time here in the same TU as the #include.
 // ---------------------------------------------------------------------------
 static_assert(
@@ -77,7 +77,7 @@ static_assert(
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-H01 — format_score(0) returns "000000" (6 chars + null).
+// AC-H01 - format_score(0) returns "000000" (6 chars + null).
 //   Given: score = 0
 //   When:  format_score is called
 //   Then:  result is an array of 7 chars whose first 6 are '0' and [6] == '\0'
@@ -92,7 +92,7 @@ TEST_CASE("AC-H01: format_score(0) returns \"000000\" (6 zero-padded digits + nu
 }
 
 // ---------------------------------------------------------------------------
-// AC-H02 — format_score(800) returns "000800".
+// AC-H02 - format_score(800) returns "000800".
 //   Given: score = 800
 //   When:  format_score is called
 //   Then:  result == "000800" (3 leading zeros)
@@ -107,7 +107,7 @@ TEST_CASE("AC-H02: format_score(800) returns \"000800\"", "[render][hud]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-H03 — format_score(123456) returns "123456".
+// AC-H03 - format_score(123456) returns "123456".
 //   Given: score = 123456
 //   When:  format_score is called
 //   Then:  result == "123456" (no leading zeros needed)
@@ -122,7 +122,7 @@ TEST_CASE("AC-H03: format_score(123456) returns \"123456\"", "[render][hud]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-H04 — format_score(999999) returns "999999" (maximum in-range).
+// AC-H04 - format_score(999999) returns "999999" (maximum in-range).
 //   Given: score = 999999
 //   When:  format_score is called
 //   Then:  result == "999999" (exact max)
@@ -137,7 +137,7 @@ TEST_CASE("AC-H04: format_score(999999) returns \"999999\" (max in-range value)"
 }
 
 // ---------------------------------------------------------------------------
-// AC-H05 — format_score(1000000) returns "999999" (clamped to max).
+// AC-H05 - format_score(1000000) returns "999999" (clamped to max).
 //   Given: score = 1000000 (one above the representable max)
 //   When:  format_score is called
 //   Then:  result == "999999" (clamped, no overflow into 7 digits)
@@ -156,7 +156,7 @@ TEST_CASE("AC-H05: format_score(1000000) returns \"999999\" (clamped to max)", "
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-H06 — fuel_bar_width(0.0f, 32) returns 0.
+// AC-H06 - fuel_bar_width(0.0f, 32) returns 0.
 //   Given: fuel_fraction = 0.0, container_px = 32
 //   When:  fuel_bar_width is called
 //   Then:  result == 0 (empty bar)
@@ -170,7 +170,7 @@ TEST_CASE("AC-H06: fuel_bar_width(0.0, 32) returns 0 (empty bar)", "[render][hud
 }
 
 // ---------------------------------------------------------------------------
-// AC-H07 — fuel_bar_width(1.0f, 32) returns 32 (full bar).
+// AC-H07 - fuel_bar_width(1.0f, 32) returns 32 (full bar).
 //   Given: fuel_fraction = 1.0, container_px = 32
 //   When:  fuel_bar_width is called
 //   Then:  result == 32 (full container width)
@@ -184,7 +184,7 @@ TEST_CASE("AC-H07: fuel_bar_width(1.0, 32) returns 32 (full bar)", "[render][hud
 }
 
 // ---------------------------------------------------------------------------
-// AC-H08 — fuel_bar_width(0.5f, 32) returns 16 (half bar, rounded).
+// AC-H08 - fuel_bar_width(0.5f, 32) returns 16 (half bar, rounded).
 //   Given: fuel_fraction = 0.5, container_px = 32
 //   When:  fuel_bar_width is called
 //   Then:  result == 16 (0.5 * 32 + 0.5 = 16.5 -> truncated to 16 by static_cast,
@@ -200,7 +200,7 @@ TEST_CASE("AC-H08: fuel_bar_width(0.5, 32) returns 16 (round to nearest)", "[ren
 }
 
 // ---------------------------------------------------------------------------
-// AC-H09 — fuel_bar_width(0.25f, 100) returns 25.
+// AC-H09 - fuel_bar_width(0.25f, 100) returns 25.
 //   Given: fuel_fraction = 0.25, container_px = 100
 //   When:  fuel_bar_width is called
 //   Then:  result == 25 (0.25 * 100 + 0.5 = 25.5 -> 25)
@@ -214,7 +214,7 @@ TEST_CASE("AC-H09: fuel_bar_width(0.25, 100) returns 25", "[render][hud]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-H10 — fuel_bar_width(-0.5f, 32) returns 0 (negative input clamped).
+// AC-H10 - fuel_bar_width(-0.5f, 32) returns 0 (negative input clamped).
 //   Given: fuel_fraction = -0.5 (below valid range)
 //   When:  fuel_bar_width is called
 //   Then:  result == 0 (clamped to 0 before multiplication)
@@ -232,7 +232,7 @@ TEST_CASE("AC-H10: fuel_bar_width(-0.5, 32) returns 0 (negative fraction clamped
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-H11 — format_ammo(0) returns "0".
+// AC-H11 - format_ammo(0) returns "0".
 //   Given: ammo = 0
 //   When:  format_ammo is called
 //   Then:  result contains "0" with null terminator (no padding)
@@ -247,7 +247,7 @@ TEST_CASE("AC-H11: format_ammo(0) returns \"0\" (no padding, variable-width)", "
 }
 
 // ---------------------------------------------------------------------------
-// AC-H12 — format_ammo(9) returns "9".
+// AC-H12 - format_ammo(9) returns "9".
 //   Given: ammo = 9
 //   When:  format_ammo is called
 //   Then:  result contains "9"
@@ -261,7 +261,7 @@ TEST_CASE("AC-H12: format_ammo(9) returns \"9\"", "[render][hud]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-H13 — format_ammo(42) returns "42".
+// AC-H13 - format_ammo(42) returns "42".
 //   Given: ammo = 42
 //   When:  format_ammo is called
 //   Then:  result contains "42"
@@ -275,7 +275,7 @@ TEST_CASE("AC-H13: format_ammo(42) returns \"42\"", "[render][hud]") {
 }
 
 // ---------------------------------------------------------------------------
-// AC-H14 — format_ammo(9999) returns "9999".
+// AC-H14 - format_ammo(9999) returns "9999".
 //   Given: ammo = 9999 (representable max)
 //   When:  format_ammo is called
 //   Then:  result contains "9999"
@@ -289,7 +289,7 @@ TEST_CASE("AC-H14: format_ammo(9999) returns \"9999\" (max in-range)", "[render]
 }
 
 // ---------------------------------------------------------------------------
-// AC-H15 — format_ammo(uint16_max) returns "9999" (clamped).
+// AC-H15 - format_ammo(uint16_max) returns "9999" (clamped).
 //   Given: ammo = 65535 (std::numeric_limits<uint16_t>::max())
 //   When:  format_ammo is called
 //   Then:  result contains "9999" (clamped to display max)
@@ -310,12 +310,12 @@ TEST_CASE("AC-H15: format_ammo(uint16_max=65535) returns \"9999\" (clamped to di
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-H16 — format_score is deterministic: 1000 calls, identical results.
+// AC-H16 - format_score is deterministic: 1000 calls, identical results.
 //   Given: score = 42000
 //   When:  format_score is called 1000 times independently
 //   Then:  every call returns a bit-identical array
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-H16: format_score is deterministic — 1000 calls return bit-identical results", "[render][hud]") {
+TEST_CASE("AC-H16: format_score is deterministic - 1000 calls return bit-identical results", "[render][hud]") {
     // Given: fixed input, no PRNG, no clock
     constexpr std::uint32_t score = 42000u;
     const auto first = render::format_score(score);
@@ -331,12 +331,12 @@ TEST_CASE("AC-H16: format_score is deterministic — 1000 calls return bit-ident
 }
 
 // ---------------------------------------------------------------------------
-// AC-H17 — fuel_bar_width is deterministic: 1000 calls, identical results.
+// AC-H17 - fuel_bar_width is deterministic: 1000 calls, identical results.
 //   Given: fuel_fraction = 0.75f, container_px = 32
 //   When:  fuel_bar_width is called 1000 times independently
 //   Then:  every call returns the same integer
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-H17: fuel_bar_width is deterministic — 1000 calls return identical results", "[render][hud]") {
+TEST_CASE("AC-H17: fuel_bar_width is deterministic - 1000 calls return identical results", "[render][hud]") {
     // Given: fixed input, no PRNG, no clock
     const int first = render::fuel_bar_width(0.75f, 32);
 
@@ -349,13 +349,13 @@ TEST_CASE("AC-H17: fuel_bar_width is deterministic — 1000 calls return identic
 }
 
 // ---------------------------------------------------------------------------
-// AC-H18 — Round-trip: parse format_score(N) back → N, for representative N.
+// AC-H18 - Round-trip: parse format_score(N) back → N, for representative N.
 //   Given: a set of representative scores N in [0, 999999]
 //   When:  format_score(N) is called and the result string is parsed via std::stoul
 //   Then:  the parsed integer equals N
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-H18: round-trip parse of format_score(N) returns N for representative values", "[render][hud]") {
-    // Given: representative values — no PRNG; deterministic list
+    // Given: representative values - no PRNG; deterministic list
     const std::uint32_t scores[] = {0u, 1u, 9u, 10u, 99u, 100u, 999u, 1000u,
                                      9999u, 10000u, 99999u, 100000u, 999999u};
 
@@ -372,7 +372,7 @@ TEST_CASE("AC-H18: round-trip parse of format_score(N) returns N for representat
 }
 
 // ---------------------------------------------------------------------------
-// AC-H19 — HudLayout default construction: all y-positions < 16.
+// AC-H19 - HudLayout default construction: all y-positions < 16.
 //   Given: a default-constructed HudLayout
 //   When:  score_y, fuel_y, and ammo_y are read
 //   Then:  all three are < 16 (HUD occupies the upper 16 logical pixels)
@@ -389,7 +389,7 @@ TEST_CASE("AC-H19: HudLayout{} default values place all y-positions in the upper
 }
 
 // ---------------------------------------------------------------------------
-// AC-H20 — format_score result is null-terminated (arr[6] == '\0').
+// AC-H20 - format_score result is null-terminated (arr[6] == '\0').
 //   Given: scores = {0, 1, 800, 123456, 999999, 1000000}
 //   When:  format_score is called for each
 //   Then:  arr[6] == '\0' for every result (array size is 7)
@@ -426,7 +426,7 @@ TEST_CASE("AC-H20: format_score always returns a null-terminated 7-element array
 //    (c) the full string matches "000800" exactly
 //
 //  If this test fails: re-read D-ScoreWidth.  Use snprintf with "%06u" or
-//  equivalent.  Do NOT change this test — fix the formatting.
+//  equivalent.  Do NOT change this test - fix the formatting.
 // ===========================================================================
 TEST_CASE("AC-Hpad (BUG-CLASS FENCE): format_score(800) is \"000800\" NOT \"800\" (zero-padding required)", "[render][hud]") {
     // Given / When
@@ -468,7 +468,7 @@ TEST_CASE("AC-Hpad (BUG-CLASS FENCE): format_score(800) is \"000800\" NOT \"800\
 //  clamp boundaries.
 //
 //  If this test fails: ensure both clamps are applied before the multiply.
-//  Do NOT change the test — fix the clamp in fuel_bar_width.
+//  Do NOT change the test - fix the clamp in fuel_bar_width.
 // ===========================================================================
 TEST_CASE("AC-Hclamp (BUG-CLASS FENCE): fuel_bar_width clamps BOTH above 1.0 AND below 0.0", "[render][hud]") {
     // Given: extreme out-of-range fractions
@@ -502,7 +502,7 @@ TEST_CASE("AC-Hclamp (BUG-CLASS FENCE): fuel_bar_width clamps BOTH above 1.0 AND
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Hnan) — iter-5 robustness
+//  BUG-CLASS FENCE (AC-Hnan) - iter-5 robustness
 // ===========================================================================
 //
 //  Bug class: clamp written as `if (f < 0) f = 0; if (f > 1) f = 1;` lets
@@ -596,20 +596,20 @@ TEST_CASE("AC-H80: render/hud.hpp compiles without raylib, world/, entities/, <r
     // Given: this file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
     // Then:  the headers compiled without forbidden dependencies
-    SUCCEED("compilation without raylib/forbidden deps succeeded — AC-H80 satisfied");
+    SUCCEED("compilation without raylib/forbidden deps succeeded - AC-H80 satisfied");
 }
 
-TEST_CASE("AC-H81: claude_lander_render link list unchanged — render library links against core+warnings only", "[render][hud]") {
+TEST_CASE("AC-H81: claude_lander_render link list unchanged - render library links against core+warnings only", "[render][hud]") {
     // Given: this test binary linked with claude_lander_render which links
     //        against claude_lander_core + claude_lander_warnings only.
     // When:  this test is reached
-    // Then:  no link errors — AC-H81 satisfied
-    SUCCEED("render library link list unchanged (core+warnings only) — AC-H81 satisfied");
+    // Then:  no link errors - AC-H81 satisfied
+    SUCCEED("render library link list unchanged (core+warnings only) - AC-H81 satisfied");
 }
 
 TEST_CASE("AC-H82: format_score, fuel_bar_width, and format_ammo are noexcept (verified by static_assert at top of TU)", "[render][hud]") {
     // Given: static_assert(noexcept(...)) at the top of this file
     // When:  this test is reached (compile succeeded means static_assert passed)
     // Then:  AC-H82 is satisfied
-    SUCCEED("static_assert(noexcept) passed at compile time — AC-H82 satisfied");
+    SUCCEED("static_assert(noexcept) passed at compile time - AC-H82 satisfied");
 }

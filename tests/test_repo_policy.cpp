@@ -659,7 +659,7 @@ TEST_CASE("AC-1.5-123: ADR-0003 records the 5 required policy decisions", "[repo
     CHECK(contains_ci(text, "branch protection"));
     CHECK(contains_ci(text, "issue linking"));
     CHECK(contains_ci(text, "CODEOWNERS"));
-    // Contributor Covenant 2.1 — may appear as "Covenant" + "2.1" in proximity.
+    // Contributor Covenant 2.1 - may appear as "Covenant" + "2.1" in proximity.
     CHECK((contains_ci(text, "Covenant") || contains_ci(text, "Code of Conduct")));
     CHECK(text.find("2.1") != std::string::npos);
 }

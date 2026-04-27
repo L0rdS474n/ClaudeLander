@@ -1,7 +1,7 @@
-// tests/test_projection.cpp — Pass 3 projection tests.
+// tests/test_projection.cpp - Pass 3 projection tests.
 //
 // Covers AC-R01..R82 (32 ACs across 9 groups).
-// All tests tagged [render][projection].  No [.golden] — every expected pixel
+// All tests tagged [render][projection].  No [.golden] - every expected pixel
 // is hand-derivable from the formulas:
 //
 //   x_screen = kScreenCenterX + x_c / z_c   (160 + x/z)
@@ -48,7 +48,7 @@
 // AC-R80: render/projection.hpp must NOT pull in raylib.
 // RAYLIB_VERSION is defined by raylib.h; it is only present here if the
 // #include above transitively included raylib.  The BUILD_GAME=OFF build
-// already keeps raylib off the compiler include path — this static_assert
+// already keeps raylib off the compiler include path - this static_assert
 // is a belt-and-suspenders in-translation-unit tripwire.
 // ---------------------------------------------------------------------------
 #ifdef RAYLIB_VERSION
@@ -121,7 +121,7 @@ TEST_CASE("AC-R04: approx_equal(Vec2) returns true for exact match and false whe
     // Then:  returns false
     REQUIRE_FALSE(approx_equal(Vec2{1.0f, 2.0f}, Vec2{1.001f, 2.0f}, 1e-5f));
 
-    // Edge: difference exactly at eps boundary — equal
+    // Edge: difference exactly at eps boundary - equal
     REQUIRE(approx_equal(Vec2{1.0f, 2.0f}, Vec2{1.0f + 1e-5f, 2.0f}, 1e-5f));
 }
 
@@ -262,7 +262,7 @@ TEST_CASE("AC-R14: point just inside far-cull limit returns Some", "[render][pro
 //   x_screen = 160 + 100/10 = 160 + 10 = 170.0
 //   y_screen =  64 +   0/10 =  64 +  0 =  64.0
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R15: (100,0,10) projects to (170, 64) — x-positive offset", "[render][projection]") {
+TEST_CASE("AC-R15: (100,0,10) projects to (170, 64) - x-positive offset", "[render][projection]") {
     // Given: camera at origin, world_point = (100, 0, 10)
     // When:  project() is called
     // Then:  x_screen = 160 + 100/10 = 170.0,  y_screen = 64 + 0/10 = 64.0
@@ -279,7 +279,7 @@ TEST_CASE("AC-R15: (100,0,10) projects to (170, 64) — x-positive offset", "[re
 //   x_screen = 160 +  0/10 = 160.0
 //   y_screen =  64 + 50/10 =  64 + 5 = 69.0
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R16: (0,50,10) projects to (160, 69) — y-positive offset", "[render][projection]") {
+TEST_CASE("AC-R16: (0,50,10) projects to (160, 69) - y-positive offset", "[render][projection]") {
     // Given: camera at origin, world_point = (0, 50, 10)
     // When:  project() is called
     // Then:  x_screen = 160 + 0/10 = 160.0,  y_screen = 64 + 50/10 = 69.0
@@ -296,7 +296,7 @@ TEST_CASE("AC-R16: (0,50,10) projects to (160, 69) — y-positive offset", "[ren
 //   x_screen = 160 + 0/10 = 160.0
 //   y_screen =  64 + 5/10 =  64 + 0.5 = 64.5
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R17: (0,5,10) projects to (160, 64.5) — fractional pixel", "[render][projection]") {
+TEST_CASE("AC-R17: (0,5,10) projects to (160, 64.5) - fractional pixel", "[render][projection]") {
     // Given: camera at origin, world_point = (0, 5, 10)
     // When:  project() is called
     // Then:  x_screen = 160 + 0/10 = 160.0,  y_screen = 64 + 5/10 = 64.5
@@ -313,7 +313,7 @@ TEST_CASE("AC-R17: (0,5,10) projects to (160, 64.5) — fractional pixel", "[ren
 //   x_screen = 160 +  20/10 = 160 +  2 = 162.0
 //   y_screen =  64 + -30/10 =  64 + -3 =  61.0
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R18: (20,-30,10) projects to (162, 61) — negative y component", "[render][projection]") {
+TEST_CASE("AC-R18: (20,-30,10) projects to (162, 61) - negative y component", "[render][projection]") {
     // Given: camera at origin, world_point = (20, -30, 10)
     // When:  project() is called
     // Then:  x_screen = 160 + 20/10 = 162.0,  y_screen = 64 + (-30)/10 = 61.0
@@ -330,7 +330,7 @@ TEST_CASE("AC-R18: (20,-30,10) projects to (162, 61) — negative y component", 
 // ===========================================================================
 //
 // ============================================================================
-//  Y-FLIP CRITICAL GUARD — bug-class fence
+//  Y-FLIP CRITICAL GUARD - bug-class fence
 // ============================================================================
 //
 //  Pass 3's central design decision (D-Yflip in docs/plans/pass-3-projection.md)
@@ -340,12 +340,12 @@ TEST_CASE("AC-R18: (20,-30,10) projects to (162, 61) — negative y component", 
 //
 //  These three ACs catch the bug class that killed prior iterations: someone
 //  bolting on `-y/z` or `kScreenCenterY - y/z` "for safety".  If any of these
-//  fail, STOP and re-read ADR-0006 before changing the test — the test is
+//  fail, STOP and re-read ADR-0006 before changing the test - the test is
 //  almost certainly right and the implementation is almost certainly wrong.
 // ============================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R20: (0,+10,10) — positive y in Y-DOWN world = below midline
+// AC-R20: (0,+10,10) - positive y in Y-DOWN world = below midline
 //   y_screen = 64 + 10/10 = 65.0  →  MUST be > kScreenCenterY (64)
 //   A y-negation bug produces 64 + (-10/10) = 63.0 < 64, which FAILS this test.
 // ---------------------------------------------------------------------------
@@ -353,7 +353,7 @@ TEST_CASE("AC-R20: positive world-y projects BELOW screen centre (y_screen > kSc
     // Given: camera at origin, world_point = (0, +10, 10)
     // When:  project() is called
     // Then:  y_screen = 64 + 10/10 = 65.0 > kScreenCenterY (64)
-    //        A y-negation would produce 63.0 < 64 — this test catches that bug.
+    //        A y-negation would produce 63.0 < 64 - this test catches that bug.
     const render::Camera cam{};
     const auto result = render::project(Vec3{0.0f, 10.0f, 10.0f}, cam);
     REQUIRE(result.has_value());
@@ -365,7 +365,7 @@ TEST_CASE("AC-R20: positive world-y projects BELOW screen centre (y_screen > kSc
 }
 
 // ---------------------------------------------------------------------------
-// AC-R21: (0,-10,10) — negative y in Y-DOWN world = above midline
+// AC-R21: (0,-10,10) - negative y in Y-DOWN world = above midline
 //   y_screen = 64 + (-10)/10 = 63.0  →  MUST be < kScreenCenterY (64)
 //   A y-negation bug produces 64 + (10/10) = 65.0 > 64, which FAILS this test.
 // ---------------------------------------------------------------------------
@@ -373,7 +373,7 @@ TEST_CASE("AC-R21: negative world-y projects ABOVE screen centre (y_screen < kSc
     // Given: camera at origin, world_point = (0, -10, 10)
     // When:  project() is called
     // Then:  y_screen = 64 + (-10)/10 = 63.0 < kScreenCenterY (64)
-    //        A y-negation would produce 65.0 > 64 — this test catches that bug.
+    //        A y-negation would produce 65.0 > 64 - this test catches that bug.
     const render::Camera cam{};
     const auto result = render::project(Vec3{0.0f, -10.0f, 10.0f}, cam);
     REQUIRE(result.has_value());
@@ -385,7 +385,7 @@ TEST_CASE("AC-R21: negative world-y projects ABOVE screen centre (y_screen < kSc
 }
 
 // ---------------------------------------------------------------------------
-// AC-R22: (0,+10,10) and (0,-10,10) — deviations from centre are equal
+// AC-R22: (0,+10,10) and (0,-10,10) - deviations from centre are equal
 //         in magnitude and opposite in sign.
 //   dev_pos = (64 + 10/10) - 64 = +1.0
 //   dev_neg = (64 + -10/10) - 64 = -1.0
@@ -417,7 +417,7 @@ TEST_CASE("AC-R22: y-deviations for +y and -y world points are equal magnitude a
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R30: (0,0,-1) — behind camera → nullopt
+// AC-R30: (0,0,-1) - behind camera → nullopt
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R30: point at z=-1 (behind camera) is culled", "[render][projection]") {
     // Given: camera at origin, world_point = (0, 0, -1)
@@ -429,7 +429,7 @@ TEST_CASE("AC-R30: point at z=-1 (behind camera) is culled", "[render][projectio
 }
 
 // ---------------------------------------------------------------------------
-// AC-R31: (0,0,-0.0001f) — just behind camera → nullopt
+// AC-R31: (0,0,-0.0001f) - just behind camera → nullopt
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R31: point at z=-0.0001 (just behind camera) is culled", "[render][projection]") {
     // Given: camera at origin, world_point = (0, 0, -0.0001)
@@ -441,7 +441,7 @@ TEST_CASE("AC-R31: point at z=-0.0001 (just behind camera) is culled", "[render]
 }
 
 // ---------------------------------------------------------------------------
-// AC-R32: (0,0,0) — exactly at camera plane → nullopt
+// AC-R32: (0,0,0) - exactly at camera plane → nullopt
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R32: point at z=0 (at camera plane) is culled", "[render][projection]") {
     // Given: camera at origin, world_point = (0, 0, 0)
@@ -453,7 +453,7 @@ TEST_CASE("AC-R32: point at z=0 (at camera plane) is culled", "[render][projecti
 }
 
 // ---------------------------------------------------------------------------
-// AC-R33: (0,0,kNearCullZ) — exactly at near boundary → nullopt  (<= rule)
+// AC-R33: (0,0,kNearCullZ) - exactly at near boundary → nullopt  (<= rule)
 //   The near cull uses z_c <= kNearCullZ: the boundary itself is culled.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R33: point at exactly kNearCullZ is culled (boundary <= rule)", "[render][projection]") {
@@ -466,7 +466,7 @@ TEST_CASE("AC-R33: point at exactly kNearCullZ is culled (boundary <= rule)", "[
 }
 
 // ---------------------------------------------------------------------------
-// AC-R34: (0,0,kNearCullZ + 1e-4f) — just past near boundary → Some
+// AC-R34: (0,0,kNearCullZ + 1e-4f) - just past near boundary → Some
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R34: point just past kNearCullZ is NOT culled and returns Some", "[render][projection]") {
     // Given: camera at origin, world_point z = kNearCullZ + kBoundaryEps
@@ -479,7 +479,7 @@ TEST_CASE("AC-R34: point just past kNearCullZ is NOT culled and returns Some", "
 }
 
 // ---------------------------------------------------------------------------
-// AC-R35: (100,200,kNearCullZ+1e-4f) — just past near boundary, off-axis
+// AC-R35: (100,200,kNearCullZ+1e-4f) - just past near boundary, off-axis
 //         → finite result far from screen centre
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R35: off-axis point just past kNearCullZ returns finite far-from-centre pixel", "[render][projection]") {
@@ -505,7 +505,7 @@ TEST_CASE("AC-R35: off-axis point just past kNearCullZ returns finite far-from-c
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R40: (0,0,2e6f) — beyond kFarCullZ (1e6) → nullopt
+// AC-R40: (0,0,2e6f) - beyond kFarCullZ (1e6) → nullopt
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R40: point at z=2e6 (beyond kFarCullZ) is culled", "[render][projection]") {
     // Given: camera at origin, world_point z = 2e6 (> kFarCullZ = 1e6)
@@ -517,7 +517,7 @@ TEST_CASE("AC-R40: point at z=2e6 (beyond kFarCullZ) is culled", "[render][proje
 }
 
 // ---------------------------------------------------------------------------
-// AC-R41: (0,0,kFarCullZ) — exactly at far boundary → nullopt  (>= rule)
+// AC-R41: (0,0,kFarCullZ) - exactly at far boundary → nullopt  (>= rule)
 //   The far cull uses z_c >= kFarCullZ: the boundary itself is culled.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R41: point at exactly kFarCullZ is culled (boundary >= rule)", "[render][projection]") {
@@ -530,7 +530,7 @@ TEST_CASE("AC-R41: point at exactly kFarCullZ is culled (boundary >= rule)", "[r
 }
 
 // ---------------------------------------------------------------------------
-// AC-R42: (0,0,kFarCullZ - 1.0f) — just inside far boundary → Some
+// AC-R42: (0,0,kFarCullZ - 1.0f) - just inside far boundary → Some
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R42: point just inside kFarCullZ is NOT culled and returns Some", "[render][projection]") {
     // Given: camera at origin, world_point z = kFarCullZ - 1.0f
@@ -683,7 +683,7 @@ TEST_CASE("AC-R62: positive and negative world offsets on the same axis give equ
 // AC-R70: project((3,7,11), origin-camera) called 1000 times is bit-identical
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R70: project() called 1000 times with same inputs returns bit-identical results", "[render][projection]") {
-    // Given: camera at origin, world_point = (3, 7, 11) — arbitrary non-trivial input
+    // Given: camera at origin, world_point = (3, 7, 11) - arbitrary non-trivial input
     // When:  project() is called 1000 times in a tight loop
     // Then:  every result is bit-identical to the first (pure function, no hidden state)
     const render::Camera cam{};
@@ -721,10 +721,10 @@ TEST_CASE("AC-R70: project() called 1000 times with same inputs returns bit-iden
 TEST_CASE("AC-R81: projection header and library compile and link without raylib (BUILD_GAME=OFF)", "[render][projection]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means projection.hpp + vec2.hpp compiled and linked
+    // Then:  it ran - which means projection.hpp + vec2.hpp compiled and linked
     //        without raylib, satisfying AC-R81.
     //        If compilation fails, the red-state error messages document the issue.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-R81 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-R81 satisfied");
 }
 
 TEST_CASE("AC-R82: kLogicalScreenW and kLogicalScreenH constants are exposed with correct values", "[render][projection]") {

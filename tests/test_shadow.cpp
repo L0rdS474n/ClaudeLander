@@ -1,4 +1,4 @@
-// tests/test_shadow.cpp — Pass 9 render/shadow tests.
+// tests/test_shadow.cpp - Pass 9 render/shadow tests.
 //
 // Covers AC-S01..S05 (shadow projection) + AC-S80..S82 (hygiene, shadow side).
 // All tests tagged [render][shadow].
@@ -11,7 +11,7 @@
 // over the 9 ship vertices.
 //
 // External dependency: terrain::altitude(x, z) is the same pure function used
-// by world/terrain — test files have looser include rules than src/render/, so
+// by world/terrain - test files have looser include rules than src/render/, so
 // this TU may include world/terrain.hpp directly to verify the y-replacement.
 //
 // === Shadow formula (D-ShadowDirection, D-ShadowSpan) ===
@@ -41,7 +41,7 @@
 #include <vector>
 
 #include "core/vec3.hpp"
-#include "world/terrain.hpp"         // terrain::altitude — test files may include world/
+#include "world/terrain.hpp"         // terrain::altitude - test files may include world/
 #include "render/shadow.hpp"         // render::project_shadow
 
 // ---------------------------------------------------------------------------
@@ -57,7 +57,7 @@ static_assert(false,
 #endif
 
 // ---------------------------------------------------------------------------
-// AC-S82 — project_shadow must be declared noexcept.
+// AC-S82 - project_shadow must be declared noexcept.
 // ===========================================================================
 //
 //  D-Stateless: pure noexcept function, no globals.
@@ -95,7 +95,7 @@ static const std::array<Vec3, 9> kShipVerts = {{
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-S01 — project_shadow for a single vertex {0, 0, 0} outputs
+// AC-S01 - project_shadow for a single vertex {0, 0, 0} outputs
 //           {0, altitude(0,0), 0}.
 //   Given: one vertex at the world origin
 //   When:  project_shadow is called
@@ -121,7 +121,7 @@ TEST_CASE("AC-S01: single vertex {0,0,0} projects shadow to {0, altitude(0,0), 0
 }
 
 // ---------------------------------------------------------------------------
-// AC-S02 — Each output vertex preserves x/z, replaces y with altitude(x,z).
+// AC-S02 - Each output vertex preserves x/z, replaces y with altitude(x,z).
 //   Given: 9 ship vertices at varying x/z positions
 //   When:  project_shadow is called
 //   Then:  for every i:
@@ -149,7 +149,7 @@ TEST_CASE("AC-S02: each output vertex preserves x/z and replaces y with altitude
 }
 
 // ---------------------------------------------------------------------------
-// AC-S03 — Determinism: bit-identical between two runs over the 9 ship vertices.
+// AC-S03 - Determinism: bit-identical between two runs over the 9 ship vertices.
 //   Given: the 9 ship vertices from kShipVerts
 //   When:  project_shadow is called twice independently with the same input
 //   Then:  every (x, y, z) triplet is bit-identical between runs A and B
@@ -163,7 +163,7 @@ TEST_CASE("AC-S03: project_shadow is bit-identical across two independent runs o
     render::project_shadow(std::span<const Vec3>{kShipVerts}, std::span<Vec3>{run_a});
     render::project_shadow(std::span<const Vec3>{kShipVerts}, std::span<Vec3>{run_b});
 
-    // Then — bit-identical (exact equality, NOT Approx)
+    // Then - bit-identical (exact equality, NOT Approx)
     for (std::size_t i = 0; i < kShipVerts.size(); ++i) {
         CAPTURE(i, run_a[i].x, run_b[i].x, run_a[i].y, run_b[i].y);
         REQUIRE(run_a[i].x == run_b[i].x);
@@ -173,13 +173,13 @@ TEST_CASE("AC-S03: project_shadow is bit-identical across two independent runs o
 }
 
 // ---------------------------------------------------------------------------
-// AC-S04 — Span size match: body.size() == shadow_out.size() must be honoured.
+// AC-S04 - Span size match: body.size() == shadow_out.size() must be honoured.
 //   Given: 3 vertices with output span sized to 3
 //   When:  project_shadow is called
 //   Then:  exactly 3 shadow vertices are written; no out-of-bounds (observable
 //          via sentinel slots that must remain unchanged)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-S04: span size match honoured — 3 vertices produce exactly 3 shadow vertices", "[render][shadow]") {
+TEST_CASE("AC-S04: span size match honoured - 3 vertices produce exactly 3 shadow vertices", "[render][shadow]") {
     // Given
     const std::array<Vec3, 3> verts = {{
         {2.0f, 5.0f, 3.0f},
@@ -201,7 +201,7 @@ TEST_CASE("AC-S04: span size match honoured — 3 vertices produce exactly 3 sha
         CAPTURE(i, out_buf[i].x, out_buf[i].y, out_buf[i].z, expected_y);
         REQUIRE(out_buf[i].y == Catch::Approx(expected_y).margin(kShadowEps));
     }
-    // Sentinel must be untouched — project_shadow must not write beyond span
+    // Sentinel must be untouched - project_shadow must not write beyond span
     CAPTURE(out_buf[3].x, out_buf[3].y, out_buf[3].z);
     REQUIRE(out_buf[3].x == 999.0f);
     REQUIRE(out_buf[3].y == 999.0f);
@@ -209,7 +209,7 @@ TEST_CASE("AC-S04: span size match honoured — 3 vertices produce exactly 3 sha
 }
 
 // ---------------------------------------------------------------------------
-// AC-S05 — Empty input → empty output (no crash, no iteration).
+// AC-S05 - Empty input → empty output (no crash, no iteration).
 //   Given: spans of size 0
 //   When:  project_shadow is called
 //   Then:  function returns without error; output span is unchanged (empty)
@@ -227,7 +227,7 @@ TEST_CASE("AC-S05: empty input span produces empty output with no crash", "[rend
     render::project_shadow(
         std::span<const Vec3>{dummy_buf.data(), 0},
         std::span<Vec3>{dummy_buf.data(), 0});
-    SUCCEED("project_shadow with size-0 spans completed without crash — AC-S05 satisfied");
+    SUCCEED("project_shadow with size-0 spans completed without crash - AC-S05 satisfied");
 }
 
 // ===========================================================================
@@ -240,17 +240,17 @@ TEST_CASE("AC-S05: empty input span produces empty output with no crash", "[rend
 TEST_CASE("AC-S80: render/shadow.hpp compiles without raylib, world/, entities/, <random>, <chrono>", "[render][shadow]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means the header compiled without forbidden deps,
+    // Then:  it ran - which means the header compiled without forbidden deps,
     //        satisfying AC-S80 (render side).
-    SUCCEED("compilation without raylib/forbidden deps succeeded — AC-S80 (shadow side) satisfied");
+    SUCCEED("compilation without raylib/forbidden deps succeeded - AC-S80 (shadow side) satisfied");
 }
 
 TEST_CASE("AC-S81: claude_lander_render link list unchanged after adding shadow.cpp", "[render][shadow]") {
     // Given: this test binary was linked with claude_lander_render which links
     //        against claude_lander_core + claude_lander_warnings only.
     // When:  it reaches this TEST_CASE
-    // Then:  it ran without link errors — AC-S81 satisfied (render side).
-    SUCCEED("render library link list unchanged (core+warnings only) — AC-S81 (shadow side) satisfied");
+    // Then:  it ran without link errors - AC-S81 satisfied (render side).
+    SUCCEED("render library link list unchanged (core+warnings only) - AC-S81 (shadow side) satisfied");
 }
 
 TEST_CASE("AC-S82: project_shadow is noexcept (verified by static_assert at top of TU)", "[render][shadow]") {
@@ -258,5 +258,5 @@ TEST_CASE("AC-S82: project_shadow is noexcept (verified by static_assert at top 
     //        this file (inside anonymous namespace helper).
     // When:  this test is reached (compile succeeded means static_assert passed)
     // Then:  AC-S82 is satisfied.
-    SUCCEED("static_assert(noexcept(project_shadow(...))) passed at compile time — AC-S82 (shadow side) satisfied");
+    SUCCEED("static_assert(noexcept(project_shadow(...))) passed at compile time - AC-S82 (shadow side) satisfied");
 }

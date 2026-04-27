@@ -179,7 +179,7 @@ TEST_CASE("AC-R04: kRockVertices contains exactly the six axis-aligned ±1 octah
 }
 
 // ===========================================================================
-// GROUP 5: Step — gravity applied to velocity (AC-R05)
+// GROUP 5: Step - gravity applied to velocity (AC-R05)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
@@ -205,7 +205,7 @@ TEST_CASE("AC-R05: step(rock) applies gravity to velocity (velocity.y increases 
 }
 
 // ===========================================================================
-// GROUP 6: Step — position integration (AC-R06)
+// GROUP 6: Step - position integration (AC-R06)
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
@@ -242,7 +242,7 @@ TEST_CASE("AC-R06: step(rock) integrates position += post-gravity velocity", "[e
 // AC-R07: 1000 steps produce bit-identical state across two independent runs.
 //   Confirms no PRNG, no clock, no global mutable state inside step(Rock&).
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R07: 1000 step(rock) calls are deterministic — bit-identical to a fresh independent run", "[entities][rock]") {
+TEST_CASE("AC-R07: 1000 step(rock) calls are deterministic - bit-identical to a fresh independent run", "[entities][rock]") {
     // Given: two Rock objects with identical initial state
     // When:  each is advanced 1000 steps independently
     // Then:  final position and velocity are bit-identical between the two runs
@@ -339,7 +339,7 @@ TEST_CASE("AC-R09: after 100 steps from zero velocity, velocity.y ≈ 100 * kGra
 // AC-R10 (AC-Rgrav): velocity.y is POSITIVE after one step from rest.
 //
 // ============================================================================
-//  Y-DOWN GRAVITY SIGN FENCE — bug-class fence
+//  Y-DOWN GRAVITY SIGN FENCE - bug-class fence
 // ============================================================================
 //
 //  The project uses Y-DOWN convention (positive y = downward).  Gravity must
@@ -383,9 +383,9 @@ TEST_CASE("AC-R10 (AC-Rgrav): after one step from rest, velocity.y is positive (
 TEST_CASE("AC-R80: entities/rock header and library compile and link without raylib (BUILD_GAME=OFF)", "[entities][rock]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means rock.hpp compiled and linked without raylib,
+    // Then:  it ran - which means rock.hpp compiled and linked without raylib,
     //        satisfying AC-R80.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-R80 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-R80 satisfied");
 }
 
 // ---------------------------------------------------------------------------
@@ -399,11 +399,11 @@ TEST_CASE("AC-R82: step(Rock&) is declared noexcept", "[entities][rock]") {
     entities::Rock rock{};
     static_assert(noexcept(entities::step(rock)),
         "AC-R82 VIOLATED: entities::step(Rock&) must be declared noexcept.");
-    SUCCEED("static_assert(noexcept(step(rock))) passed — AC-R82 satisfied");
+    SUCCEED("static_assert(noexcept(step(rock))) passed - AC-R82 satisfied");
 }
 
 // ---------------------------------------------------------------------------
-// AC-R83: std::is_aggregate_v<Rock> — Rock must be a plain aggregate (no
+// AC-R83: std::is_aggregate_v<Rock> - Rock must be a plain aggregate (no
 //         virtual functions, no user-declared constructors).
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R83: Rock is an aggregate type (no virtual, no user-declared constructors)", "[entities][rock]") {
@@ -413,5 +413,5 @@ TEST_CASE("AC-R83: Rock is an aggregate type (no virtual, no user-declared const
     static_assert(std::is_aggregate_v<entities::Rock>,
         "AC-R83 VIOLATED: entities::Rock must be an aggregate (no virtual, "
         "no user-declared constructors).");
-    SUCCEED("std::is_aggregate_v<Rock> is true — AC-R83 satisfied");
+    SUCCEED("std::is_aggregate_v<Rock> is true - AC-R83 satisfied");
 }

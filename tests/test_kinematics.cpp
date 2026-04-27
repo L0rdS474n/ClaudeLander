@@ -1,4 +1,4 @@
-// tests/test_kinematics.cpp — Pass 4 physics/kinematics tests.
+// tests/test_kinematics.cpp - Pass 4 physics/kinematics tests.
 //
 // Covers AC-K01..K15 (drag, gravity, thrust, step composition, determinism)
 // and AC-K80..K82 (hygiene).
@@ -22,7 +22,7 @@
 //   (b) AC-K13 catches position += old_velocity (wrong) vs position += new_velocity (correct).
 //       A stale-velocity bug would produce pos.x == 1.0f (old vel) instead of
 //       0.984375f (post-drag vel).
-//   (c) AC-K08 catches gravity subtracted (wrong) vs added (correct) — Y-DOWN
+//   (c) AC-K08 catches gravity subtracted (wrong) vs added (correct) - Y-DOWN
 //       means positive y-velocity is downward; gravity must ADD to vy.
 //
 // === AC-K80 (architecture hygiene: no forbidden includes in kinematics.hpp) ===
@@ -202,7 +202,7 @@ TEST_CASE("AC-K07: 4096 iterations of apply_gravity on {0,0,0} yields result.y �
 // AC-K08: apply_gravity({0,0,0}).y > 0 (Y-DOWN sign fence)
 //
 // ============================================================================
-//  Y-DOWN GRAVITY SIGN FENCE — bug-class fence
+//  Y-DOWN GRAVITY SIGN FENCE - bug-class fence
 // ============================================================================
 //
 //  The project uses Y-DOWN convention (see docs/ARCHITECTURE.md and the D-*
@@ -257,13 +257,13 @@ TEST_CASE("AC-K09: apply_thrust with ThrustLevel::None is a no-op", "[physics][k
 //         apply_thrust({0}, identity(), Half) → (0, kHalfThrust, 0).
 //
 // ============================================================================
-//  HALF-THRUST BUG FENCE — bug-class fence
+//  HALF-THRUST BUG FENCE - bug-class fence
 // ============================================================================
 //
 //  D-Constants specifies kHalfThrust = Full/4 = 1/8192, NOT Full/2.
 //  This is a deliberate spec decision from the original ARM code.
 //  A developer intuiting "half" = Full/2 would produce 1/4096, which is 4x
-//  kGravityPerFrame — this AC catches that mistake loudly.
+//  kGravityPerFrame - this AC catches that mistake loudly.
 //
 //  Expected: kHalfThrust = 1.0f/8192.0f ≈ 1.22e-4f
 //  Bug (Full/2): 1.0f/4096.0f ≈ 2.44e-4f
@@ -355,7 +355,7 @@ TEST_CASE("AC-K12: Full thrust with custom orient (col[1]=(1,0,0)) applies thrus
 //   Hand-computed golden value for the full step pipeline.
 //
 // ============================================================================
-//  STEP-ORDER + STALE-VELOCITY BUG FENCE — bug-class fence
+//  STEP-ORDER + STALE-VELOCITY BUG FENCE - bug-class fence
 // ============================================================================
 //
 //  D-StepOrder pins: drag → gravity → thrust → position += velocity.
@@ -421,7 +421,7 @@ TEST_CASE("AC-K13: step with vel={1,0,0} Full thrust produces correct post-step 
 //   Confirms there is no PRNG, clock, or global mutable state inside step().
 //   Two independent simulation loops must produce bit-identical final states.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-K14: 1000 step() calls are deterministic — bit-identical to a fresh independent run", "[physics][kinematics]") {
+TEST_CASE("AC-K14: 1000 step() calls are deterministic - bit-identical to a fresh independent run", "[physics][kinematics]") {
     // Given: two Ship objects with identical initial state
     //        ThrustLevel = Full
     // When:  each is advanced 1000 steps independently
@@ -501,9 +501,9 @@ TEST_CASE("AC-K15: 1000 Full-thrust frames yield terminal v.y ≈ (kGravity+kFul
 TEST_CASE("AC-K81: physics/kinematics header and library compile and link without raylib (BUILD_GAME=OFF)", "[physics][kinematics]") {
     // Given: this test file was compiled with BUILD_GAME=OFF (no raylib on path)
     // When:  it reaches this TEST_CASE at runtime
-    // Then:  it ran — which means kinematics.hpp compiled and linked without raylib,
+    // Then:  it ran - which means kinematics.hpp compiled and linked without raylib,
     //        satisfying AC-K81.
-    SUCCEED("compilation and linkage without raylib succeeded — AC-K81 satisfied");
+    SUCCEED("compilation and linkage without raylib succeeded - AC-K81 satisfied");
 }
 
 TEST_CASE("AC-K82: apply_drag/gravity/thrust constants are accessible and self-consistent", "[physics][kinematics]") {

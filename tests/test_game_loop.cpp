@@ -47,7 +47,7 @@
 #include "game/game_loop.hpp"    // game::tick, game::build_drawables, game::Drawable
 
 // ---------------------------------------------------------------------------
-// AC-G80 — game_state.hpp and game_loop.hpp must not pull in raylib.
+// AC-G80 - game_state.hpp and game_loop.hpp must not pull in raylib.
 // RAYLIB_VERSION is defined by raylib.h; if present here, the include chain
 // is polluted.  The BUILD_GAME=OFF build already keeps raylib off the path.
 // ---------------------------------------------------------------------------
@@ -218,7 +218,7 @@ TEST_CASE("AC-G03: full-thrust tick changes ship velocity toward upward directio
 //   that is a Pass 14 e2e validation, not a Pass 13 contract.
 //   Given: default state (orientation = identity)
 //   When:  one full_thrust tick vs one no-input tick from identical state
-//   Then:  velocity.y(thrust) > velocity.y(no_input) — thrust adds to gravity.
+//   Then:  velocity.y(thrust) > velocity.y(no_input) - thrust adds to gravity.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-G03b: full-thrust tick produces strictly higher vy than gravity-only tick at identity", "[game][game_loop]") {
     // Given
@@ -309,7 +309,7 @@ TEST_CASE("AC-G05: 1000 frames with identical input sequence produces bit-identi
     const game::GameState a = run();
     const game::GameState b = run();
 
-    // Then: bit-identical (strict ==, no tolerance — see AC docstring)
+    // Then: bit-identical (strict ==, no tolerance - see AC docstring)
     REQUIRE(a.frame_counter == b.frame_counter);
     REQUIRE(a.score         == b.score);
     REQUIRE(a.ammo          == b.ammo);

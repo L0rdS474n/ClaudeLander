@@ -1,13 +1,13 @@
-// tests/test_object_map.cpp — Pass 11 world/object_map + entities/ground_object tests.
+// tests/test_object_map.cpp - Pass 11 world/object_map + entities/ground_object tests.
 //
 // Covers all 24 ACs from docs/plans/pass-11-object-map.md §4:
-//   AC-O01..O05   — score table
-//   AC-O06..O10   — object_at determinism
-//   AC-O11..O14   — position semantics
-//   AC-O15..O18   — bullet collision
-//   AC-O19..O20   — determinism + integration
-//   AC-Olaunchpad, AC-Odensity, AC-Oscore — bug-class fences
-//   AC-O80..O82   — hygiene (static_assert + compile-time checks)
+//   AC-O01..O05   - score table
+//   AC-O06..O10   - object_at determinism
+//   AC-O11..O14   - position semantics
+//   AC-O15..O18   - bullet collision
+//   AC-O19..O20   - determinism + integration
+//   AC-Olaunchpad, AC-Odensity, AC-Oscore - bug-class fences
+//   AC-O80..O82   - hygiene (static_assert + compile-time checks)
 //
 // All tests tagged [world][object_map].
 //
@@ -19,7 +19,7 @@
 // altitude() is called only to verify the y-coordinate of an object whose
 // tile position is fixed; it is itself pure (Pass 2 contract).
 //
-// === Placement formula (LOCKED — derive from implementation) ===
+// === Placement formula (LOCKED - derive from implementation) ===
 //   hash = (static_cast<uint32_t>(tx) * 73856093u) ^ (static_cast<uint32_t>(tz) * 19349663u)
 //   density_threshold = (hash % 100) < 30       // ~30% populated
 //   type_index = (hash >> 8) % 5 + 1            // 1..5 -> Tree..FirTree (skip None=0)
@@ -178,7 +178,7 @@ TEST_CASE("AC-O05: score_for(Rocket) equals 100 and score_for(None) equals 0", "
 //   When:  object_at(0, 0) is called
 //   Then:  result is nullopt (tile is always empty regardless of hash)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-O06: object_at(0,0) returns nullopt — launchpad tile is always empty", "[world][object_map]") {
+TEST_CASE("AC-O06: object_at(0,0) returns nullopt - launchpad tile is always empty", "[world][object_map]") {
     // Given / When
     const auto result = world::object_at(0, 0);
     // Then
@@ -186,12 +186,12 @@ TEST_CASE("AC-O06: object_at(0,0) returns nullopt — launchpad tile is always e
 }
 
 // ---------------------------------------------------------------------------
-// AC-O07: object_at(tx, tz) is deterministic — same inputs produce same output
-//   Given: tile (1, 6) — confirmed populated (hash%100=9)
+// AC-O07: object_at(tx, tz) is deterministic - same inputs produce same output
+//   Given: tile (1, 6) - confirmed populated (hash%100=9)
 //   When:  object_at is called twice with identical inputs
 //   Then:  both results are equal (same has_value, same type, same position)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-O07: object_at(1,6) is deterministic — two calls produce identical results", "[world][object_map]") {
+TEST_CASE("AC-O07: object_at(1,6) is deterministic - two calls produce identical results", "[world][object_map]") {
     // Given: (1, 6) is a confirmed-populated tile.
     const auto r1 = world::object_at(1, 6);
     const auto r2 = world::object_at(1, 6);
@@ -211,12 +211,12 @@ TEST_CASE("AC-O07: object_at(1,6) is deterministic — two calls produce identic
 }
 
 // ---------------------------------------------------------------------------
-// AC-O08: Map repeats every 256 tiles — object_at(0,0) == object_at(256,0)
-//   Given: tile (0, 0) and tile (256, 0) — latter should wrap to (0, 0) via mod 256
+// AC-O08: Map repeats every 256 tiles - object_at(0,0) == object_at(256,0)
+//   Given: tile (0, 0) and tile (256, 0) - latter should wrap to (0, 0) via mod 256
 //   When:  object_at is called for both
 //   Then:  both return nullopt (wrapping makes both the launchpad tile)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-O08: object_at(256,0) equals object_at(0,0) — map wraps every 256 tiles", "[world][object_map]") {
+TEST_CASE("AC-O08: object_at(256,0) equals object_at(0,0) - map wraps every 256 tiles", "[world][object_map]") {
     // Given: 256 == kObjectMapSize
     REQUIRE(world::kObjectMapSize == 256);
 
@@ -227,7 +227,7 @@ TEST_CASE("AC-O08: object_at(256,0) equals object_at(0,0) — map wraps every 25
     // Then: same has_value
     REQUIRE(r0.has_value() == r256.has_value());
 
-    // If both populated (they should not be — (0,0) is always empty)
+    // If both populated (they should not be - (0,0) is always empty)
     if (r0.has_value() && r256.has_value()) {
         REQUIRE(r0->type == r256->type);
         REQUIRE(r0->position.x == r256->position.x);
@@ -237,7 +237,7 @@ TEST_CASE("AC-O08: object_at(256,0) equals object_at(0,0) — map wraps every 25
 
 // ---------------------------------------------------------------------------
 // AC-O09: A non-empty tile returns a populated GroundObject
-//   Given: tile (1, 6) — confirmed populated (hash%100=9 < 30)
+//   Given: tile (1, 6) - confirmed populated (hash%100=9 < 30)
 //   When:  object_at(1, 6) is called
 //   Then:  result has_value == true, type != None, alive == true
 // ---------------------------------------------------------------------------
@@ -292,11 +292,11 @@ TEST_CASE("AC-O10: density over 256x256 grid is in [25%, 35%]", "[world][object_
 //   Given: the plan specifies position.x = tx * TILE_SIZE
 //   When:  object_at is called for any populated tile with tx=5
 //   Then:  position.x is within kObjEps of 5 * TILE_SIZE
-//   NOTE: tile (5,7) has hash%100=48 so it is EMPTY — we test x-coordinate
+//   NOTE: tile (5,7) has hash%100=48 so it is EMPTY - we test x-coordinate
 //         by finding a populated tile with tx=5. The plan requires the formula
 //         holds for any populated tile; we iterate tz to find one.
 //         Alternatively, confirm via object_at for the correct tile.
-//         Per plan: AC-O11 is stated for (5,7) — we test even if empty by
+//         Per plan: AC-O11 is stated for (5,7) - we test even if empty by
 //         verifying the formula would apply to whichever tile (5,tz) is populated.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O11: for any populated tile with tx=5, position.x equals 5*TILE_SIZE within tolerance", "[world][object_map]") {
@@ -339,7 +339,7 @@ TEST_CASE("AC-O12: object_at(1,6).position.z equals 6*TILE_SIZE within tolerance
 // ---------------------------------------------------------------------------
 // AC-O13: object_at(...).position.y ≈ altitude(position.x, position.z)
 //   Object sits on terrain.
-//   Given: tile (1, 6) — confirmed populated
+//   Given: tile (1, 6) - confirmed populated
 //   When:  object_at(1, 6) is called
 //   Then:  |position.y - terrain::altitude(position.x, position.z)| <= kObjEps
 // ---------------------------------------------------------------------------
@@ -362,7 +362,7 @@ TEST_CASE("AC-O13: object_at(1,6).position.y equals terrain altitude at that pos
 //   When:  object_at(1, 6) is called each time
 //   Then:  every call returns the same type (no randomness, no state mutation)
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-O14: type assignment is deterministic — 100 calls to object_at(1,6) all return the same type", "[world][object_map]") {
+TEST_CASE("AC-O14: type assignment is deterministic - 100 calls to object_at(1,6) all return the same type", "[world][object_map]") {
     // Given: first call establishes reference
     const auto reference = world::object_at(1, 6);
     REQUIRE(reference.has_value());
@@ -433,11 +433,11 @@ TEST_CASE("AC-O16: bullet at center of empty 3x3 cluster (10,10) returns hit_by_
 //   When:  hit_by_bullet is called with position {0, alt(0,0), 0}
 //   Then:  hit_by_bullet returns false
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-O17: bullet at launchpad origin (0,0,0) returns hit_by_bullet==false — no object at tile (0,0)", "[world][object_map]") {
+TEST_CASE("AC-O17: bullet at launchpad origin (0,0,0) returns hit_by_bullet==false - no object at tile (0,0)", "[world][object_map]") {
     // Given: launchpad is confirmed empty
     REQUIRE_FALSE(world::object_at(0, 0).has_value());
 
-    // When: bullet at world position {0, alt, 0} — tile (0,0)
+    // When: bullet at world position {0, alt, 0} - tile (0,0)
     const Vec3 bullet = tile_centre(0, 0);
     const bool hit = world::hit_by_bullet(bullet);
 
@@ -453,7 +453,7 @@ TEST_CASE("AC-O17: bullet at launchpad origin (0,0,0) returns hit_by_bullet==fal
 //          (distance = sqrt(0.5^2) = 0.5 tiles exactly)
 //   Then:  hit_by_bullet returns true (plan: "true at exact 0.5")
 //   Note:  The plan states the threshold is < 0.5 tiles but the boundary
-//          condition is "true at exact 0.5" — the implementation should use
+//          condition is "true at exact 0.5" - the implementation should use
 //          dist <= 0.5 * TILE_SIZE for the hit predicate.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O18: bullet exactly 0.5 tile away from object returns hit_by_bullet==true (boundary: true at 0.5)", "[world][object_map]") {
@@ -486,7 +486,7 @@ TEST_CASE("AC-O18: bullet exactly 0.5 tile away from object returns hit_by_bulle
 //   Then:  has_value, type, position, alive are bit-identical between runs
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O19: object_at across 1000 varied tiles is bit-identical on repeat runs", "[world][object_map]") {
-    // Given: deterministic tile sequence (no PRNG — integer arithmetic only)
+    // Given: deterministic tile sequence (no PRNG - integer arithmetic only)
     constexpr int kN = 1000;
 
     // Collect first pass
@@ -540,7 +540,7 @@ TEST_CASE("AC-O19: object_at across 1000 varied tiles is bit-identical on repeat
 // ---------------------------------------------------------------------------
 // AC-O20: All object positions sit on terrain altitude within kObjEps
 //   Given: a representative sample of 400 populated tiles (first 400 found
-//          scanning [0..63]^2 — sufficient for coverage without full grid)
+//          scanning [0..63]^2 - sufficient for coverage without full grid)
 //   When:  position.y is compared against terrain::altitude(position.x, position.z)
 //   Then:  every |position.y - altitude| <= kObjEps
 // ---------------------------------------------------------------------------
@@ -571,7 +571,7 @@ TEST_CASE("AC-O20: all sampled object positions sit on terrain altitude within k
 // ===========================================================================
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Olaunchpad) — LAUNCHPAD MUST BE EMPTY
+//  BUG-CLASS FENCE (AC-Olaunchpad) - LAUNCHPAD MUST BE EMPTY
 // ===========================================================================
 //
 //  D-LaunchpadCarveout (locked): tile (0, 0) MUST always return nullopt.
@@ -584,9 +584,9 @@ TEST_CASE("AC-O20: all sampled object positions sit on terrain altitude within k
 //  If this test fails: do NOT change the test.  The hash formula happens to
 //  produce hash(0,0)=0, and (0%100)=0 < 30 would normally place an object.
 //  The launchpad carve-out MUST be an explicit early return: if (tx==0 && tz==0)
-//  return nullopt.  This is not a density issue — it is a hard code invariant.
+//  return nullopt.  This is not a density issue - it is a hard code invariant.
 // ===========================================================================
-TEST_CASE("AC-Olaunchpad (BUG-CLASS FENCE): tile (0,0) is ALWAYS empty — launchpad carve-out is non-negotiable", "[world][object_map]") {
+TEST_CASE("AC-Olaunchpad (BUG-CLASS FENCE): tile (0,0) is ALWAYS empty - launchpad carve-out is non-negotiable", "[world][object_map]") {
     // Given: the hash formula gives hash(0,0) = 0, and 0%100 = 0 < 30,
     //        which would normally indicate a populated tile.
     //        The launchpad carve-out must override this.
@@ -605,14 +605,14 @@ TEST_CASE("AC-Olaunchpad (BUG-CLASS FENCE): tile (0,0) is ALWAYS empty — launc
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Odensity) — DENSITY MUST BE IN [25%, 35%]
+//  BUG-CLASS FENCE (AC-Odensity) - DENSITY MUST BE IN [25%, 35%]
 // ===========================================================================
 //
 //  D-Density (locked): ~30% of tiles are populated, based on hash % 100 < 30.
 //
-//  A density of 0% means the map is empty — no objects to hit, no score to
+//  A density of 0% means the map is empty - no objects to hit, no score to
 //  earn, game is unplayable.
-//  A density of 100% means every tile has an object — the player cannot
+//  A density of 100% means every tile has an object - the player cannot
 //  manoeuvre and will crash immediately (impassable terrain).
 //  The density window [25%, 35%] is the design-correct range; straying
 //  outside it implies the hash formula or threshold was changed.
@@ -622,9 +622,9 @@ TEST_CASE("AC-Olaunchpad (BUG-CLASS FENCE): tile (0,0) is ALWAYS empty — launc
 //               or the constant 30 was changed to 0.
 //    - 100% density: the threshold was set to 100 or the comparison is always true.
 //    - Out of [25,35]: the threshold value or formula was changed; re-read D-Density.
-//  Do NOT change the test — fix the implementation threshold.
+//  Do NOT change the test - fix the implementation threshold.
 // ===========================================================================
-TEST_CASE("AC-Odensity (BUG-CLASS FENCE): density over 256x256 grid is in [25%, 35%] — rejects 0% empty and 100% impassable maps", "[world][object_map]") {
+TEST_CASE("AC-Odensity (BUG-CLASS FENCE): density over 256x256 grid is in [25%, 35%] - rejects 0% empty and 100% impassable maps", "[world][object_map]") {
     // Given: full 256x256 grid scan (same as AC-O10, repeated here as an
     //        independent fence with clearer failure diagnostics)
     int populated = 0;
@@ -652,7 +652,7 @@ TEST_CASE("AC-Odensity (BUG-CLASS FENCE): density over 256x256 grid is in [25%, 
 }
 
 // ===========================================================================
-//  BUG-CLASS FENCE (AC-Oscore) — SCORE ORDER IS PINNED
+//  BUG-CLASS FENCE (AC-Oscore) - SCORE ORDER IS PINNED
 // ===========================================================================
 //
 //  D-ScoreTable (locked): Rocket > Building > Gazebo > Tree = FirTree.
@@ -668,7 +668,7 @@ TEST_CASE("AC-Odensity (BUG-CLASS FENCE): density over 256x256 grid is in [25%, 
 //  If this test fails: re-read D-ScoreTable in the plan.  The table is:
 //      None=0, Tree=10, Building=50, Gazebo=20, Rocket=100, FirTree=10.
 //  The ObjectType enum is: None=0, Tree=1, Building=2, Gazebo=3, Rocket=4, FirTree=5.
-//  Do NOT change the test — fix the score_for switch/table in the implementation.
+//  Do NOT change the test - fix the score_for switch/table in the implementation.
 // ===========================================================================
 TEST_CASE("AC-Oscore (BUG-CLASS FENCE): score order Rocket > Building > Gazebo > Tree = FirTree (score table pinned)", "[world][object_map]") {
     // Given / When
@@ -709,23 +709,23 @@ TEST_CASE("AC-Oscore (BUG-CLASS FENCE): score order Rocket > Building > Gazebo >
 //         raylib, render/, <random>, or <chrono>
 //   Given: this TU was compiled with BUILD_GAME=OFF (no raylib on path)
 //   When:  this test is reached at runtime
-//   Then:  compilation succeeded — no forbidden dependencies
+//   Then:  compilation succeeded - no forbidden dependencies
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O80: entities/ground_object.hpp and world/object_map.hpp compile without raylib, render/, <random>, <chrono>", "[world][object_map]") {
     // The static_assert(false) tripwire at the top of this file fires at compile
     // time if RAYLIB_VERSION is defined (which only happens when raylib.h is
     // included transitively).  Reaching this line means it did not fire.
-    SUCCEED("compilation without raylib/forbidden deps succeeded — AC-O80 satisfied");
+    SUCCEED("compilation without raylib/forbidden deps succeeded - AC-O80 satisfied");
 }
 
 // ---------------------------------------------------------------------------
 // AC-O81: claude_lander_world and claude_lander_entities link lists unchanged
 //   Given: this test binary was linked with both libraries
 //   When:  this test is reached
-//   Then:  no link errors — link lists are consistent with CMakeLists.txt
+//   Then:  no link errors - link lists are consistent with CMakeLists.txt
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O81: claude_lander_world and claude_lander_entities link lists unchanged", "[world][object_map]") {
-    SUCCEED("world and entities libraries linked without errors — AC-O81 satisfied");
+    SUCCEED("world and entities libraries linked without errors - AC-O81 satisfied");
 }
 
 // ---------------------------------------------------------------------------
@@ -734,5 +734,5 @@ TEST_CASE("AC-O81: claude_lander_world and claude_lander_entities link lists unc
 TEST_CASE("AC-O82: score_for, object_at, hit_by_bullet are noexcept (verified by static_assert at top of TU)", "[world][object_map]") {
     // The static_asserts at the top of this file verify noexcept at compile time.
     // Reaching this line means all three passed.
-    SUCCEED("static_assert(noexcept(...)) passed for score_for, object_at, hit_by_bullet — AC-O82 satisfied");
+    SUCCEED("static_assert(noexcept(...)) passed for score_for, object_at, hit_by_bullet - AC-O82 satisfied");
 }
