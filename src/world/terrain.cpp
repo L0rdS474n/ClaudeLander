@@ -53,7 +53,16 @@ inline float sin_lut_scaled(std::int32_t arg) noexcept {
 
 // Floor a float toward -infinity into an int32_t.  Planner KOQ-3 locks the
 // boundary coercion to std::floor so altitude(0.5f, ...) == altitude(0.0f, ...).
+//
+// Iter-5 fence: NaN and infinities short-circuit to 0 (the LAND_MID_HEIGHT
+// origin) so a NaN-poisoned input cannot reach `static_cast<int32_t>(NaN)`,
+// which is undefined behaviour per [conv.fpint].  Returning 0 yields
+// altitude(0, 0) == LAND_MID_HEIGHT downstream -- a predictable, finite
+// fallback rather than UB.
 inline std::int32_t floor_to_int(float v) noexcept {
+    if (!std::isfinite(v)) {
+        return 0;
+    }
     return static_cast<std::int32_t>(std::floor(v));
 }
 

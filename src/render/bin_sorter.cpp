@@ -37,17 +37,22 @@ namespace render {
 std::optional<std::size_t> bin_for_z(float landscape_z, float z) noexcept {
     const float delta = landscape_z - z;
 
-    // Reject negative bins (z is closer than any landscape row) and
-    // bins >= kBinCount (z is further than the horizon).  AC-B03 / AC-B04.
-    if (delta < 0.0f) {
-        return std::nullopt;
-    }
-    if (delta >= static_cast<float>(kBinCount)) {
+    // Reject the closed complement of [0, kBinCount).  We write the check
+    // positively (delta >= 0 AND delta < kBinCount) and negate the whole
+    // expression so that NaN -- where every ordered comparison is false --
+    // also lands in the rejection branch.  Without this, NaN would pass
+    // both `delta < 0` and `delta >= kBinCount`, then fall through to
+    // `static_cast<size_t>(NaN)` which is undefined behaviour ([conv.fpint]).
+    //
+    // AC-B03 (delta < 0 rejected), AC-B04 (delta == kBinCount rejected),
+    // AC-Bnan (NaN rejected -- iter-5 fence).
+    if (!(delta >= 0.0f && delta < static_cast<float>(kBinCount))) {
         return std::nullopt;
     }
 
-    // Truncation toward zero.  delta is non-negative here, so the cast
-    // is well-defined and matches the integer-subtraction semantics.
+    // Truncation toward zero.  delta is finite and non-negative here, so
+    // the cast is well-defined and matches the integer-subtraction
+    // semantics.
     return static_cast<std::size_t>(delta);
 }
 

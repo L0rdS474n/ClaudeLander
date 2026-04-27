@@ -33,6 +33,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <optional>
 #include <span>
 #include <type_traits>
@@ -142,6 +143,31 @@ TEST_CASE("AC-B05: bin_for_z is deterministic — bit-identical on repeated call
     REQUIRE(a.has_value() == b.has_value());
     REQUIRE(a.has_value());
     REQUIRE(*a == *b);
+}
+
+// ---------------------------------------------------------------------------
+// AC-Bnan — bin_for_z rejects NaN inputs without invoking UB.
+//
+//   Bug class: an earlier draft used `delta < 0 || delta >= kBinCount`,
+//   both of which evaluate to `false` when delta is NaN (per IEEE 754,
+//   every ordered comparison with NaN returns false).  NaN would then
+//   slip through to `static_cast<size_t>(NaN)`, which is undefined
+//   behaviour per [conv.fpint].  This fence ensures NaN is rejected.
+//
+//   NaN can plausibly reach this function: a NaN-valued mouse_offset
+//   propagates through to_polar -> damp -> orientation_from_pitch_yaw
+//   -> ship vertices -> drawable z, and from there into bin_for_z.
+// ---------------------------------------------------------------------------
+TEST_CASE("AC-Bnan: bin_for_z(NaN, _) and bin_for_z(_, NaN) return std::nullopt", "[render][bin_sorter]") {
+    const float kNaN = std::numeric_limits<float>::quiet_NaN();
+
+    REQUIRE_FALSE(render::bin_for_z(kNaN, 0.0f).has_value());
+    REQUIRE_FALSE(render::bin_for_z(10.0f, kNaN).has_value());
+    REQUIRE_FALSE(render::bin_for_z(kNaN, kNaN).has_value());
+    // Infinities: +inf - finite = +inf, which fails the < kBinCount check.
+    const float kInf = std::numeric_limits<float>::infinity();
+    REQUIRE_FALSE(render::bin_for_z(kInf, 0.0f).has_value());
+    REQUIRE_FALSE(render::bin_for_z(0.0f, kInf).has_value());
 }
 
 // ===========================================================================

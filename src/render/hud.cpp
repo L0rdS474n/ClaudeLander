@@ -31,10 +31,21 @@ namespace render {
     // result cannot be negative or exceed container_px.  Rounds to nearest
     // using the classic +0.5 trick (truncation toward zero of a non-negative
     // float = floor; floor(x + 0.5) = round-half-up for non-negatives).
+    //
+    // Iter-5 fence (AC-Hnan): the lower bound is written as `!(f >= 0)`
+    // so that NaN -- where every ordered comparison returns false --
+    // joins negatives in the "clamp to 0" branch.  The previous form
+    // `if (f < 0) f = 0;` let NaN slip through to `static_cast<int>(NaN)`,
+    // which is undefined behaviour per [conv.fpint].  The upper-bound
+    // check stays positive (`f > 1`) because by then f is finite and
+    // non-negative.
     int fuel_bar_width(float fuel_fraction, int container_px) noexcept {
         float f = fuel_fraction;
-        if (f < 0.0f) f = 0.0f;
-        if (f > 1.0f) f = 1.0f;
+        if (!(f >= 0.0f)) {
+            f = 0.0f;
+        } else if (f > 1.0f) {
+            f = 1.0f;
+        }
         return static_cast<int>(f * static_cast<float>(container_px) + 0.5f);
     }
 

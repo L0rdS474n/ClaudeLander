@@ -502,6 +502,45 @@ TEST_CASE("AC-Hclamp (BUG-CLASS FENCE): fuel_bar_width clamps BOTH above 1.0 AND
 }
 
 // ===========================================================================
+//  BUG-CLASS FENCE (AC-Hnan) — iter-5 robustness
+// ===========================================================================
+//
+//  Bug class: clamp written as `if (f < 0) f = 0; if (f > 1) f = 1;` lets
+//  NaN slip through both branches (every ordered comparison with NaN
+//  returns false), then `static_cast<int>(NaN)` is undefined behaviour
+//  per [conv.fpint].
+//
+//  fuel_bar_width must therefore reject NaN, +inf, and -inf in the
+//  initial clamp so the cast is always defined.  AC-Hnan pins this.
+//
+//  Why it can happen in practice: a NaN-valued mouse_offset propagates
+//  through to_polar -> damp -> orientation -> ship vertices -> ship
+//  velocity -> arithmetic involving fuel?  Not directly via fuel, but
+//  defensive clamping protects against future code paths that could
+//  introduce NaN into state.fuel.
+// ===========================================================================
+TEST_CASE("AC-Hnan: fuel_bar_width clamps NaN and infinities to a safe pixel width", "[render][hud]") {
+    constexpr int container = 32;
+    const float kNaN = std::numeric_limits<float>::quiet_NaN();
+    const float kInf = std::numeric_limits<float>::infinity();
+
+    // NaN must clamp to 0 (the conservative choice for an indeterminate value).
+    REQUIRE(render::fuel_bar_width(kNaN, container)  == 0);
+    // -inf joins the negative branch -> 0.
+    REQUIRE(render::fuel_bar_width(-kInf, container) == 0);
+    // +inf joins the > 1 branch -> container_px.
+    REQUIRE(render::fuel_bar_width(+kInf, container) == container);
+
+    // The result must always be in [0, container_px], regardless of input.
+    for (float f : { kNaN, -kInf, +kInf, -1e30f, +1e30f }) {
+        const int w = render::fuel_bar_width(f, container);
+        CAPTURE(f, w);
+        REQUIRE(w >= 0);
+        REQUIRE(w <= container);
+    }
+}
+
+// ===========================================================================
 //  BUG-CLASS FENCE (AC-Htop16)
 // ===========================================================================
 //
