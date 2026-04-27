@@ -108,6 +108,8 @@ static float vec_magnitude(Vec3 v) noexcept {
 // ---------------------------------------------------------------------------
 // Helper: compute outward normal from three vertices using the locked winding.
 //   normal = normalize(cross(v1 - v0, v2 - v0))
+// CCW from outside; the ship face list in entities/ship.hpp had its
+// winding adjusted to match this convention (see Pass 6 plan §3).
 // ---------------------------------------------------------------------------
 static Vec3 compute_normal(Vec3 v0, Vec3 v1, Vec3 v2) noexcept {
     const Vec3 edge1 = v1 - v0;
@@ -794,8 +796,8 @@ TEST_CASE("AC-F18 (AC-F-winding): face 0 outward-normal dot(n, centroid - mesh_c
     const auto& faces = entities::kShipFaces;
     const auto& f0    = faces[0];
     REQUIRE(f0.v0 == 0);
-    REQUIRE(f0.v1 == 1);
-    REQUIRE(f0.v2 == 5);
+    REQUIRE(f0.v1 == 5);
+    REQUIRE(f0.v2 == 1);
 
     // Compute mesh centroid (average of all 9 vertices)
     Vec3 mesh_centroid{0.0f, 0.0f, 0.0f};
