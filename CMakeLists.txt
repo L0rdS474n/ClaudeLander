@@ -96,6 +96,22 @@ target_link_libraries(claude_lander_world PRIVATE
 )
 
 # ----------------------------------------------------------------------------
+# render/ projection layer -- depends on core/ ONLY.  No raylib, no world/,
+# no entities/ (ADR-0006, planner D-Yflip).  Declared unconditionally so the
+# test executable can link against it without raylib's X11/OpenGL deps.
+# Boundary is enforced by the `render_no_raylib_or_world_includes` CTest
+# tripwire below.
+# ----------------------------------------------------------------------------
+add_library(claude_lander_render OBJECT
+    src/render/projection.cpp
+)
+target_include_directories(claude_lander_render PUBLIC src)
+target_link_libraries(claude_lander_render PRIVATE
+    claude_lander_core
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
 # Game executable. As implementation milestones land, modules under src/
 # (core/, world/, render/, ...) will be added as object libraries and linked
 # in here.
@@ -107,6 +123,7 @@ if(CLAUDE_LANDER_BUILD_GAME)
         raylib
         claude_lander_core
         claude_lander_world
+        claude_lander_render
         claude_lander_warnings
     )
 
@@ -149,6 +166,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         Catch2::Catch2WithMain
         claude_lander_core
         claude_lander_world
+        claude_lander_render
         claude_lander_warnings
     )
     catch_discover_tests(claude_lander_tests)
