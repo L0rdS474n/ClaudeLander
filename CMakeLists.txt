@@ -107,6 +107,7 @@ add_library(claude_lander_render OBJECT
     src/render/projection.cpp
     src/render/faces.cpp
     src/render/bin_sorter.cpp
+    src/render/shadow.cpp
 )
 target_include_directories(claude_lander_render PUBLIC src)
 target_link_libraries(claude_lander_render PRIVATE
@@ -123,6 +124,7 @@ target_link_libraries(claude_lander_render PRIVATE
 # ----------------------------------------------------------------------------
 add_library(claude_lander_physics OBJECT
     src/physics/kinematics.cpp
+    src/physics/collision.cpp
 )
 target_include_directories(claude_lander_physics PUBLIC src)
 target_link_libraries(claude_lander_physics PRIVATE
@@ -220,6 +222,8 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_faces.cpp
         tests/test_camera_follow.cpp
         tests/test_bin_sorter.cpp
+        tests/test_shadow.cpp
+        tests/test_collision.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
