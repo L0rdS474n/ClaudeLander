@@ -146,6 +146,8 @@ target_link_libraries(claude_lander_physics PRIVATE
 # ----------------------------------------------------------------------------
 add_library(claude_lander_entities OBJECT
     src/entities/ship.cpp
+    src/entities/rock.cpp
+    src/entities/particle.cpp
 )
 target_include_directories(claude_lander_entities PUBLIC src)
 target_link_libraries(claude_lander_entities PRIVATE
@@ -230,6 +232,8 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_bin_sorter.cpp
         tests/test_shadow.cpp
         tests/test_collision.cpp
+        tests/test_rock.cpp
+        tests/test_particle.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
