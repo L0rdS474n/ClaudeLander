@@ -9,9 +9,13 @@ This project was built as a demonstration of how
 and ship a non-trivial cross-platform C++ game using a gate-driven agent
 pipeline.
 
-> **Status:** Early bootstrap. See the milestone table below for current
-> progress. Screenshots and release binaries follow once the implementation
-> milestones are green.
+> **Status:** Implementation passes 0–14 are green; Windows
+> cross-compile is wired in CI (Pass 15) and verified on first push;
+> ralph-loop quality iterations are in progress (Pass 15.5).
+> Screenshots and release binaries follow once the public repo is
+> created (Pass 16).
+> See [`docs/REFERENCE.md`](docs/REFERENCE.md) for the bbcelite ↔
+> implementation mapping.
 
 ## Controls
 

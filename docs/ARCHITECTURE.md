@@ -1,9 +1,9 @@
 # Architecture
 
-> **Pass 0 stub.** This document records the design contracts the codebase
-> will obey as later passes land. Each section grows in detail as the matching
-> module is implemented. Anything beyond a heading and a one-paragraph
-> contract is intentionally deferred to the pass that adds it.
+> **Living design contracts.**  Each section is a contract the codebase
+> obeys.  The pre-Pass-1 framing has been superseded by the actual modules
+> that now exist; see *Module status* at the bottom for which contracts are
+> live and which remain aspirational.
 
 ## Coordinate convention: Y-DOWN
 
@@ -147,16 +147,28 @@ construction, so the OFF path is sound for every Pass 1 test.  Higher layers
 introduced in later passes that legitimately need raylib types must keep that
 dependency confined to layers above `core/` per the layer-dependency rules.
 
-## What is NOT in scope for Pass 0
+## Module status
 
-* No game logic. `src/main.cpp` is a window-opens-and-paints-a-gradient
-  smoke test. It exists only to prove that CMake + raylib + FetchContent +
-  Catch2 are correctly wired together.
-* No platform glue. The MinGW toolchain file exists but is not invoked
-  locally during Pass 0 -- it is exercised in CI on a GitHub-hosted runner.
-* No assets. Asset pipeline (sprites, sounds, font) is introduced in a
-  later pass when there is something to draw with them.
+The contracts above are live in the modules listed below.  See
+[`docs/REFERENCE.md`](REFERENCE.md) for the bbcelite-deep-dive ↔ module
+mapping.
 
-Pass 0's deliverable is a **green build on Linux (native)** and a
-**workflow-prepared build on Windows (cross + native)**. Real-game content
-begins in Pass 1.
+| Layer | Module(s) | Pass | Status |
+|---|---|---|---|
+| `core/` | `vec2`, `vec3`, `matrix3`, `lookup_tables`, `face_types` | 1 | Live; AC-V01..V22, AC-M01..M22, AC-L01..L22. |
+| `world/` | `terrain`, `camera_follow`, `object_map`, `shadow` | 2, 7, 11, 9 | Live; AC-W01..W20, AC-C01..C22, AC-O01..O22. |
+| `entities/` | `ship`, `rock`, `particle`, `ground_object` | 4, 10, 11 | Live; AC-F01..F22, AC-R01..R12, AC-P01..P12. |
+| `render/` | `projection`, `faces`, `bin_sorter`, `shadow` (header), `hud` | 3, 6, 8, 9, 12 | Live; AC-R01..R22, AC-F01..F22, AC-B05..B20, AC-H01..H22. |
+| `input/` | `mouse_polar` | 5 | Live; AC-I01..I22. |
+| `physics/` | `kinematics`, `collision` | 4, 9 | Live; AC-K01..K22, AC-S01..S20. |
+| `game/` | `game_state`, `game_loop`, `render_frame` | 13, 14 | Live; AC-G01..G18, AC-Gbinwire (iter-2), AC-G80, AC-G82.  `render_frame.cpp` is the only `game/` translation unit allowed to include `<raylib.h>`. |
+| `platform/` | `main.cpp` | 14 | Live; raylib game loop dispatcher only. |
+
+## What is intentionally deferred (post-launch iteration)
+
+* **Empirical sensitivity / palette tuning.**  The current colour
+  approximation in `render_frame.cpp::color_from_base` is a 4×17 nibble
+  expansion; perfect Mode-13 palette mapping is post-launch work.
+* **Sound effects.**  Out of scope for v1.0.
+* **Save state / high-score table.**  Out of scope for v1.0.
+* **Multiplayer.**  Never (out of original game's scope).
