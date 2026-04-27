@@ -142,6 +142,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_prng.cpp
         tests/test_lookup_tables.cpp
         tests/test_terrain.cpp
+        tests/test_projection.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
@@ -165,5 +166,15 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         NAME world_no_raylib_includes
         COMMAND ${CMAKE_COMMAND} -E env
                 bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath)' ${CMAKE_SOURCE_DIR}/src/world/ ; then exit 1 ; else exit 0 ; fi"
+    )
+
+    # ------------------------------------------------------------------------
+    # AC-R80 boundary tripwire: src/render/ must not include any raylib,
+    # world/, or entities/ header.  Grep fires on the first match and exits 1.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME render_no_raylib_or_world_includes
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|entities/)' ${CMAKE_SOURCE_DIR}/src/render/ ; then exit 1 ; else exit 0 ; fi"
     )
 endif()
