@@ -135,9 +135,9 @@ TEST_CASE("AC-R03: kRockFaceCount equals 8", "[entities][rock]") {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R04: Rock vertices are axis-aligned ±1 octahedron (six points: ±x, ±y, ±z).
+// AC-R04: Rock vertices are axis-aligned +/-1 octahedron (six points: +/-x, +/-y, +/-z).
 //
-// Expected table (from spec pass-10-rock-particles-spec.md §1):
+// Expected table (from spec pass-10-rock-particles-spec.md sec 1):
 //   { 1, 0, 0}   +x
 //   {-1, 0, 0}   -x
 //   { 0, 1, 0}   +y (down in Y-DOWN)
@@ -148,7 +148,7 @@ TEST_CASE("AC-R03: kRockFaceCount equals 8", "[entities][rock]") {
 // The array may be in any order; the test checks that all six axis-aligned
 // unit-axis extrema are present (each appearing exactly once).
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R04: kRockVertices contains exactly the six axis-aligned ±1 octahedron points", "[entities][rock]") {
+TEST_CASE("AC-R04: kRockVertices contains exactly the six axis-aligned +/-1 octahedron points", "[entities][rock]") {
     // Given: kRockVertices is the vertex constant array
     // When:  each of the six expected axis-aligned unit extrema is searched for
     // Then:  each expected vertex is found exactly once within kRockEps
@@ -279,7 +279,7 @@ TEST_CASE("AC-R07: 1000 step(rock) calls are deterministic - bit-identical to a 
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R08: alive=false → step is a complete no-op (position, velocity, alive
+// AC-R08: alive=false -> step is a complete no-op (position, velocity, alive
 //         are all unchanged).
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R08: step(rock) with alive=false is a complete no-op", "[entities][rock]") {
@@ -309,13 +309,13 @@ TEST_CASE("AC-R08: step(rock) with alive=false is a complete no-op", "[entities]
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R09: After 100 steps from rest: velocity.y ≈ 100 * kGravityPerFrame.
+// AC-R09: After 100 steps from rest: velocity.y ~ 100 * kGravityPerFrame.
 //   No drag on rocks (D-RockPhysics); gravity accumulates linearly.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-R09: after 100 steps from zero velocity, velocity.y ≈ 100 * kGravityPerFrame", "[entities][rock]") {
+TEST_CASE("AC-R09: after 100 steps from zero velocity, velocity.y ~ 100 * kGravityPerFrame", "[entities][rock]") {
     // Given: rock with zero velocity, alive=true
     // When:  step() called 100 times
-    // Then:  velocity.y ≈ 100 * kGravityPerFrame within kRockEps * 100 (float
+    // Then:  velocity.y ~ 100 * kGravityPerFrame within kRockEps * 100 (float
     //        accumulation tolerance)
     entities::Rock rock{};
     rock.velocity = Vec3{0.0f, 0.0f, 0.0f};

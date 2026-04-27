@@ -1,7 +1,7 @@
 // tests/test_camera_follow.cpp - Pass 7 world/camera_follow tests.
 //
 // Covers AC-C01..C21 and AC-Cback, AC-Cground, AC-Cnose, AC-C80..C82
-// (24 ACs total, numbered per pass-7-camera-follow.md §4).
+// (24 ACs total, numbered per pass-7-camera-follow.md sec 4).
 // All tests tagged [world][camera_follow].
 //
 // === Determinism plan ===
@@ -103,7 +103,7 @@ static_assert(
     "AC-C82: world::follow_camera_position must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constant (per planner spec §5)
+// Tolerance constant (per planner spec sec 5)
 // ---------------------------------------------------------------------------
 static constexpr float kCamEps = 1e-5f;
 
@@ -299,7 +299,7 @@ TEST_CASE("AC-C08: ship.y == floor_y gives cam.y == floor_y (threshold: max of e
 }
 
 // ---------------------------------------------------------------------------
-// AC-C09 - Threshold − ε: cam.y clamped up to floor.
+// AC-C09 - Threshold - eps: cam.y clamped up to floor.
 //   Given: ship.y = floor_y - kCamEps*10 (just below floor)
 //   When:  follow_camera_position is called
 //   Then:  cam.y == floor_y (ground clamp activates)
@@ -396,8 +396,8 @@ TEST_CASE("AC-C12: world/camera_follow.hpp compiled without <random> or <chrono>
 }
 
 // ---------------------------------------------------------------------------
-// AC-C13 - 10×10×10 grid sweep: stable (no crash, all results finite).
-//   Given: 10×10×10 grid of ship positions (x in [-5,5], y in [0,10], z in [-5,5])
+// AC-C13 - 10x10x10 grid sweep: stable (no crash, all results finite).
+//   Given: 10x10x10 grid of ship positions (x in [-5,5], y in [0,10], z in [-5,5])
 //   When:  follow_camera_position is called for each
 //   Then:  all cam.x, cam.y, cam.z are finite (no NaN, no Inf)
 // ---------------------------------------------------------------------------
@@ -487,7 +487,7 @@ TEST_CASE("AC-C14: forward and reverse-order sweep produce the same set of (inpu
 //
 // Camera from follow_camera_position is fed to render::Camera.  The ship's
 // own world position is then projected; because the camera tracks the ship,
-// the ship point should land near screen centre (160, 64) ± 1 px.
+// the ship point should land near screen centre (160, 64) +/- 1 px.
 //
 // Geometry reasoning for AC-C15..C17:
 //   ship position P; cam = follow_camera_position(P).
@@ -499,7 +499,7 @@ TEST_CASE("AC-C14: forward and reverse-order sweep produce the same set of (inpu
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C15 - Vertex at ship pos {0,5,0} projects within ±1 px of (160, 64).
+// AC-C15 - Vertex at ship pos {0,5,0} projects within +/-1 px of (160, 64).
 //   Given: ship = {0,5,0}, cam = follow_camera_position(ship)
 //   When:  render::project(ship_pos, render::Camera{cam}) is called
 //   Then:  |x_screen - 160| <= 1.0f, |y_screen - 64| <= 1.0f
@@ -592,7 +592,7 @@ TEST_CASE("AC-C18: vertex at ship.x+1 with follow camera projects to the RIGHT o
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-C19 - Negative ship.z: ship {0,5,-100} → cam.z=-105.
+// AC-C19 - Negative ship.z: ship {0,5,-100} -> cam.z=-105.
 //   Given: ship_position = {0, 5, -100}
 //   When:  follow_camera_position is called
 //   Then:  cam.z == -100 - 5*1.0 = -105.0
@@ -639,7 +639,7 @@ TEST_CASE("AC-C20: ship near (below) terrain gives cam.y clamped to floor+cleara
 }
 
 // ---------------------------------------------------------------------------
-// AC-C21 - NaN propagation: {NaN,5,0} → cam.x is NaN.
+// AC-C21 - NaN propagation: {NaN,5,0} -> cam.x is NaN.
 //   Given: ship_position.x = NaN
 //   When:  follow_camera_position is called
 //   Then:  cam.x is NaN (D-NaNPropagate: no special-case; NaN flows through)
@@ -651,7 +651,7 @@ TEST_CASE("AC-C21: NaN in ship.x propagates to cam.x (D-NaNPropagate)", "[world]
     // When
     const Vec3 cam = world::follow_camera_position(ship);
 
-    // Then: cam.x must be NaN (not a number → not equal to itself)
+    // Then: cam.x must be NaN (not a number -> not equal to itself)
     CAPTURE(cam.x);
     REQUIRE(std::isnan(cam.x));
 }
@@ -666,7 +666,7 @@ TEST_CASE("AC-C21: NaN in ship.x propagates to cam.x (D-NaNPropagate)", "[world]
 //
 //  D-BackOffsetSign (locked): cam.z = ship.z - kCameraBackOffset * TILE_SIZE
 //
-//  Ship at {0,5,10} → cam.z = 10 - 5*1 = 5.
+//  Ship at {0,5,10} -> cam.z = 10 - 5*1 = 5.
 //
 //  A sign-flip bug (cam.z = ship.z + 5*TILE_SIZE) would produce cam.z = 15
 //  instead of 5, placing the camera IN FRONT of the ship rather than behind.
@@ -698,7 +698,7 @@ TEST_CASE("AC-Cback (BUG-CLASS FENCE): ship {0,5,10} gives cam.z=5 NOT 15 (sign-
 //  clamped to altitude(cam.x, cam.z) + clearance, NOT kept at ship.y.
 //
 //  Ship at {0,-1000,0}: ship.y = -1000 is far below any terrain.
-//  A correct implementation gives cam.y ≈ altitude(0,-5) + 0.1 ≈ 5.1.
+//  A correct implementation gives cam.y ~ altitude(0,-5) + 0.1 ~ 5.1.
 //  A buggy implementation that skips the clamp returns cam.y = -1000.
 //
 //  If this test fails: the ground clamp (std::max) is missing or inverted.

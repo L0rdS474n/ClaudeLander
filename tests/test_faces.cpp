@@ -22,7 +22,7 @@
 //
 // === Bug-class fences ===
 // Three developer-mistake patterns are caught by dedicated tests with banner comments:
-//   (a) AC-F11 (AC-F-y-up):      normal_world={0,-1,0} → brightness ≈ 1.0 (Y-DOWN fence).
+//   (a) AC-F11 (AC-F-y-up):      normal_world={0,-1,0} -> brightness ~ 1.0 (Y-DOWN fence).
 //   (b) AC-F18 (AC-F-winding):   face 0 outward-normal test: dot(n, centroid-body_origin)>0.
 //   (c) AC-F22 (AC-F-cull-sense): synthetic face normal {0,0,-1} toward camera is visible;
 //                                  {0,0,1} is culled.
@@ -93,7 +93,7 @@ static_assert(
     "AC-F82: render::rotate_vertices must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constants (per planner spec §7)
+// Tolerance constants (per planner spec sec 7)
 // ---------------------------------------------------------------------------
 static constexpr float kFaceEps   = 1e-5f;
 static constexpr float kBrightEps = 1e-4f;
@@ -109,7 +109,7 @@ static float vec_magnitude(Vec3 v) noexcept {
 // Helper: compute outward normal from three vertices using the locked winding.
 //   normal = normalize(cross(v1 - v0, v2 - v0))
 // CCW from outside; the ship face list in entities/ship.hpp had its
-// winding adjusted to match this convention (see Pass 6 plan §3).
+// winding adjusted to match this convention (see Pass 6 plan sec 3).
 // ---------------------------------------------------------------------------
 static Vec3 compute_normal(Vec3 v0, Vec3 v1, Vec3 v2) noexcept {
     const Vec3 edge1 = v1 - v0;
@@ -181,7 +181,7 @@ TEST_CASE("AC-F02: rotate_vertices with identity and non-zero translation adds t
 }
 
 // ---------------------------------------------------------------------------
-// AC-F03 - Pure 90° yaw on kShipVertices: lengths preserved within kFaceEps.
+// AC-F03 - Pure 90deg yaw on kShipVertices: lengths preserved within kFaceEps.
 //   Given: 9 body-frame vertices, orientation=90-degree yaw around Y, translation={0,0,0}
 //   When:  rotate_vertices is called
 //   Then:  magnitude of each output vertex equals magnitude of corresponding input
@@ -298,16 +298,16 @@ TEST_CASE("AC-F05: rotate_vertices with size-9 spans populates all 9 output vert
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-F06: shade_face on front-facing triangle toward camera returns populated optional", "[render][faces]") {
     // Given: triangle with winding producing normal {0,0,-1} (toward -z / toward camera)
-    // Camera at {0,0,-5} so face_centroid - camera points in +z, dot < 0 → visible
+    // Camera at {0,0,-5} so face_centroid - camera points in +z, dot < 0 -> visible
     // Vertices: v0={-1,0,0}, v1={1,0,0}, v2={0,1,0}
     // cross((v1-v0),(v2-v0)) = cross({2,0,0},{1,1,0}) = {0*0-0*1, 0*1-2*0, 2*1-0*1} = {0,0,2}
-    // normalize → {0,0,1}
+    // normalize -> {0,0,1}
     // centroid = {0, 1/3, 0}
     // dot({0,0,1}, {0,1/3,0} - {0,0,-5}) = dot({0,0,1},{0,1/3,5}) = 5 > 0 - CULLED
     //
     // Flip winding: v0={-1,0,0}, v1={0,1,0}, v2={1,0,0}
     // cross({1,1,0},{2,0,0}) = {1*0-0*0, 0*2-1*0, 1*0-1*2} = {0,0,-2}
-    // normalize → {0,0,-1}
+    // normalize -> {0,0,-1}
     // centroid = {0, 1/3, 0}
     // dot({0,0,-1}, {0,1/3,5}) = -5 < 0 - VISIBLE
     const std::array<Vec3, 3> verts{{
@@ -336,7 +336,7 @@ TEST_CASE("AC-F06: shade_face on front-facing triangle toward camera returns pop
 TEST_CASE("AC-F07: shade_face on back-facing triangle away from camera returns nullopt", "[render][faces]") {
     // Given: triangle with winding producing normal {0,0,1} (away from camera at {0,0,-5})
     // v0={-1,0,0}, v1={1,0,0}, v2={0,1,0}
-    // cross({2,0,0},{1,1,0}) = {0,0,2} → normal {0,0,1}
+    // cross({2,0,0},{1,1,0}) = {0,0,2} -> normal {0,0,1}
     // centroid = {0, 1/3, 0}
     // dot({0,0,1}, {0,1/3,5}) = 5 >= 0 - CULLED
     const std::array<Vec3, 3> verts{{
@@ -366,12 +366,12 @@ TEST_CASE("AC-F07: shade_face on back-facing triangle away from camera returns n
 TEST_CASE("AC-F08: shade_face with edge-on triangle (dot==0) returns nullopt (culled)", "[render][faces]") {
     // Given: triangle in XY plane at z=0, normal {0,0,1}, centroid at {0,0,0}
     // Camera placed on the centroid-normal line orthogonally: camera at {0,0,0}
-    // dot({0,0,1}, {0,0,0} - {0,0,0}) = 0 → culled
+    // dot({0,0,1}, {0,0,0} - {0,0,0}) = 0 -> culled
     //
     // Use a camera at {0,0,0} and centroid at origin:
     // Vertices: v0={-1,-1,0}, v1={1,-1,0}, v2={0,1,0}
     // centroid = {0, -1/3, 0}
-    // normal via cross((v1-v0),(v2-v0)) = cross({2,0,0},{1,2,0}) = {0,0,4} → {0,0,1}
+    // normal via cross((v1-v0),(v2-v0)) = cross({2,0,0},{1,2,0}) = {0,0,4} -> {0,0,1}
     // camera perpendicular to normal: camera at {0, -1/3 + t, 0} for any t - centroid-camera is +z
     // Actually: dot({0,0,1}, centroid - camera) = (centroid.z - camera.z)
     // For dot == 0 need camera.z == centroid.z == 0.
@@ -437,7 +437,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
     // that winding, and place camera on the opposite side: camera = centroid - 10*N
     // so that dot(N, centroid - camera) = dot(N, 10*N) = 10 > 0... wait, that culls.
     // We need dot < 0, so camera must satisfy dot(N, centroid - camera) < 0.
-    // camera = centroid + 10*N → centroid - camera = -10*N → dot(N, -10*N) = -10 < 0. Visible.
+    // camera = centroid + 10*N -> centroid - camera = -10*N -> dot(N, -10*N) = -10 < 0. Visible.
 
     // Helper: build a triangle around a centroid C with outward normal N
     // We need two vectors perpendicular to N, then build the triangle.
@@ -516,7 +516,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
 // These tests exercise the brightness formula directly by building a
 // degenerate-free visible face whose computed normal matches the target normal.
 //
-// For each target normal N, we construct: camera = centroid + 10*N → visible.
+// For each target normal N, we construct: camera = centroid + 10*N -> visible.
 // Then brightness must equal clamp(0.5 + 0.5*(-N.y) + 0.1*(-N.x), 0, 1).
 //
 // ===========================================================================
@@ -526,7 +526,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
 // ===========================================================================
 //
 //  D-RoofUpBrightness: at normal_world = {0, -1, 0} (roof pointing up in
-//  Y-DOWN world), brightness MUST be ≈ 1.0.
+//  Y-DOWN world), brightness MUST be ~ 1.0.
 //
 //  Brightness formula: clamp(0.5 + 0.5*(-(-1)) + 0.1*(-(0)), 0, 1)
 //                    = clamp(0.5 + 0.5*1 + 0.0, 0, 1)
@@ -540,7 +540,7 @@ TEST_CASE("AC-F10: shade_face brightness is always in [0, 1] for various face or
 //  If this test fails: re-read D-BrightnessFormula and D-RoofUpBrightness in
 //  the planner output.  The formula uses -normal.y; do not change the sign.
 // ===========================================================================
-TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brightness≈1.0 (Y-DOWN fence)", "[render][faces]") {
+TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brightness~1.0 (Y-DOWN fence)", "[render][faces]") {
     // Given: a face whose CCW winding produces an outward normal of {0,-1,0}
     // In Y-DOWN world, {0,-1,0} points "up" - the roof-up direction.
     // The brightness formula must return 1.0 for this normal.
@@ -548,7 +548,7 @@ TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brigh
     // Build triangle with normal {0,-1,0}:
     //   v0 = {1, 0, 0}, v1 = {0, 0, 1}, v2 = {-1, 0, 0}
     //   edge1 = v1-v0 = {-1, 0, 1}, edge2 = v2-v0 = {-2, 0, 0}
-    //   cross = {0*0-1*0, 1*(-2)-(-1)*0, (-1)*0-0*(-2)} = {0, -2, 0} → normalize → {0,-1,0}
+    //   cross = {0*0-1*0, 1*(-2)-(-1)*0, (-1)*0-0*(-2)} = {0, -2, 0} -> normalize -> {0,-1,0}
     const std::array<Vec3, 3> verts{{
         { 1.0f, 0.0f,  0.0f},
         { 0.0f, 0.0f,  1.0f},
@@ -571,23 +571,23 @@ TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brigh
     // Normal must point in {0,-1,0} direction
     REQUIRE(result->normal_world.y < -0.9f);
     REQUIRE(std::abs(result->normal_world.x) < kFaceEps);
-    // Brightness must be ≈ 1.0
+    // Brightness must be ~ 1.0
     REQUIRE(result->brightness == Catch::Approx(1.0f).margin(kBrightEps));
 }
 
 // ---------------------------------------------------------------------------
-// AC-F12 - normal_world={0,1,0} → brightness ≈ 0.0 (clamp at floor).
+// AC-F12 - normal_world={0,1,0} -> brightness ~ 0.0 (clamp at floor).
 //   Formula: clamp(0.5 + 0.5*(-1) + 0.1*(0), 0, 1) = clamp(0.0, 0, 1) = 0.0
 //   Given: face with outward normal {0,1,0}
 //   When:  shade_face is called with camera on the +y side (visible)
-//   Then:  brightness ≈ 0.0 within kBrightEps
+//   Then:  brightness ~ 0.0 within kBrightEps
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-F12: shade_face with normal_world={0,1,0} gives brightness≈0.0 (clamp at floor)", "[render][faces]") {
+TEST_CASE("AC-F12: shade_face with normal_world={0,1,0} gives brightness~0.0 (clamp at floor)", "[render][faces]") {
     // Given: triangle with outward normal {0,1,0}:
     //   v0={1,0,0}, v1={-1,0,0}, v2={0,0,1}
     //   edge1={-2,0,0}, edge2={-1,0,1}
     //   cross({-2,0,0},{-1,0,1}) = {0*1-0*0, 0*(-1)-(-2)*1, (-2)*0-0*(-1)} = {0,2,0}
-    //   normalize → {0,1,0}
+    //   normalize -> {0,1,0}
     const std::array<Vec3, 3> verts{{
         { 1.0f, 0.0f, 0.0f},
         {-1.0f, 0.0f, 0.0f},
@@ -611,25 +611,25 @@ TEST_CASE("AC-F12: shade_face with normal_world={0,1,0} gives brightness≈0.0 (
 }
 
 // ---------------------------------------------------------------------------
-// AC-F13 - X-tweak sign: {-1,0,0} → 0.6, {1,0,0} → 0.4 within kBrightEps.
+// AC-F13 - X-tweak sign: {-1,0,0} -> 0.6, {1,0,0} -> 0.4 within kBrightEps.
 //   {-1,0,0}: formula = clamp(0.5 + 0.5*(0) + 0.1*(-(-1)), 0, 1) = clamp(0.6, 0, 1) = 0.6
 //   {1,0,0}:  formula = clamp(0.5 + 0.5*(0) + 0.1*(-(1)),  0, 1) = clamp(0.4, 0, 1) = 0.4
 //   Given: two faces with normals pointing left and right respectively
 //   When:  shade_face is called with camera on the normal side (visible)
-//   Then:  brightness ≈ 0.6 for left-pointing; ≈ 0.4 for right-pointing
+//   Then:  brightness ~ 0.6 for left-pointing; ~ 0.4 for right-pointing
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-F13: shade_face X-tweak: normal={-1,0,0}→brightness≈0.6, {1,0,0}→brightness≈0.4", "[render][faces]") {
+TEST_CASE("AC-F13: shade_face X-tweak: normal={-1,0,0}->brightness~0.6, {1,0,0}->brightness~0.4", "[render][faces]") {
     // Given: face with outward normal {-1,0,0}:
     //   v0={0,1,0}, v1={0,0,1}, v2={0,-1,0}
     //   edge1={0,-1,1}, edge2={0,-2,0}
     //   cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0}
     //   Wait: cross(a,b) = {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x}
     //   cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0}
-    //   normalize → {1,0,0} - WRONG direction. Swap v1 and v2:
+    //   normalize -> {1,0,0} - WRONG direction. Swap v1 and v2:
     //   v0={0,1,0}, v1={0,-1,0}, v2={0,0,1}
     //   edge1={0,-2,0}, edge2={0,-1,1}
     //   cross({0,-2,0},{0,-1,1}) = {(-2)*1-0*(-1), 0*0-0*1, 0*(-1)-(-2)*0} = {-2,0,0}
-    //   normalize → {-1,0,0}  ✓
+    //   normalize -> {-1,0,0}  OK
 
     // Left-pointing face, normal {-1,0,0}
     {
@@ -656,7 +656,7 @@ TEST_CASE("AC-F13: shade_face X-tweak: normal={-1,0,0}→brightness≈0.6, {1,0,
     // Right-pointing face, normal {1,0,0}
     // v0={0,1,0}, v1={0,0,1}, v2={0,-1,0}
     // edge1={0,-1,1}, edge2={0,-2,0}
-    // cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0} → {1,0,0}
+    // cross({0,-1,1},{0,-2,0}) = {(-1)*0-1*(-2), 1*0-0*0, 0*(-2)-(-1)*0} = {2,0,0} -> {1,0,0}
     {
         const std::array<Vec3, 3> verts{{
             {0.0f,  1.0f, 0.0f},
@@ -764,14 +764,14 @@ TEST_CASE("AC-F17: recomputed normals from kShipFaces are unit length within kFa
 //    v[1] = {1.000, 0.3125,-0.500}
 //    v[5] = {-0.900,-0.531, 0.000}
 //    centroid = ((1+1-0.9)/3, (0.3125+0.3125-0.531)/3, (0.5-0.5+0)/3)
-//             = (1.1/3, 0.094/3, 0) ≈ {0.3667, 0.0313, 0}
+//             = (1.1/3, 0.094/3, 0) ~ {0.3667, 0.0313, 0}
 //    edge1 = v1-v0 = {0, 0, -1}
 //    edge2 = v5-v0 = {-1.9, -0.8435, -0.5}
 //    cross(edge1, edge2) = {0*(-0.5)-(-1)*(-0.8435),  (-1)*(-1.9)-0*(-0.5),  0*(-0.8435)-0*(-1.9)}
 //                        = {-0.8435, 1.9, 0}
-//    normalize → roughly {-0.406, 0.914, 0} - points roughly in +y and -x direction
+//    normalize -> roughly {-0.406, 0.914, 0} - points roughly in +y and -x direction
 //    centroid_body_origin dot = centroid . n:
-//      0.3667*(-0.406) + 0.0313*(0.914) + 0*0 ≈ -0.149 + 0.028 ≈ -0.12 < 0
+//      0.3667*(-0.406) + 0.0313*(0.914) + 0*0 ~ -0.149 + 0.028 ~ -0.12 < 0
 //
 //  This is a borderline case; the key check is that IF the winding is correct
 //  (CCW viewed from outside), the normal points outward. The test uses a
@@ -863,7 +863,7 @@ TEST_CASE("AC-F19: identity-oriented ship at origin with camera at {0,0,-5} has 
 }
 
 // ---------------------------------------------------------------------------
-// AC-F20 - After 90° yaw: visible-face SET differs from AC-F19 (set inequality).
+// AC-F20 - After 90deg yaw: visible-face SET differs from AC-F19 (set inequality).
 //   Given: kShipVertices rotated by 90-degree yaw (same camera at {0,0,-5})
 //   When:  shade_face is called for all 9 faces
 //   Then:  the set of visible face indices differs from the identity-orient set
@@ -908,7 +908,7 @@ TEST_CASE("AC-F20: after 90-degree yaw the visible-face set differs from identit
 }
 
 // ---------------------------------------------------------------------------
-// AC-F21 - Visible face count ∈ [1, 9] (closed convex hull).
+// AC-F21 - Visible face count in  [1, 9] (closed convex hull).
 //   Given: identity ship, camera at {0,0,-5}
 //   When:  shade_face is called for all 9 faces
 //   Then:  visible count is in [1, 9]
@@ -951,11 +951,11 @@ TEST_CASE("AC-F21: visible face count is in [1, 9] for identity-oriented ship", 
 //    Triangle at z=0, normal = {0,0,-1} (computed by winding)
 //    Centroid at {0,0,0}
 //    Camera at {0,0,-5}
-//    dot({0,0,-1}, {0,0,0} - {0,0,-5}) = dot({0,0,-1},{0,0,5}) = -5 < 0 → VISIBLE
+//    dot({0,0,-1}, {0,0,0} - {0,0,-5}) = dot({0,0,-1},{0,0,5}) = -5 < 0 -> VISIBLE
 //
 //  Reversed (normal {0,0,1}):
 //    Camera at {0,0,-5}
-//    dot({0,0,1}, {0,0,0} - {0,0,-5}) = dot({0,0,1},{0,0,5}) = 5 >= 0 → CULLED
+//    dot({0,0,1}, {0,0,0} - {0,0,-5}) = dot({0,0,1},{0,0,5}) = 5 >= 0 -> CULLED
 //
 //  If a developer accidentally reverses the sign (e.g. uses
 //  `dot(normal, camera - centroid) < 0` instead of
@@ -973,7 +973,7 @@ TEST_CASE("AC-F22 (AC-F-cull-sense): normal {0,0,-1} toward camera is VISIBLE; {
     // Need cross(v1-v0, v2-v0) pointing in {0,0,-1}
     //   v0={-1,0,0}, v1={0,1,0}, v2={1,0,0}
     //   edge1={1,1,0}, edge2={2,0,0}
-    //   cross({1,1,0},{2,0,0}) = {1*0-0*0, 0*2-1*0, 1*0-1*2} = {0,0,-2} → {0,0,-1} ✓
+    //   cross({1,1,0},{2,0,0}) = {1*0-0*0, 0*2-1*0, 1*0-1*2} = {0,0,-2} -> {0,0,-1} OK
     {
         const std::array<Vec3, 3> verts{{
             {-1.0f, 0.0f, 0.0f},
@@ -993,7 +993,7 @@ TEST_CASE("AC-F22 (AC-F-cull-sense): normal {0,0,-1} toward camera is VISIBLE; {
     // Face with outward normal {0,0,1} (away from camera at -z):
     //   v0={-1,0,0}, v1={1,0,0}, v2={0,1,0}
     //   edge1={2,0,0}, edge2={1,1,0}
-    //   cross({2,0,0},{1,1,0}) = {0*0-0*1, 0*1-2*0, 2*1-0*1} = {0,0,2} → {0,0,1} ✓
+    //   cross({2,0,0},{1,1,0}) = {0*0-0*1, 0*1-2*0, 2*1-0*1} = {0,0,2} -> {0,0,1} OK
     {
         const std::array<Vec3, 3> verts{{
             {-1.0f, 0.0f, 0.0f},

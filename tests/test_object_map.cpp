@@ -1,6 +1,6 @@
 // tests/test_object_map.cpp - Pass 11 world/object_map + entities/ground_object tests.
 //
-// Covers all 24 ACs from docs/plans/pass-11-object-map.md §4:
+// Covers all 24 ACs from docs/plans/pass-11-object-map.md sec 4:
 //   AC-O01..O05   - score table
 //   AC-O06..O10   - object_at determinism
 //   AC-O11..O14   - position semantics
@@ -28,9 +28,9 @@
 //
 // === Concrete tile values (verified against Python reference) ===
 // Populated tiles confirmed by Python reference:
-//   tile (1, 6): hash%100 = 9  → populated, type_index = 3 (Gazebo)
+//   tile (1, 6): hash%100 = 9  -> populated, type_index = 3 (Gazebo)
 // Empty 3x3 cluster (no neighbor in 3x3 window is populated):
-//   tile (10, 10): hash%100 = 76 → empty; full 3x3 neighborhood confirmed empty.
+//   tile (10, 10): hash%100 = 76 -> empty; full 3x3 neighborhood confirmed empty.
 //
 // === Red-state expectation ===
 // This file FAILS TO COMPILE until the implementer creates:
@@ -84,7 +84,7 @@ static_assert(
     "AC-O82: world::hit_by_bullet must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constant (plan §5)
+// Tolerance constant (plan sec 5)
 // ---------------------------------------------------------------------------
 static constexpr float kObjEps = 1e-4f;
 
@@ -288,7 +288,7 @@ TEST_CASE("AC-O10: density over 256x256 grid is in [25%, 35%]", "[world][object_
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-O11: object_at(5, 7).position.x ≈ 5 * TILE_SIZE
+// AC-O11: object_at(5, 7).position.x ~ 5 * TILE_SIZE
 //   Given: the plan specifies position.x = tx * TILE_SIZE
 //   When:  object_at is called for any populated tile with tx=5
 //   Then:  position.x is within kObjEps of 5 * TILE_SIZE
@@ -318,7 +318,7 @@ TEST_CASE("AC-O11: for any populated tile with tx=5, position.x equals 5*TILE_SI
 }
 
 // ---------------------------------------------------------------------------
-// AC-O12: object_at(5, 7).position.z ≈ 7 * TILE_SIZE
+// AC-O12: object_at(5, 7).position.z ~ 7 * TILE_SIZE
 //   Same pattern as AC-O11 but for z.  We use a confirmed populated tile (1,6)
 //   and verify position.z == 6 * TILE_SIZE.
 //   Given: tile (1, 6) is confirmed populated
@@ -337,7 +337,7 @@ TEST_CASE("AC-O12: object_at(1,6).position.z equals 6*TILE_SIZE within tolerance
 }
 
 // ---------------------------------------------------------------------------
-// AC-O13: object_at(...).position.y ≈ altitude(position.x, position.z)
+// AC-O13: object_at(...).position.y ~ altitude(position.x, position.z)
 //   Object sits on terrain.
 //   Given: tile (1, 6) - confirmed populated
 //   When:  object_at(1, 6) is called
@@ -383,7 +383,7 @@ TEST_CASE("AC-O14: type assignment is deterministic - 100 calls to object_at(1,6
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-O15: Bullet at object position → hit_by_bullet == true
+// AC-O15: Bullet at object position -> hit_by_bullet == true
 //   Given: tile (1, 6) is confirmed populated
 //   When:  hit_by_bullet is called with the world-space centre of that tile
 //          at the terrain altitude (so the bullet is exactly on the object)
@@ -403,7 +403,7 @@ TEST_CASE("AC-O15: bullet at world position of populated tile (1,6) returns hit_
 }
 
 // ---------------------------------------------------------------------------
-// AC-O16: Bullet far from any object → hit_by_bullet == false
+// AC-O16: Bullet far from any object -> hit_by_bullet == false
 //   Given: tile (10, 10) has confirmed empty 3x3 neighborhood (all 9 tiles empty)
 //   When:  hit_by_bullet is called with the world-space position of (10, 10)
 //   Then:  hit_by_bullet returns false
@@ -428,7 +428,7 @@ TEST_CASE("AC-O16: bullet at center of empty 3x3 cluster (10,10) returns hit_by_
 }
 
 // ---------------------------------------------------------------------------
-// AC-O17: Bullet at launchpad (0,0,0) → false (no object at tile (0,0))
+// AC-O17: Bullet at launchpad (0,0,0) -> false (no object at tile (0,0))
 //   Given: tile (0, 0) is always empty (launchpad carve-out)
 //   When:  hit_by_bullet is called with position {0, alt(0,0), 0}
 //   Then:  hit_by_bullet returns false
@@ -447,7 +447,7 @@ TEST_CASE("AC-O17: bullet at launchpad origin (0,0,0) returns hit_by_bullet==fal
 }
 
 // ---------------------------------------------------------------------------
-// AC-O18: Bullet exactly 0.5 tile from object → hit (boundary case, true)
+// AC-O18: Bullet exactly 0.5 tile from object -> hit (boundary case, true)
 //   Given: tile (1, 6) is confirmed populated; object position = {1.0, alt, 6.0}
 //   When:  hit_by_bullet is called with a bullet displaced +0.5 in x only
 //          (distance = sqrt(0.5^2) = 0.5 tiles exactly)
@@ -457,7 +457,7 @@ TEST_CASE("AC-O17: bullet at launchpad origin (0,0,0) returns hit_by_bullet==fal
 //          dist <= 0.5 * TILE_SIZE for the hit predicate.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-O18: bullet exactly 0.5 tile away from object returns hit_by_bullet==true (boundary: true at 0.5)", "[world][object_map]") {
-    // Given: object at tile (1,6) → position.x = 1.0, position.z = 6.0
+    // Given: object at tile (1,6) -> position.x = 1.0, position.z = 6.0
     const auto obj = world::object_at(1, 6);
     REQUIRE(obj.has_value());
 

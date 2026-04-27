@@ -136,7 +136,7 @@ TEST_CASE("AC-S02: kShipVertices.size() equals 9 and matches kShipVertexCount", 
 // ---------------------------------------------------------------------------
 // AC-S03: All 9 vertices match spec table within kVertexEps = 5e-4f.
 //
-// Source: docs/research/pass-4-ship-kinematics-spec.md §Ship mesh (9 vertices)
+// Source: docs/research/pass-4-ship-kinematics-spec.md sec Ship mesh (9 vertices)
 // Values derived from ARM 8.24 fixed-point constants / 0x01000000.
 //
 // The test checks each of the 9 vertices componentwise.  Any transposition,

@@ -4,7 +4,7 @@
 // (AC-Spenet, AC-Sclear, AC-Sspeed), and AC-S80..S82 (hygiene, collision side).
 // All tests tagged [physics][collision].
 //
-// === classify_collision signature (plan §6 resolution) ===
+// === classify_collision signature (plan sec 6 resolution) ===
 //   CollisionState classify_collision(
 //       std::span<const Vec3> vertices_world,
 //       float terrain_y_at_centroid,
@@ -18,13 +18,13 @@
 // === Semantics (Y-DOWN) ===
 //   1. Find lowest vertex: lowest_y = max(v.y for v in vertices_world)
 //      (Y-DOWN: larger y = lower in world space)
-//   2. If lowest_y > terrain_y_at_centroid → Crashed (vertex penetrated terrain)
+//   2. If lowest_y > terrain_y_at_centroid -> Crashed (vertex penetrated terrain)
 //   3. clearance = terrain_y_at_centroid - lowest_y  (positive = above ground)
-//   4. If clearance > kSafeContactHeight → Airborne
+//   4. If clearance > kSafeContactHeight -> Airborne
 //   5. (Within contact height now.)
 //      If |vel.x| > kLandingSpeed || |vel.y| > kLandingSpeed || |vel.z| > kLandingSpeed
-//          → Crashed
-//   6. Else → Landing
+//          -> Crashed
+//   6. Else -> Landing
 //
 // === Determinism plan ===
 // classify_collision is declared noexcept and is a pure function of its
@@ -87,7 +87,7 @@ static_assert(
     "AC-S82: physics::classify_collision must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constant (per planner spec §5)
+// Tolerance constant (per planner spec sec 5)
 // ---------------------------------------------------------------------------
 static constexpr float kCollEps = 1e-5f;
 
@@ -101,7 +101,7 @@ using CS = physics::CollisionState;
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-S06 - Ship high above terrain: clearance >> kSafeContactHeight → Airborne.
+// AC-S06 - Ship high above terrain: clearance >> kSafeContactHeight -> Airborne.
 //   Given: all vertices have y << terrain_y (i.e., all are well above ground
 //          in Y-DOWN: their y values are much smaller than terrain_y)
 //          clearance = terrain_y - lowest_y = 1.5f >> kSafeContactHeight=0.05
@@ -110,7 +110,7 @@ using CS = physics::CollisionState;
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-S06: ship well above terrain (clearance > kSafeContactHeight) returns Airborne", "[physics][collision]") {
     // Given: terrain_y = 5.0, all ship vertices at y=3.5 (1.5 tiles above ground)
-    // Y-DOWN: vertex.y=3.5 < terrain_y=5.0 → above terrain; clearance=5.0-3.5=1.5 > 0.05
+    // Y-DOWN: vertex.y=3.5 < terrain_y=5.0 -> above terrain; clearance=5.0-3.5=1.5 > 0.05
     const float terrain_y = 5.0f;
     const std::array<Vec3, 3> verts = {{
         {0.0f, 3.5f, 0.0f},
@@ -239,7 +239,7 @@ TEST_CASE("AC-S10: lowest vertex exactly at altitude (clearance=0) with zero vel
 }
 
 // ---------------------------------------------------------------------------
-// AC-S11 - Velocity exactly at kLandingSpeed (boundary): Landing (≤ inclusive).
+// AC-S11 - Velocity exactly at kLandingSpeed (boundary): Landing (<= inclusive).
 //   Given: clearance = 0.02f (within contact height)
 //          velocity = {kLandingSpeed, kLandingSpeed, kLandingSpeed} exactly
 //   When:  classify_collision is called
@@ -266,7 +266,7 @@ TEST_CASE("AC-S11: velocity exactly at kLandingSpeed on all axes (inclusive boun
 }
 
 // ---------------------------------------------------------------------------
-// AC-S12 - Landing requires ALL three axes within speed; one exceeds → Crashed.
+// AC-S12 - Landing requires ALL three axes within speed; one exceeds -> Crashed.
 //   Given: clearance = 0.02f (within contact height)
 //          velocity = {kLandingSpeed + 0.005, 0, 0}  (x exceeds threshold)
 //   When:  classify_collision is called
@@ -527,7 +527,7 @@ TEST_CASE("AC-S20: positive and negative velocity of same magnitude give identic
         {0.0f, lowest_y, 0.0f},
         {0.0f, 3.0f, 0.0f},
     }};
-    // 0.005 < kLandingSpeed=0.01 → should both land
+    // 0.005 < kLandingSpeed=0.01 -> should both land
     const Vec3 velocity_pos{+0.005f, 0.0f, 0.0f};
     const Vec3 velocity_neg{-0.005f, 0.0f, 0.0f};
 
@@ -570,8 +570,8 @@ TEST_CASE("AC-Spenet (BUG-CLASS FENCE): Y-DOWN penetration sign - above terrain=
     const float terrain_y = 5.0f;
     const Vec3 zero_vel{0.0f, 0.0f, 0.0f};
 
-    // --- Part A: vertex ABOVE terrain (y < terrain_y in Y-DOWN) → should NOT crash ---
-    // lowest_y = 3.0 < terrain_y = 5.0 → clearance = 2.0 >> kSafeContactHeight → Airborne
+    // --- Part A: vertex ABOVE terrain (y < terrain_y in Y-DOWN) -> should NOT crash ---
+    // lowest_y = 3.0 < terrain_y = 5.0 -> clearance = 2.0 >> kSafeContactHeight -> Airborne
     const std::array<Vec3, 1> verts_above = {{ {0.0f, 3.0f, 0.0f} }};
     const CS result_above = physics::classify_collision(
         std::span<const Vec3>{verts_above}, terrain_y, zero_vel);
@@ -581,8 +581,8 @@ TEST_CASE("AC-Spenet (BUG-CLASS FENCE): Y-DOWN penetration sign - above terrain=
     REQUIRE(result_above == CS::Airborne);
     REQUIRE(result_above != CS::Crashed);
 
-    // --- Part B: vertex BELOW terrain (y > terrain_y in Y-DOWN) → must Crash ---
-    // lowest_y = 5.1 > terrain_y = 5.0 → penetration → Crashed
+    // --- Part B: vertex BELOW terrain (y > terrain_y in Y-DOWN) -> must Crash ---
+    // lowest_y = 5.1 > terrain_y = 5.0 -> penetration -> Crashed
     const std::array<Vec3, 1> verts_below = {{ {0.0f, 5.1f, 0.0f} }};
     const CS result_below = physics::classify_collision(
         std::span<const Vec3>{verts_below}, terrain_y, zero_vel);
@@ -605,7 +605,7 @@ TEST_CASE("AC-Spenet (BUG-CLASS FENCE): Y-DOWN penetration sign - above terrain=
 //  This test catches that class of bug loudly: the only correct answer for
 //  clearance = 100 with any velocity is Airborne.
 //
-//  If this test fails: the clearance guard (clearance > kSafeContactHeight →
+//  If this test fails: the clearance guard (clearance > kSafeContactHeight ->
 //  Airborne) is missing or the comparison is inverted.  Do NOT change the test.
 // ===========================================================================
 TEST_CASE("AC-Sclear (BUG-CLASS FENCE): ship 100 units above ground returns Airborne NOT Landing", "[physics][collision]") {
@@ -642,10 +642,10 @@ TEST_CASE("AC-Sclear (BUG-CLASS FENCE): ship 100 units above ground returns Airb
 //  producing incorrect Crashed or Landing states depending on the bug variant.
 //
 //  This test verifies BOTH signs of velocity produce identical results:
-//    {+0.005, 0, 0} → Landing  (below threshold, all axes)
-//    {-0.005, 0, 0} → Landing  (same magnitude, sign flipped)
-//    {+0.02,  0, 0} → Crashed  (above threshold)
-//    {-0.02,  0, 0} → Crashed  (same magnitude, sign flipped - must also crash)
+//    {+0.005, 0, 0} -> Landing  (below threshold, all axes)
+//    {-0.005, 0, 0} -> Landing  (same magnitude, sign flipped)
+//    {+0.02,  0, 0} -> Crashed  (above threshold)
+//    {-0.02,  0, 0} -> Crashed  (same magnitude, sign flipped - must also crash)
 //
 //  If this test fails: the absolute value is missing from the velocity comparison.
 //  Do NOT change the test - add std::abs to the implementation.

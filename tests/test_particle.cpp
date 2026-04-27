@@ -67,7 +67,7 @@ static constexpr float kParticleEps = 1e-6f;
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R11: Default ttl=0 → step is a no-op.
+// AC-R11: Default ttl=0 -> step is a no-op.
 //   A default-constructed Particle has ttl=0 by the spec; step must leave
 //   everything unchanged.
 // ---------------------------------------------------------------------------
@@ -100,7 +100,7 @@ TEST_CASE("AC-R11: Particle with default ttl=0 - step is a no-op (position, velo
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R12: ttl=10 → step decrements ttl to 9.
+// AC-R12: ttl=10 -> step decrements ttl to 9.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R12: Particle with ttl=10 - step decrements ttl to 9", "[entities][particle]") {
     // Given: Particle with ttl=10, kind=Explosion, velocity=zero
@@ -123,13 +123,13 @@ TEST_CASE("AC-R12: Particle with ttl=10 - step decrements ttl to 9", "[entities]
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-R13: ttl=1 → step → ttl=0; subsequent step is a no-op.
+// AC-R13: ttl=1 -> step -> ttl=0; subsequent step is a no-op.
 //   After the first step ttl reaches zero; the second step must not
 //   change position or velocity.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-R13: Particle with ttl=1 - step decrements to 0; next step is no-op", "[entities][particle]") {
     // Given: Particle with ttl=1, non-zero velocity, kind=Bullet
-    // When:  step() called once (ttl → 0), then again (no-op)
+    // When:  step() called once (ttl -> 0), then again (no-op)
     // Then:
     //   After first step: ttl == 0, position changed by velocity, velocity
     //     changed by gravity.
@@ -308,7 +308,7 @@ TEST_CASE("AC-R18: 1000 step(particle) calls are deterministic - bit-identical t
 // ============================================================================
 //
 //  A common mistake is to decrement ttl before the early-exit guard, reaching
-//  underflow (0 → 65535 for uint16_t) and letting the particle "revive".
+//  underflow (0 -> 65535 for uint16_t) and letting the particle "revive".
 //  This test catches that by using ttl=0 with a non-zero velocity and
 //  confirming ttl stays 0 and nothing changes.
 //
@@ -336,7 +336,7 @@ TEST_CASE("AC-R19 (AC-Pttl): step on dead particle (ttl=0) is a complete no-op -
     REQUIRE(p.velocity.x == Catch::Approx(1.0f).margin(kParticleEps));
     REQUIRE(p.velocity.y == Catch::Approx(1.0f).margin(kParticleEps));
     REQUIRE(p.velocity.z == Catch::Approx(1.0f).margin(kParticleEps));
-    // ttl must not underflow (uint16_t 0 → 65535 would be the bug)
+    // ttl must not underflow (uint16_t 0 -> 65535 would be the bug)
     REQUIRE(p.ttl == static_cast<std::uint16_t>(0));
 }
 

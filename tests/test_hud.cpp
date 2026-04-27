@@ -2,7 +2,7 @@
 //
 // Covers AC-H01..H05, AC-H06..H10, AC-H11..H15, AC-H16..H20,
 // AC-Hpad, AC-Hclamp, AC-Htop16, AC-H80..H82 (24 ACs total, numbered per
-// pass-12-hud.md §4).
+// pass-12-hud.md sec 4).
 // All tests tagged [render][hud].
 //
 // === Determinism plan ===
@@ -349,7 +349,7 @@ TEST_CASE("AC-H17: fuel_bar_width is deterministic - 1000 calls return identical
 }
 
 // ---------------------------------------------------------------------------
-// AC-H18 - Round-trip: parse format_score(N) back → N, for representative N.
+// AC-H18 - Round-trip: parse format_score(N) back -> N, for representative N.
 //   Given: a set of representative scores N in [0, 999999]
 //   When:  format_score(N) is called and the result string is parsed via std::stoul
 //   Then:  the parsed integer equals N

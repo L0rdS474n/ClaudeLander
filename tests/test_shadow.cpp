@@ -69,7 +69,7 @@ static_assert(
     "AC-S82: render::project_shadow must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constant (per planner spec §5)
+// Tolerance constant (per planner spec sec 5)
 // ---------------------------------------------------------------------------
 static constexpr float kShadowEps = 1e-5f;
 
@@ -209,7 +209,7 @@ TEST_CASE("AC-S04: span size match honoured - 3 vertices produce exactly 3 shado
 }
 
 // ---------------------------------------------------------------------------
-// AC-S05 - Empty input → empty output (no crash, no iteration).
+// AC-S05 - Empty input -> empty output (no crash, no iteration).
 //   Given: spans of size 0
 //   When:  project_shadow is called
 //   Then:  function returns without error; output span is unchanged (empty)

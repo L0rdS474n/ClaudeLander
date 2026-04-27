@@ -94,7 +94,7 @@ static_assert(false,
 static constexpr float kAltEps        = 1e-5f;   // altitude equality checks
 static constexpr float kPeriodEps     = 1e-5f;   // periodicity checks
 static constexpr float kFiniteMargin  = 0.05f;   // LAND_MID_HEIGHT proximity
-static constexpr float kRangeMargin   = 10.0f / 256.0f + 1e-4f; // ≈ 0.0392
+static constexpr float kRangeMargin   = 10.0f / 256.0f + 1e-4f; // ~ 0.0392
 static constexpr float kGoldenMargin  = 5e-3f;   // golden tolerance per planner
 
 // ---------------------------------------------------------------------------
@@ -401,7 +401,7 @@ TEST_CASE("AC-W20: altitude(0,0) is within 0.05f of LAND_MID_HEIGHT", "[world][t
 TEST_CASE("AC-W21: altitude max deviation from LAND_MID_HEIGHT over [0..63]^2 grid is within formula bounds", "[world][terrain]") {
     // Given: the 4096 integer points (x,z) in [0..63]^2
     // When:  altitude is sampled at all points
-    // Then:  max |altitude - LAND_MID_HEIGHT| <= 10.0/256.0 + 1e-4 ≈ 0.0392
+    // Then:  max |altitude - LAND_MID_HEIGHT| <= 10.0/256.0 + 1e-4 ~ 0.0392
     float max_dev = 0.0f;
     for (int xi = 0; xi < 64; ++xi) {
         for (int zi = 0; zi < 64; ++zi) {
@@ -590,7 +590,7 @@ TEST_CASE("AC-W50: altitude(0,0) matches Python recipe golden value of 5.0f", "[
 // ---------------------------------------------------------------------------
 // AC-W51: altitude(64,64) matches Python recipe.
 //
-// Recipe (also recorded in docs/plans/pass-2-terrain.md §AC-W50..W52):
+// Recipe (also recorded in docs/plans/pass-2-terrain.md sec AC-W50..W52):
 //   import math
 //   def altitude(x, z, mid=5.0):
 //       s = (2*math.sin((1*x - 2*z) * 2*math.pi / 1024)

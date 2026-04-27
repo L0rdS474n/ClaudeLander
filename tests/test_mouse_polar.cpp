@@ -81,7 +81,7 @@ static_assert(noexcept(input::build_orientation(input::ShipAngles{})),
     "AC-I82: input::build_orientation must be declared noexcept");
 
 // ---------------------------------------------------------------------------
-// Tolerance constants (per planner spec §4)
+// Tolerance constants (per planner spec sec 4)
 // ---------------------------------------------------------------------------
 static constexpr float kPolarEps = 1e-5f;   // polar radius and angle checks
 static constexpr float kAngleEps = 1e-6f;   // angle accumulation checks
@@ -116,10 +116,10 @@ TEST_CASE("AC-I01: to_polar({0,0}) returns {radius=0, angle=0} exactly", "[input
 
 // ---------------------------------------------------------------------------
 // AC-I02: Axis-aligned unit inputs hit exact angles within kPolarEps.
-//   (1,0)  → (1,  0)        positive-x axis  → angle 0
-//   (0,1)  → (1, π/2)       positive-y axis  → angle π/2
-//   (-1,0) → (1,  π)        negative-x axis  → angle π
-//   (0,-1) → (1, -π/2)      negative-y axis  → angle -π/2
+//   (1,0)  -> (1,  0)        positive-x axis  -> angle 0
+//   (0,1)  -> (1, pi/2)       positive-y axis  -> angle pi/2
+//   (-1,0) -> (1,  pi)        negative-x axis  -> angle pi
+//   (0,-1) -> (1, -pi/2)      negative-y axis  -> angle -pi/2
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I02: to_polar on axis-aligned unit inputs returns correct radius and angle", "[input][mouse_polar]") {
     // Given: four axis-aligned inputs of magnitude 1
@@ -155,15 +155,15 @@ TEST_CASE("AC-I02: to_polar on axis-aligned unit inputs returns correct radius a
 
 // ---------------------------------------------------------------------------
 // AC-I03: All 4 quadrant diagonals.
-//   (1,1)   → (√2, π/4)      Q1
-//   (-1,1)  → (√2, 3π/4)     Q2
-//   (-1,-1) → (√2, -3π/4)    Q3
-//   (1,-1)  → (√2, -π/4)     Q4
+//   (1,1)   -> (sqrt2, pi/4)      Q1
+//   (-1,1)  -> (sqrt2, 3pi/4)     Q2
+//   (-1,-1) -> (sqrt2, -3pi/4)    Q3
+//   (1,-1)  -> (sqrt2, -pi/4)     Q4
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I03: to_polar on all four quadrant diagonals returns correct radius and angle", "[input][mouse_polar]") {
-    // Given: four diagonal inputs at ±1, ±1
+    // Given: four diagonal inputs at +/-1, +/-1
     // When:  to_polar is called on each
-    // Then:  radius == √2 and angle matches the expected quadrant diagonal
+    // Then:  radius == sqrt2 and angle matches the expected quadrant diagonal
     using namespace Catch;
     const float sqrt2 = std::sqrt(2.0f);
 
@@ -195,12 +195,12 @@ TEST_CASE("AC-I03: to_polar on all four quadrant diagonals returns correct radiu
 
 // ---------------------------------------------------------------------------
 // AC-I04: Large magnitudes remain finite.
-//   to_polar({1e6, 1e6}): radius finite ≈ √2 * 1e6, angle ≈ π/4.
+//   to_polar({1e6, 1e6}): radius finite ~ sqrt2 * 1e6, angle ~ pi/4.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I04: to_polar on large-magnitude input produces finite radius and angle", "[input][mouse_polar]") {
     // Given: mouse offset = {1e6, 1e6}
     // When:  to_polar is called
-    // Then:  radius is finite ≈ √2 * 1e6; angle is finite ≈ π/4
+    // Then:  radius is finite ~ sqrt2 * 1e6; angle is finite ~ pi/4
     const auto p = input::to_polar(Vec2{1.0e6f, 1.0e6f});
     CAPTURE(p.radius, p.angle);
     REQUIRE(std::isfinite(p.radius));
@@ -279,7 +279,7 @@ TEST_CASE("AC-I07: damp(x, x) == x for several representative x values", "[input
 // ---------------------------------------------------------------------------
 // AC-I08: Decay to input - 30 iterations from prev=0 towards input=1.0f
 //   After 30 frames with constant target 1.0f, |prev - 1.0f| < 1e-6f.
-//   With ratio 0.5, after n frames: |error| = (0.5)^n.  (0.5)^30 ≈ 9.3e-10.
+//   With ratio 0.5, after n frames: |error| = (0.5)^n.  (0.5)^30 ~ 9.3e-10.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I08: 30 damp iterations from 0 towards 1.0f converge within 1e-6f", "[input][mouse_polar]") {
     // Given: prev = 0.0f, target = 1.0f
@@ -333,7 +333,7 @@ TEST_CASE("AC-I10: orientation_from_pitch_yaw(0, 0) equals identity within kMatE
 
 // ---------------------------------------------------------------------------
 // AC-I11: Determinant invariant - det(M) == 1 for four representative inputs.
-//   (0,0), (π/4, π/4), (π/3, -π/6), (-π/4, π/2).
+//   (0,0), (pi/4, pi/4), (pi/3, -pi/6), (-pi/4, pi/2).
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I11: det(orientation_from_pitch_yaw) == 1 for representative angle pairs", "[input][mouse_polar]") {
     // Given: four (pitch, yaw) pairs
@@ -364,7 +364,7 @@ TEST_CASE("AC-I11: det(orientation_from_pitch_yaw) == 1 for representative angle
 //    col[1] row 0 = -sin(0)*cos(0) = 0
 //    col[1] row 1 =  cos(0)        = 1
 //    col[1] row 2 =  sin(0)*sin(0) = 0
-//  → col[1] = {0, 1, 0}.
+//  -> col[1] = {0, 1, 0}.
 //
 //  If this test fails: re-read D-MatrixLayout and D-RoofAtCol1 in the
 //  planner output and cross-check the spec matrix formula before modifying.
@@ -382,15 +382,15 @@ TEST_CASE("AC-I12 (AC-Iy-up): orientation_from_pitch_yaw(0,0).col[1] == {0,1,0} 
 }
 
 // ---------------------------------------------------------------------------
-// AC-I13: Pure pitch π/2 tilts the nose to {0, 1, 0}.
-//   From the formula at a=π/2, b=0:
-//     col[0] row 0 = cos(π/2)*cos(0) = 0
-//     col[0] row 1 = sin(π/2)        = 1
-//     col[0] row 2 = -cos(π/2)*sin(0) = 0
-//   → col[0] = {0, 1, 0}
+// AC-I13: Pure pitch pi/2 tilts the nose to {0, 1, 0}.
+//   From the formula at a=pi/2, b=0:
+//     col[0] row 0 = cos(pi/2)*cos(0) = 0
+//     col[0] row 1 = sin(pi/2)        = 1
+//     col[0] row 2 = -cos(pi/2)*sin(0) = 0
+//   -> col[0] = {0, 1, 0}
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I13: orientation_from_pitch_yaw(pi/2, 0).col[0] == {0,1,0} (nose tilted up by pi/2)", "[input][mouse_polar]") {
-    // Given: pitch = π/2, yaw = 0
+    // Given: pitch = pi/2, yaw = 0
     // When:  orientation_from_pitch_yaw is called
     // Then:  col[0] (nose axis) == {0, 1, 0} within kMatEps
     const float pi = static_cast<float>(M_PI);
@@ -411,23 +411,23 @@ TEST_CASE("AC-I13: orientation_from_pitch_yaw(pi/2, 0).col[0] == {0,1,0} (nose t
 //  At a=0 (no pitch), col[1] = {0, cos(0), sin(0)*sin(0)} = {0, 1, 0}
 //  regardless of b (yaw).
 //
-//  At a=0, b=π/2:
-//    col[0]: row0 = cos(0)*cos(π/2) = 0
+//  At a=0, b=pi/2:
+//    col[0]: row0 = cos(0)*cos(pi/2) = 0
 //            row1 = sin(0)          = 0
-//            row2 = -cos(0)*sin(π/2)= -1   → col[0] = {0, 0, -1}
-//    col[1]: row0 = -sin(0)*cos(π/2)= 0
+//            row2 = -cos(0)*sin(pi/2)= -1   -> col[0] = {0, 0, -1}
+//    col[1]: row0 = -sin(0)*cos(pi/2)= 0
 //            row1 = cos(0)          = 1
-//            row2 = sin(0)*sin(π/2) = 0    → col[1] = {0, 1, 0}
-//    col[2]: row0 = sin(π/2)        = 1
+//            row2 = sin(0)*sin(pi/2) = 0    -> col[1] = {0, 1, 0}
+//    col[2]: row0 = sin(pi/2)        = 1
 //            row1 = 0               = 0
-//            row2 = cos(π/2)        = 0    → col[2] = {1, 0, 0}
+//            row2 = cos(pi/2)        = 0    -> col[2] = {1, 0, 0}
 //
 //  If a bug mixes yaw into the roof (e.g. a row-major vs column-major
 //  indexing error), col[1] would diverge from {0,1,0} under pure yaw.
 //  This test catches that class of bug loudly.
 // ===========================================================================
 TEST_CASE("AC-I14 (AC-Iyaw-roll): orientation_from_pitch_yaw(0, pi/2) has correct col[0], col[1], col[2]", "[input][mouse_polar]") {
-    // Given: pitch = 0, yaw = π/2
+    // Given: pitch = 0, yaw = pi/2
     // When:  orientation_from_pitch_yaw is called
     // Then:
     //   col[0] (nose)  == {0,  0, -1}  (facing -z after 90-degree yaw)
@@ -456,11 +456,11 @@ TEST_CASE("AC-I14 (AC-Iyaw-roll): orientation_from_pitch_yaw(0, pi/2) has correc
 }
 
 // ---------------------------------------------------------------------------
-// AC-I15: Orthonormal columns at (π/3, -π/6).
+// AC-I15: Orthonormal columns at (pi/3, -pi/6).
 //   Each column has unit length within kMatEps; pairwise dot products < kMatEps.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I15: orientation_from_pitch_yaw(pi/3, -pi/6) has orthonormal columns", "[input][mouse_polar]") {
-    // Given: pitch = π/3, yaw = -π/6
+    // Given: pitch = pi/3, yaw = -pi/6
     // When:  orientation_from_pitch_yaw is called
     // Then:  each column has |length - 1| < kMatEps
     //        each pairwise dot product has |dot| < kMatEps
@@ -487,17 +487,17 @@ TEST_CASE("AC-I15: orientation_from_pitch_yaw(pi/3, -pi/6) has orthonormal colum
 }
 
 // ---------------------------------------------------------------------------
-// AC-I16: Roof tilts forward at pitch π/4.
-//   From the formula at a=π/4, b=0:
-//     col[1] row 0 = -sin(π/4)*cos(0) = -√2/2
-//     col[1] row 1 =  cos(π/4)        = +√2/2
-//   → col[1].x == -√2/2, col[1].y == +√2/2 within kMatEps.
+// AC-I16: Roof tilts forward at pitch pi/4.
+//   From the formula at a=pi/4, b=0:
+//     col[1] row 0 = -sin(pi/4)*cos(0) = -sqrt2/2
+//     col[1] row 1 =  cos(pi/4)        = +sqrt2/2
+//   -> col[1].x == -sqrt2/2, col[1].y == +sqrt2/2 within kMatEps.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I16: orientation_from_pitch_yaw(pi/4, 0).col[1] tilts forward: x=-sqrt2/2, y=+sqrt2/2", "[input][mouse_polar]") {
-    // Given: pitch = π/4, yaw = 0
+    // Given: pitch = pi/4, yaw = 0
     // When:  orientation_from_pitch_yaw is called
-    // Then:  col[1].x == -√2/2 (roof tilts forward/down in x),
-    //        col[1].y == +√2/2 (roof still has +y component)
+    // Then:  col[1].x == -sqrt2/2 (roof tilts forward/down in x),
+    //        col[1].y == +sqrt2/2 (roof still has +y component)
     const float pi    = static_cast<float>(M_PI);
     const float sqrt2_2 = std::sqrt(2.0f) / 2.0f;
     const Mat3 m = input::orientation_from_pitch_yaw(pi / 4.0f, 0.0f);
@@ -511,7 +511,7 @@ TEST_CASE("AC-I16: orientation_from_pitch_yaw(pi/4, 0).col[1] tilts forward: x=-
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-I17: update_angles({0,0}, {1,0}) → {pitch=0.5, yaw=0.0} within kAngleEps.
+// AC-I17: update_angles({0,0}, {1,0}) -> {pitch=0.5, yaw=0.0} within kAngleEps.
 //   to_polar({1,0}) = {radius=1, angle=0}
 //   pitch_new = damp(0, 1)     = 0.5f
 //   yaw_new   = damp(0, 0)     = 0.0f
@@ -529,15 +529,15 @@ TEST_CASE("AC-I17: update_angles({0,0}, {1,0}) yields {pitch=0.5, yaw=0.0}", "[i
 
 // ---------------------------------------------------------------------------
 // AC-I18: update_angles({0.4, 0.2}, {0, 1}) uses non-trivial prev state.
-//   to_polar({0,1}) = {radius=1, angle=π/2}
+//   to_polar({0,1}) = {radius=1, angle=pi/2}
 //   pitch_new = damp(0.4, 1.0)         = 0.5*0.4 + 0.5*1.0 = 0.7
-//   yaw_new   = damp(0.2, π/2)         = 0.5*0.2 + 0.5*(π/2)
+//   yaw_new   = damp(0.2, pi/2)         = 0.5*0.2 + 0.5*(pi/2)
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I18: update_angles({0.4, 0.2}, {0,1}) yields correct pitch and yaw", "[input][mouse_polar]") {
     // Given: prev = {0.4, 0.2}, mouse_offset = {0, 1}
     // When:  update_angles is called
     // Then:  pitch == 0.7f (damp(0.4, 1.0)),
-    //        yaw   == 0.5*0.2 + 0.5*(π/2)  (damp(0.2, π/2))
+    //        yaw   == 0.5*0.2 + 0.5*(pi/2)  (damp(0.2, pi/2))
     const input::ShipAngles prev{0.4f, 0.2f};
     const auto result = input::update_angles(prev, Vec2{0.0f, 1.0f});
     const float expected_yaw = 0.5f * 0.2f + 0.5f * static_cast<float>(M_PI / 2.0);
@@ -551,7 +551,7 @@ TEST_CASE("AC-I18: update_angles({0.4, 0.2}, {0,1}) yields correct pitch and yaw
 //   build_orientation is a thin wrapper; results must be bit-identical.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I19: build_orientation(angles) is element-wise identical to orientation_from_pitch_yaw(pitch, yaw)", "[input][mouse_polar]") {
-    // Given: angles = {π/5, π/7} (arbitrary non-trivial values)
+    // Given: angles = {pi/5, pi/7} (arbitrary non-trivial values)
     // When:  build_orientation(angles) and orientation_from_pitch_yaw(pitch, yaw) are called
     // Then:  every element is bit-identical (exact equality, not Approx)
     const float pi = static_cast<float>(M_PI);
@@ -597,9 +597,9 @@ TEST_CASE("AC-I20: 1000 update_angles iterations are deterministic - bit-identic
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-I21: Constant offset {1,0}, 30 frames → pitch converges to 1.0f,
+// AC-I21: Constant offset {1,0}, 30 frames -> pitch converges to 1.0f,
 //   yaw stays at 0.
-//   to_polar({1,0}) = {1, 0}.  With damp=0.5: (0.5)^30 error ≈ 9.3e-10.
+//   to_polar({1,0}) = {1, 0}.  With damp=0.5: (0.5)^30 error ~ 9.3e-10.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I21: 30 frames with constant offset {1,0}: pitch converges to 1.0, yaw stays 0.0", "[input][mouse_polar]") {
     // Given: initial angles = {0, 0}, constant offset = {1, 0}
@@ -615,14 +615,14 @@ TEST_CASE("AC-I21: 30 frames with constant offset {1,0}: pitch converges to 1.0,
 }
 
 // ---------------------------------------------------------------------------
-// AC-I22: Constant offset {1,1}, 30 frames → pitch converges to √2,
-//   yaw converges to π/4.
-//   to_polar({1,1}) = {√2, π/4}.
+// AC-I22: Constant offset {1,1}, 30 frames -> pitch converges to sqrt2,
+//   yaw converges to pi/4.
+//   to_polar({1,1}) = {sqrt2, pi/4}.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-I22: 30 frames with constant offset {1,1}: pitch converges to sqrt(2), yaw converges to pi/4", "[input][mouse_polar]") {
     // Given: initial angles = {0, 0}, constant offset = {1, 1}
     // When:  update_angles applied 30 times
-    // Then:  |pitch - √2| < 1e-6f,  |yaw - π/4| < kAngleEps
+    // Then:  |pitch - sqrt2| < 1e-6f,  |yaw - pi/4| < kAngleEps
     input::ShipAngles angles{0.0f, 0.0f};
     for (int i = 0; i < 30; ++i) {
         angles = input::update_angles(angles, Vec2{1.0f, 1.0f});

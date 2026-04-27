@@ -2,7 +2,7 @@
 //
 // Covers AC-B01..B05, AC-B06..B10, AC-B11..B14, AC-B15..B17, AC-B18..B20,
 // AC-Bfar, AC-Bnear, AC-Boor, AC-B80..B82 (24 ACs total, numbered per
-// pass-8-bin-sorter.md §4).
+// pass-8-bin-sorter.md sec 4).
 // All tests tagged [render][bin_sorter].
 //
 // === Determinism plan ===
@@ -492,7 +492,7 @@ TEST_CASE("AC-B17: clear() does not reduce capacity - reinsert succeeds without 
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-B18 - Same insertion sequence → identical iteration sequence (1000 items).
+// AC-B18 - Same insertion sequence -> identical iteration sequence (1000 items).
 //   Given: a deterministic sequence of 1000 (bin_index, value) pairs
 //   When:  the sequence is inserted and iterated twice (two independent sorters)
 //   Then:  both visited sequences are bit-identical
@@ -607,7 +607,7 @@ TEST_CASE("AC-B20: iteration order is stable across two clear-and-refill cycles"
 //  (far/horizon) through bin 10 LAST (near).  This is painter's algorithm:
 //  far objects are drawn first and overwritten by nearer ones.
 //
-//  A reversed-iteration bug (bin 10 first → bin 0 last) would cause near
+//  A reversed-iteration bug (bin 10 first -> bin 0 last) would cause near
 //  objects to be drawn UNDER far objects, inverting depth.
 //
 //  This test places payload 111 in bin 0 ONLY and payload 222 in bin 10 ONLY.
@@ -669,7 +669,7 @@ TEST_CASE("AC-Bnear (BUG-CLASS FENCE): for_each_back_to_front reaches bin 10 (ne
     REQUIRE(visited.front() == 0);
     // Last item must be from bin 10 (sentinel = 10000)
     REQUIRE(visited.back() == 10000);
-    // Monotonically non-decreasing: confirms 0→10 order across all bins
+    // Monotonically non-decreasing: confirms 0->10 order across all bins
     for (std::size_t i = 1; i < visited.size(); ++i) {
         CAPTURE(i, visited[i-1], visited[i]);
         REQUIRE(visited[i] >= visited[i-1]);

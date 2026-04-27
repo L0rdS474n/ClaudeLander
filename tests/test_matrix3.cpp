@@ -6,7 +6,7 @@
 //
 // Column-major convention (bbcelite Lander):
 //   col[0] = nose axis, col[1] = roof axis, col[2] = side axis
-//   at(m, row, col) → m.col[col].{x,y,z} for row in {0,1,2}
+//   at(m, row, col) -> m.col[col].{x,y,z} for row in {0,1,2}
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
@@ -61,13 +61,13 @@ TEST_CASE("AC-M02: det of identity matrix is 1", "[core][matrix3]") {
 
 // ---------------------------------------------------------------------------
 // AC-M03: det of a 90-degree rotation about Z is 1
-// Given: R_z90 = rotation by 90° about Z-axis
+// Given: R_z90 = rotation by 90deg about Z-axis
 //        column-major:  col[0]={0,1,0}, col[1]={-1,0,0}, col[2]={0,0,1}
 // When:  det(R_z90)
 // Then:  result == 1.0f  (rotation matrices have det = +1)
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-M03: det of 90-degree Z-rotation is 1", "[core][matrix3]") {
-    // Rotation by +90° about Z: x→y, y→-x, z→z
+    // Rotation by +90deg about Z: x->y, y->-x, z->z
     // col[0] (image of x_hat) = { 0, 1, 0}
     // col[1] (image of y_hat) = {-1, 0, 0}
     // col[2] (image of z_hat) = { 0, 0, 1}
@@ -189,7 +189,7 @@ TEST_CASE("AC-M09: at() accessor reflects column-major storage", "[core][matrix3
 
 // ---------------------------------------------------------------------------
 // AC-M10: det of composed rotation == 1  (composition preserves det)
-// Given: R_z90 as above, R2 = some other valid rotation (180° about Z)
+// Given: R_z90 as above, R2 = some other valid rotation (180deg about Z)
 //        col[0]={-1,0,0}, col[1]={0,-1,0}, col[2]={0,0,1}
 // When:  R_composed = multiply(R_z90, R2);  det(R_composed)
 // Then:  det(R_composed) == 1.0f
@@ -200,7 +200,7 @@ TEST_CASE("AC-M10: composition of two rotation matrices has determinant 1", "[co
         Vec3{-1.0f,  0.0f, 0.0f},
         Vec3{ 0.0f,  0.0f, 1.0f}
     };
-    // Rotation by 180° about Z: x→-x, y→-y, z→z
+    // Rotation by 180deg about Z: x->-x, y->-y, z->z
     constexpr Mat3 Rz180 {
         Vec3{-1.0f,  0.0f, 0.0f},
         Vec3{ 0.0f, -1.0f, 0.0f},

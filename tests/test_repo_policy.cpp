@@ -733,7 +733,7 @@ TEST_CASE("AC-1.5-201: no fabricated tool output present in policy files", "[rep
     // an accompanying "# NOTE: output not verified" caveat.
     const auto agents_text = slurp(REPO_ROOT / "AGENTS.md");
     if (!agents_text.empty()) {
-        // Any literal fabricated terminal session would look like "$ gh api …"
+        // Any literal fabricated terminal session would look like "$ gh api ..."
         // *followed immediately* by output lines.  We warn on raw shell prompts
         // embedded in prose because those must be explained, not bare.
         const std::regex shell_prompt(R"(\n\$\s+\S)");

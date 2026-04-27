@@ -11,7 +11,7 @@
 // calls.  AC-K14 exercises 1000 iterations and requires bit-identical results.
 //
 // === Step order (D-StepOrder) ===
-// step() applies: drag → gravity → thrust → position += velocity
+// step() applies: drag -> gravity -> thrust -> position += velocity
 // AC-K13 pins this with a hand-computed golden value.  If any rearrangement
 // is made, AC-K13 will fail loudly because the operations are non-commutative
 // (drag scales a velocity that gravity/thrust then add to).
@@ -74,7 +74,7 @@ static constexpr float kKinDecayEps = 1e-3f;   // decay / convergence checks
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-K01: apply_drag({1,0,0}) → (kDragPerFrame, 0, 0)
+// AC-K01: apply_drag({1,0,0}) -> (kDragPerFrame, 0, 0)
 //   kDragPerFrame = 63/64 = 0.984375f; x-only input exercises the scale path.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K01: apply_drag({1,0,0}) returns (kDragPerFrame, 0, 0)", "[physics][kinematics]") {
@@ -90,7 +90,7 @@ TEST_CASE("AC-K01: apply_drag({1,0,0}) returns (kDragPerFrame, 0, 0)", "[physics
 }
 
 // ---------------------------------------------------------------------------
-// AC-K02: apply_drag({2,4,-8}) → componentwise multiply by kDragPerFrame
+// AC-K02: apply_drag({2,4,-8}) -> componentwise multiply by kDragPerFrame
 //   All three axes must be independently scaled.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K02: apply_drag({2,4,-8}) scales each component by kDragPerFrame", "[physics][kinematics]") {
@@ -107,14 +107,14 @@ TEST_CASE("AC-K02: apply_drag({2,4,-8}) scales each component by kDragPerFrame",
 }
 
 // ---------------------------------------------------------------------------
-// AC-K03: 64 iterations of apply_drag on {1,0,0} → |x| < 0.5f
-//   Derived: (63/64)^64 ≈ 0.3650; confirms drag actually decays velocity
+// AC-K03: 64 iterations of apply_drag on {1,0,0} -> |x| < 0.5f
+//   Derived: (63/64)^64 ~ 0.3650; confirms drag actually decays velocity
 //   and rejects trivial identity implementations.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K03: 64 iterations of apply_drag on {1,0,0} reduces |x| below 0.5", "[physics][kinematics]") {
     // Given: initial velocity = {1, 0, 0}
     // When:  apply_drag applied 64 times
-    // Then:  |result.x| < 0.5f (value ≈ 0.365 by hand)
+    // Then:  |result.x| < 0.5f (value ~ 0.365 by hand)
     Vec3 v{1.0f, 0.0f, 0.0f};
     for (int i = 0; i < 64; ++i) {
         v = physics::apply_drag(v);
@@ -126,7 +126,7 @@ TEST_CASE("AC-K03: 64 iterations of apply_drag on {1,0,0} reduces |x| below 0.5"
 }
 
 // ---------------------------------------------------------------------------
-// AC-K04: apply_drag({0,0,0}) → bit-equal {0,0,0}
+// AC-K04: apply_drag({0,0,0}) -> bit-equal {0,0,0}
 //   0 * anything == 0; no spurious accumulation.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K04: apply_drag({0,0,0}) returns exactly {0,0,0}", "[physics][kinematics]") {
@@ -141,7 +141,7 @@ TEST_CASE("AC-K04: apply_drag({0,0,0}) returns exactly {0,0,0}", "[physics][kine
 }
 
 // ---------------------------------------------------------------------------
-// AC-K05: apply_drag({1e6, -1e6, 1e6}) → finite, componentwise multiply
+// AC-K05: apply_drag({1e6, -1e6, 1e6}) -> finite, componentwise multiply
 //   Large magnitudes must not produce NaN/Inf; result is kDragPerFrame * input.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K05: apply_drag on large-magnitude input produces finite componentwise-scaled result", "[physics][kinematics]") {
@@ -165,7 +165,7 @@ TEST_CASE("AC-K05: apply_drag on large-magnitude input produces finite component
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-K06: apply_gravity({1,2,3}) → (1, 2+kGravityPerFrame, 3)
+// AC-K06: apply_gravity({1,2,3}) -> (1, 2+kGravityPerFrame, 3)
 //   Gravity must ONLY mutate the y-axis; x and z must pass through unchanged.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K06: apply_gravity({1,2,3}) adds kGravityPerFrame to y only", "[physics][kinematics]") {
@@ -182,14 +182,14 @@ TEST_CASE("AC-K06: apply_gravity({1,2,3}) adds kGravityPerFrame to y only", "[ph
 }
 
 // ---------------------------------------------------------------------------
-// AC-K07: 4096 iterations of apply_gravity on {0,0,0} → result.y ≈ 1.0f
+// AC-K07: 4096 iterations of apply_gravity on {0,0,0} -> result.y ~ 1.0f
 //   kGravityPerFrame = 1/4096; 4096 * (1/4096) = 1.0f exactly.
 //   Tolerance kKinDecayEps = 1e-3f covers float accumulation error.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-K07: 4096 iterations of apply_gravity on {0,0,0} yields result.y ≈ 1.0f within 1e-3", "[physics][kinematics]") {
+TEST_CASE("AC-K07: 4096 iterations of apply_gravity on {0,0,0} yields result.y ~ 1.0f within 1e-3", "[physics][kinematics]") {
     // Given: initial velocity = {0, 0, 0}
     // When:  apply_gravity applied 4096 times
-    // Then:  result.y ≈ 1.0f within kKinDecayEps
+    // Then:  result.y ~ 1.0f within kKinDecayEps
     Vec3 v{0.0f, 0.0f, 0.0f};
     for (int i = 0; i < 4096; ++i) {
         v = physics::apply_gravity(v);
@@ -211,8 +211,8 @@ TEST_CASE("AC-K07: 4096 iterations of apply_gravity on {0,0,0} yields result.y �
 //
 //  If a developer accidentally writes `vy -= kGravityPerFrame` (subtracting,
 //  as one might in Y-UP convention), this test catches it immediately:
-//    correct:    apply_gravity({0,0,0}).y = +kGravityPerFrame > 0 ✓
-//    bug (flip): apply_gravity({0,0,0}).y = -kGravityPerFrame < 0 ✗
+//    correct:    apply_gravity({0,0,0}).y = +kGravityPerFrame > 0 OK
+//    bug (flip): apply_gravity({0,0,0}).y = -kGravityPerFrame < 0 X
 //
 //  If this test fails: re-read D-GravitySemantics in the spec before
 //  modifying this test.  The test is almost certainly correct; the
@@ -236,7 +236,7 @@ TEST_CASE("AC-K08: apply_gravity({0,0,0}).y is positive (Y-DOWN: gravity adds to
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-K09: apply_thrust(v, orient, None) → no-op
+// AC-K09: apply_thrust(v, orient, None) -> no-op
 //   ThrustLevel::None must not modify velocity regardless of orientation.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-K09: apply_thrust with ThrustLevel::None is a no-op", "[physics][kinematics]") {
@@ -253,8 +253,8 @@ TEST_CASE("AC-K09: apply_thrust with ThrustLevel::None is a no-op", "[physics][k
 }
 
 // ---------------------------------------------------------------------------
-// AC-K10: apply_thrust({0}, identity(), Full) → (0, kFullThrust, 0);
-//         apply_thrust({0}, identity(), Half) → (0, kHalfThrust, 0).
+// AC-K10: apply_thrust({0}, identity(), Full) -> (0, kFullThrust, 0);
+//         apply_thrust({0}, identity(), Half) -> (0, kHalfThrust, 0).
 //
 // ============================================================================
 //  HALF-THRUST BUG FENCE - bug-class fence
@@ -265,8 +265,8 @@ TEST_CASE("AC-K09: apply_thrust with ThrustLevel::None is a no-op", "[physics][k
 //  A developer intuiting "half" = Full/2 would produce 1/4096, which is 4x
 //  kGravityPerFrame - this AC catches that mistake loudly.
 //
-//  Expected: kHalfThrust = 1.0f/8192.0f ≈ 1.22e-4f
-//  Bug (Full/2): 1.0f/4096.0f ≈ 2.44e-4f
+//  Expected: kHalfThrust = 1.0f/8192.0f ~ 1.22e-4f
+//  Bug (Full/2): 1.0f/4096.0f ~ 2.44e-4f
 //
 //  The test checks kHalfThrust == kFullThrust/4 as a constant invariant,
 //  AND checks the returned velocity component against kHalfThrust directly.
@@ -321,7 +321,7 @@ TEST_CASE("AC-K11: Full thrust with identity orientation applies force along col
 }
 
 // ---------------------------------------------------------------------------
-// AC-K12: Custom orient with col[1] = (1,0,0), Full → velocity gains in x.
+// AC-K12: Custom orient with col[1] = (1,0,0), Full -> velocity gains in x.
 //   Catches "world up hardcoded" bugs where thrust always goes along {0,1,0}
 //   regardless of the orientation matrix.
 // ---------------------------------------------------------------------------
@@ -358,7 +358,7 @@ TEST_CASE("AC-K12: Full thrust with custom orient (col[1]=(1,0,0)) applies thrus
 //  STEP-ORDER + STALE-VELOCITY BUG FENCE - bug-class fence
 // ============================================================================
 //
-//  D-StepOrder pins: drag → gravity → thrust → position += velocity.
+//  D-StepOrder pins: drag -> gravity -> thrust -> position += velocity.
 //  The position is updated with the POST-thrust velocity, not the pre-drag
 //  original velocity.  Two common mistakes are caught here:
 //
@@ -371,8 +371,8 @@ TEST_CASE("AC-K12: Full thrust with custom orient (col[1]=(1,0,0)) applies thrus
 //  Hand computation (Python-verified):
 //    vel = {1, 0, 0}
 //    1. drag:   vel = {63/64, 0, 0}               = {0.984375, 0, 0}
-//    2. gravity: vel.y += 1/4096                  → vy = 0.000244140625
-//    3. thrust Full, col[1]={0,1,0}: vel.y += 1/2048 → vy = 3/4096 = 0.000732421875
+//    2. gravity: vel.y += 1/4096                  -> vy = 0.000244140625
+//    3. thrust Full, col[1]={0,1,0}: vel.y += 1/2048 -> vy = 3/4096 = 0.000732421875
 //    4. pos += vel: pos = {0.984375, 0.000732421875, 0}
 //
 //  If step() applies position += pre-drag vel instead, pos.x == 1.0f, which
@@ -383,7 +383,7 @@ TEST_CASE("AC-K13: step with vel={1,0,0} Full thrust produces correct post-step 
     //        ThrustLevel = Full
     // When:  step() is called once
     // Then:  velocity and position match hand-computed golden values
-    //        (drag→gravity→thrust→pos+=vel; post-thrust velocity used for position)
+    //        (drag->gravity->thrust->pos+=vel; post-thrust velocity used for position)
     entities::Ship ship;
     ship.position    = Vec3{0.0f, 0.0f, 0.0f};
     ship.velocity    = Vec3{1.0f, 0.0f, 0.0f};
@@ -455,8 +455,8 @@ TEST_CASE("AC-K14: 1000 step() calls are deterministic - bit-identical to a fres
 }
 
 // ---------------------------------------------------------------------------
-// AC-K15: 1000 frames of step({pos={0,5,0}, vel=0}, Full) →
-//   terminal v.y ≈ (kGravityPerFrame + kFullThrust) * 64 ≈ 0.04687f within 1e-3f
+// AC-K15: 1000 frames of step({pos={0,5,0}, vel=0}, Full) ->
+//   terminal v.y ~ (kGravityPerFrame + kFullThrust) * 64 ~ 0.04687f within 1e-3f
 //
 //   With drag=63/64 and constant acceleration a = kGravity + kFull each frame:
 //   Terminal velocity = a * sum_{k=0..inf} drag^k = a / (1 - drag) = a * 64
@@ -464,11 +464,11 @@ TEST_CASE("AC-K14: 1000 step() calls are deterministic - bit-identical to a fres
 //
 //   After 1000 frames the geometric series converges well within kKinDecayEps.
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-K15: 1000 Full-thrust frames yield terminal v.y ≈ (kGravity+kFull)*64 within 1e-3", "[physics][kinematics]") {
+TEST_CASE("AC-K15: 1000 Full-thrust frames yield terminal v.y ~ (kGravity+kFull)*64 within 1e-3", "[physics][kinematics]") {
     // Given: ship starting at pos={0,5,0}, vel={0,0,0}, orient=identity
     //        ThrustLevel = Full
     // When:  step() called 1000 times
-    // Then:  final v.y ≈ (kGravityPerFrame + kFullThrust) * 64 ≈ 0.046875 within kKinDecayEps
+    // Then:  final v.y ~ (kGravityPerFrame + kFullThrust) * 64 ~ 0.046875 within kKinDecayEps
     entities::Ship ship;
     ship.position    = Vec3{0.0f, 5.0f, 0.0f};
     ship.velocity    = Vec3{0.0f, 0.0f, 0.0f};
