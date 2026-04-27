@@ -176,6 +176,33 @@ target_link_libraries(claude_lander_input PRIVATE
 )
 
 # ----------------------------------------------------------------------------
+# game/ integration layer -- tick() + GameState.  No raylib.  DAG:
+#   game -> render + entities + physics + world + input + core
+# Declared unconditionally (not gated on BUILD_GAME) so the test executable
+# can link against it without raylib's X11/OpenGL deps.
+#
+# render_frame.{hpp,cpp} is NOT part of this library: it is the platform
+# bridge that may include raylib, and is added separately under
+# CLAUDE_LANDER_BUILD_GAME only.
+#
+# Boundary enforced by the game_no_raylib CTest tripwire below.
+# ----------------------------------------------------------------------------
+add_library(claude_lander_game OBJECT
+    src/game/game_state.cpp
+    src/game/game_loop.cpp
+)
+target_include_directories(claude_lander_game PUBLIC src)
+target_link_libraries(claude_lander_game PRIVATE
+    claude_lander_core
+    claude_lander_physics
+    claude_lander_entities
+    claude_lander_world
+    claude_lander_input
+    claude_lander_render
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
 # Game executable. As implementation milestones land, modules under src/
 # (core/, world/, render/, ...) will be added as object libraries and linked
 # in here.
@@ -185,6 +212,7 @@ if(CLAUDE_LANDER_BUILD_GAME)
     target_include_directories(ClaudeLander PRIVATE src)
     target_link_libraries(ClaudeLander PRIVATE
         raylib
+        claude_lander_game
         claude_lander_core
         claude_lander_world
         claude_lander_render
@@ -193,6 +221,10 @@ if(CLAUDE_LANDER_BUILD_GAME)
         claude_lander_input
         claude_lander_warnings
     )
+
+    # render_frame is the platform bridge; may include raylib. Linked only
+    # into the game executable, never into the test binary.
+    target_sources(ClaudeLander PRIVATE src/game/render_frame.cpp)
 
     # raylib + GLFW require a handful of Windows system DLLs to be linked
     # explicitly when building with MinGW (and harmless under MSVC). These DLLs
@@ -239,10 +271,12 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_particle.cpp
         tests/test_object_map.cpp
         tests/test_hud.cpp
+        tests/test_game_loop.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
         Catch2::Catch2WithMain
+        claude_lander_game
         claude_lander_core
         claude_lander_world
         claude_lander_render
@@ -306,5 +340,23 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         NAME input_no_forbidden_includes
         COMMAND ${CMAKE_COMMAND} -E env
                 bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|entities/|render/|physics/|random|chrono)' ${CMAKE_SOURCE_DIR}/src/input/ ; then exit 1 ; else exit 0 ; fi"
+    )
+
+    # ------------------------------------------------------------------------
+    # AC-G80 boundary tripwire (game_no_raylib):
+    # src/game/game_state.{hpp,cpp} and src/game/game_loop.{hpp,cpp} must not
+    # include any raylib header.  render_frame.{hpp,cpp} is EXCLUDED from this
+    # tripwire -- it is the platform bridge and MAY include raylib.
+    # Grep fires on the first match and exits 1.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME game_no_raylib
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -lnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath)' \
+                         ${CMAKE_SOURCE_DIR}/src/game/game_state.cpp \
+                         ${CMAKE_SOURCE_DIR}/src/game/game_state.hpp \
+                         ${CMAKE_SOURCE_DIR}/src/game/game_loop.cpp \
+                         ${CMAKE_SOURCE_DIR}/src/game/game_loop.hpp \
+                         2>/dev/null ; then exit 1 ; else exit 0 ; fi"
     )
 endif()
