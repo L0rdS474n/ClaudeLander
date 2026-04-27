@@ -104,6 +104,7 @@ target_link_libraries(claude_lander_world PRIVATE
 # ----------------------------------------------------------------------------
 add_library(claude_lander_render OBJECT
     src/render/projection.cpp
+    src/render/faces.cpp
 )
 target_include_directories(claude_lander_render PUBLIC src)
 target_link_libraries(claude_lander_render PRIVATE
@@ -214,6 +215,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_kinematics.cpp
         tests/test_ship.cpp
         tests/test_mouse_polar.cpp
+        tests/test_faces.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
