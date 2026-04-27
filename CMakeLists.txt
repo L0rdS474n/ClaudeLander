@@ -126,6 +126,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_matrix3.cpp
         tests/test_prng.cpp
         tests/test_lookup_tables.cpp
+        tests/test_terrain.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
