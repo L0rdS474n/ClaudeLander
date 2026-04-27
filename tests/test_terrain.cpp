@@ -588,28 +588,40 @@ TEST_CASE("AC-W50: altitude(0,0) matches Python recipe golden value of 5.0f", "[
 }
 
 // ---------------------------------------------------------------------------
-// AC-W51: altitude(64,64) matches Python recipe (DEFERRED — implementer must fill in)
+// AC-W51: altitude(64,64) matches Python recipe.
+//
+// Recipe (also recorded in docs/plans/pass-2-terrain.md §AC-W50..W52):
+//   import math
+//   def altitude(x, z, mid=5.0):
+//       s = (2*math.sin((1*x - 2*z) * 2*math.pi / 1024)
+//          + 2*math.sin((4*x + 3*z) * 2*math.pi / 1024)
+//          + 2*math.sin((-5*x + 3*z) * 2*math.pi / 1024)
+//          + 2*math.sin((7*x + 5*z) * 2*math.pi / 1024)
+//          + 1*math.sin((5*x + 11*z) * 2*math.pi / 1024)
+//          + 1*math.sin((10*x + 7*z) * 2*math.pi / 1024))
+//       return mid - s / 256.0
+//   print(repr(altitude(64, 64)))    # -> 5.0118419145703434  (double)
+//                                    #   float32 = 5.011841773986816
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W51: altitude(64,64) matches Python recipe golden value", "[world][terrain][.golden]") {
-    // DEFERRED: run the Python recipe above to compute this value and replace
-    // kExpected_W51 with the result.  The placeholder 99999.0f ensures this
-    // test fails loudly until a real value is locked in.
-    // DEFERRED: compute and lock in Pass 2 validation
-    static constexpr float kExpected_W51 = 99999.0f; // PLACEHOLDER — DO NOT SHIP
+    // Computed via the recipe above.  Both LUT-based implementation and
+    // double-precision reference agree to ~1e-12 (LUT quantisation is well
+    // below the 5e-3 golden tolerance), so KOQ-2 widening is not required.
+    static constexpr float kExpected_W51 = 5.011841773986816f;
     const float r = terrain::altitude(64.0f, 64.0f);
     CAPTURE(r, kExpected_W51);
     REQUIRE(r == Catch::Approx(kExpected_W51).margin(kGoldenMargin));
 }
 
 // ---------------------------------------------------------------------------
-// AC-W52: altitude(123,456) matches Python recipe (DEFERRED — implementer must fill in)
+// AC-W52: altitude(123,456) matches Python recipe.
+//
+//   print(repr(altitude(123, 456)))  # -> 5.000388846184174  (double)
+//                                    #   float32 = 5.0003886222839355
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-W52: altitude(123,456) matches Python recipe golden value", "[world][terrain][.golden]") {
-    // DEFERRED: run the Python recipe above to compute this value and replace
-    // kExpected_W52 with the result.  The placeholder 99999.0f ensures this
-    // test fails loudly until a real value is locked in.
-    // DEFERRED: compute and lock in Pass 2 validation
-    static constexpr float kExpected_W52 = 99999.0f; // PLACEHOLDER — DO NOT SHIP
+    // Computed via the recipe above.
+    static constexpr float kExpected_W52 = 5.0003886222839355f;
     const float r = terrain::altitude(123.0f, 456.0f);
     CAPTURE(r, kExpected_W52);
     REQUIRE(r == Catch::Approx(kExpected_W52).margin(kGoldenMargin));
