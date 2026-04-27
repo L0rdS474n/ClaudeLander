@@ -315,29 +315,28 @@ TEST_CASE("AC-1.5-040: .github/CODEOWNERS exists", "[repo-policy]")
     REQUIRE(std::filesystem::exists(path));
 }
 
-TEST_CASE("AC-1.5-041: CODEOWNERS default rule references @OWNER_TBD_PLACEHOLDER", "[repo-policy]")
+TEST_CASE("AC-1.5-041: CODEOWNERS default rule references @L0rdS474n", "[repo-policy]")
 {
     const auto text = slurp(REPO_ROOT / ".github" / "CODEOWNERS");
     REQUIRE_FALSE(text.empty());
 
-    CHECK(text.find("@OWNER_TBD_PLACEHOLDER") != std::string::npos);
+    CHECK(text.find("@L0rdS474n") != std::string::npos);
 }
 
-TEST_CASE("AC-1.5-042: CODEOWNERS contains no real-looking GitHub usernames", "[repo-policy]")
+TEST_CASE("AC-1.5-042: CODEOWNERS contains only the maintainer handle", "[repo-policy]")
 {
     const auto text = slurp(REPO_ROOT / ".github" / "CODEOWNERS");
     REQUIRE_FALSE(text.empty());
 
-    // A "real-looking" username is any @handle that is NOT the explicit
-    // placeholder.  We allow @OWNER_TBD_PLACEHOLDER and nothing else.
-    // Strategy: find all @<word> tokens and reject any that differ from the
-    // placeholder.
+    // The default rule must point at the project maintainer and only the
+    // project maintainer.  Strategy: find all @<word> tokens and reject any
+    // that differ from the canonical handle.
     const std::regex at_handle(R"(@([A-Za-z0-9_\-]+))");
     auto begin = std::sregex_iterator(text.begin(), text.end(), at_handle);
     auto end   = std::sregex_iterator{};
     for (auto it = begin; it != end; ++it) {
         const std::string handle = (*it)[0].str();  // includes leading @
-        CHECK(handle == "@OWNER_TBD_PLACEHOLDER");
+        CHECK(handle == "@L0rdS474n");
     }
 }
 
@@ -681,7 +680,7 @@ TEST_CASE("AC-1.5-124: ADR-0003 contains real-world validation note", "[repo-pol
 // Cross-cutting  (AC-1.5-200 .. 202)
 // ---------------------------------------------------------------------------
 
-TEST_CASE("AC-1.5-200: no real GitHub usernames appear outside CODEOWNERS @OWNER_TBD_PLACEHOLDER", "[repo-policy]")
+TEST_CASE("AC-1.5-200: no real GitHub usernames appear outside CODEOWNERS @L0rdS474n", "[repo-policy]")
 {
     // Check every policy file.  Any @<handle> that is not the placeholder is a
     // potential leak.  We intentionally do NOT scan build artefacts or the
@@ -707,13 +706,13 @@ TEST_CASE("AC-1.5-200: no real GitHub usernames appear outside CODEOWNERS @OWNER
         auto end   = std::sregex_iterator{};
         for (auto it = begin; it != end; ++it) {
             const std::string handle = (*it)[0].str();
-            // Allow @OWNER_TBD_PLACEHOLDER and email-like contexts (@gmail etc.)
-            // We only flag handles that look like real GitHub usernames:
-            // all-lowercase, no dots, not a known placeholder or email domain.
-            const bool is_placeholder = handle == "@OWNER_TBD_PLACEHOLDER";
-            const bool is_email_part  = handle.find('.') != std::string::npos ||
-                                        text.find(handle + ".") != std::string::npos;
-            if (!is_placeholder && !is_email_part) {
+            // Allow the canonical maintainer handle and email-like contexts
+            // (@gmail etc.).  We only flag handles that look like other real
+            // GitHub usernames slipping into policy files outside CODEOWNERS.
+            const bool is_maintainer = handle == "@L0rdS474n";
+            const bool is_email_part = handle.find('.') != std::string::npos ||
+                                       text.find(handle + ".") != std::string::npos;
+            if (!is_maintainer && !is_email_part) {
                 // Flag as a potential real username leak -- reviewer must inspect.
                 // We use WARN (not FAIL) to keep the test informative without
                 // blocking on ambiguous matches like @github or @actions.

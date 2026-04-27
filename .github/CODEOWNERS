@@ -4,21 +4,13 @@
 # whenever a pull request touches a matching path.  Documentation:
 #   https://docs.github.com/en/repositories/managing-your-repositories-settings-and-security/customizing-your-repository/about-code-owners
 #
-# Until the GitHub repository is created (Pass 16), the project does not
-# yet have a real maintainer handle attached to it.  We deliberately use
-# the literal placeholder @OWNER_TBD_PLACEHOLDER here so the file is
-# structurally correct and parseable by GitHub's CODEOWNERS validator,
-# while making it obvious that the handle still needs to be replaced.
+# CODEOWNERS only takes effect for handles that have write access to the
+# repository, so the maintainer below must keep admin/owner rights on
+# this repo for the auto-review-request behaviour to work.
 #
-# Pass 16 (GitHub repo bring-up) will:
-#   1. Replace @OWNER_TBD_PLACEHOLDER with the real maintainer handle.
-#   2. Confirm the user has admin/owner access on the repository so the
-#      reviews are auto-requested (CODEOWNERS only takes effect for users
-#      with write access to the repo).
-#
-# The token "@OWNER_TBD_PLACEHOLDER" is enforced by the policy test
-# AC-1.5-041 in tests/test_repo_policy.cpp.  Changing this default
-# without updating that AC is a contract break.
+# The exact handle on the default rule is enforced by the policy tests
+# AC-1.5-041 and AC-1.5-042 in tests/test_repo_policy.cpp.  Changing the
+# handle without updating those ACs (and AC-1.5-200) is a contract break.
 
 # Default owner -- everything not matched by a more specific rule.
-*       @OWNER_TBD_PLACEHOLDER
+*       @L0rdS474n
