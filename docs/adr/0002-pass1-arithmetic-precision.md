@@ -194,9 +194,10 @@ path is exercised on every run.
 
 ## Verification
 
-Pass 1 ships ~2255 Catch2 assertions across 48 test cases (one tagged
-`[.golden]` and skipped by default).  Real ctest output is captured in the
-Pass 1 implementation report.  The CI matrix runs on Linux (native) and
+Pass 1 ships 4444 Catch2 assertions across 49 test cases registered with
+ctest (a 50th case, AC-P05, is tagged `[.golden]` and excluded from default
+ctest discovery).  Real ctest output is captured in the Pass 1 implementation
+report and was independently re-verified by the Gate 5 PR reviewer.  The CI matrix runs on Linux (native) and
 Windows (cross + native via MSYS2 MINGW64) with the default
 `CLAUDE_LANDER_BUILD_GAME=ON`, exercising both the math layer tests and the
 full game build path.
