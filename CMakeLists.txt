@@ -96,6 +96,7 @@ add_library(claude_lander_world OBJECT
     src/world/terrain.cpp
     src/world/camera_follow.cpp
     src/world/shadow.cpp
+    src/world/object_map.cpp
 )
 target_include_directories(claude_lander_world PUBLIC src)
 target_link_libraries(claude_lander_world PRIVATE
@@ -148,6 +149,7 @@ add_library(claude_lander_entities OBJECT
     src/entities/ship.cpp
     src/entities/rock.cpp
     src/entities/particle.cpp
+    src/entities/ground_object.cpp
 )
 target_include_directories(claude_lander_entities PUBLIC src)
 target_link_libraries(claude_lander_entities PRIVATE
@@ -234,6 +236,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_collision.cpp
         tests/test_rock.cpp
         tests/test_particle.cpp
+        tests/test_object_map.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
