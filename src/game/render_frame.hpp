@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "game/game_loop.hpp"   // game::Drawable struct (used in BinSorter<>)
 #include "game/game_state.hpp"
 #include "render/bin_sorter.hpp"
 
