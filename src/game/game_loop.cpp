@@ -304,8 +304,16 @@ void tick(GameState& state, FrameInput input) noexcept {
 // build_drawables -- populate a BinSorter with this frame's draw items.
 //
 // The acceptance criteria (AC-G15..G18, AC-G18b) only check Kind existence,
-// not screen positions or bin counts.  We bin everything into bin 0 for
-// simplicity; Pass 14 will refine bin assignment from world z.
+// not screen positions or bin counts.  Iter-2 wires depth ordering: each
+// drawable is binned by its representative world-space z (centroid for
+// triangles, position for particles) using add_by_z.  Out-of-range
+// drawables fall back to bin 0 (far) so existence-only acceptance criteria
+// stay satisfied even when geometry escapes the frustum.
+//
+// Anchor: landscape_z = camera.z + (kBinCount - 1).  Drawables at the
+// camera plane map to bin (kBinCount - 1) (nearest); drawables 10 tiles
+// ahead map to bin 0 (farthest).  See bin_sorter.hpp for the painter
+// order locked at AC-Bfar / AC-Bnear.
 // ===========================================================================
 
 void build_drawables(const GameState&            state,
@@ -314,6 +322,8 @@ void build_drawables(const GameState&            state,
     out.clear();
 
     const render::Camera cam{camera_position};
+    const float landscape_z =
+        camera_position.z + static_cast<float>(render::kBinCount - 1);
 
     // -----------------------------------------------------------------------
     // Terrain (AC-G15): emit one tile-corner triangle around the centre tile.
@@ -329,7 +339,11 @@ void build_drawables(const GameState&            state,
         d.b     = project_or_fallback(c10, cam);
         d.c     = project_or_fallback(c01, cam);
         d.color = 0x080;
-        (void)out.add(std::size_t{0}, d);
+
+        const float repr_z = (c00.z + c10.z + c01.z) / 3.0f;
+        const std::size_t bin =
+            render::bin_for_z(landscape_z, repr_z).value_or(std::size_t{0});
+        (void)out.add(bin, d);
     }
 
     // -----------------------------------------------------------------------
@@ -369,7 +383,11 @@ void build_drawables(const GameState&            state,
         d.b     = project_or_fallback(v1, cam);
         d.c     = project_or_fallback(v2, cam);
         d.color = face.base_colour;
-        (void)out.add(std::size_t{0}, d);
+
+        const float face_z = (v0.z + v1.z + v2.z) / 3.0f;
+        const std::size_t face_bin =
+            render::bin_for_z(landscape_z, face_z).value_or(std::size_t{0});
+        (void)out.add(face_bin, d);
 
         // Shadow under this face (AC-G15..G18 do not check shadows; we
         // still emit them so Pass 14 has them ready).
@@ -383,7 +401,11 @@ void build_drawables(const GameState&            state,
         sh.b     = project_or_fallback(s1, cam);
         sh.c     = project_or_fallback(s2, cam);
         sh.color = 0x000;
-        (void)out.add(std::size_t{0}, sh);
+
+        const float shadow_z = (s0.z + s1.z + s2.z) / 3.0f;
+        const std::size_t shadow_bin =
+            render::bin_for_z(landscape_z, shadow_z).value_or(std::size_t{0});
+        (void)out.add(shadow_bin, sh);
     }
 
     // -----------------------------------------------------------------------
@@ -411,7 +433,11 @@ void build_drawables(const GameState&            state,
         d.b     = project_or_fallback(v1, cam);
         d.c     = project_or_fallback(v2, cam);
         d.color = 0x444;  // mid-grey rock
-        (void)out.add(std::size_t{0}, d);
+
+        const float rock_z = (v0.z + v1.z + v2.z) / 3.0f;
+        const std::size_t rock_bin =
+            render::bin_for_z(landscape_z, rock_z).value_or(std::size_t{0});
+        (void)out.add(rock_bin, d);
     }
 
     // -----------------------------------------------------------------------
@@ -425,7 +451,11 @@ void build_drawables(const GameState&            state,
         d.kind  = Drawable::Kind::Particle;
         d.p     = project_or_fallback(part.position, cam);
         d.color = part.color;
-        (void)out.add(std::size_t{0}, d);
+
+        const std::size_t particle_bin =
+            render::bin_for_z(landscape_z, part.position.z)
+                .value_or(std::size_t{0});
+        (void)out.add(particle_bin, d);
     }
 }
 

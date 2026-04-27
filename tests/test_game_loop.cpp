@@ -907,3 +907,56 @@ TEST_CASE("AC-G82b: game::tick is std::is_nothrow_invocable at compile time", "[
         "AC-G82b: game::tick must satisfy std::is_nothrow_invocable");
     SUCCEED("std::is_nothrow_invocable_v<game::tick, GameState&, FrameInput> is true -- AC-G82b satisfied");
 }
+
+// ---------------------------------------------------------------------------
+// AC-Gbinwire -- build_drawables routes drawables through bin_for_z.
+//
+//   Bug class: an earlier draft binned every drawable into bin 0, defeating
+//   the painter's-algorithm depth ordering that BinSorter exists to provide.
+//   Existence-only checks (AC-G15..G18) cannot detect that regression
+//   because they iterate every bin.  This fence pins the wiring by placing
+//   three particles at z values that map to distinct bins (0, 5, 10) and
+//   asserting size(bin) > 0 on each.
+//
+//   Camera = origin, landscape_z = camera.z + (kBinCount - 1) = 10.
+//     z = 10  ->  delta = 0   ->  bin 0   (farthest)
+//     z =  5  ->  delta = 5   ->  bin 5
+//     z =  0  ->  delta = 10  ->  bin 10  (nearest)
+// ---------------------------------------------------------------------------
+TEST_CASE("AC-Gbinwire: build_drawables routes through bin_for_z, not bin 0", "[game][game_loop]") {
+    game::GameState state{};
+
+    // Three alive particles at distinct z values that span the bin range.
+    {
+        entities::Particle p{};
+        p.ttl      = 10;
+        p.position = { 0.0f, 4.0f, 10.0f };  // far -> bin 0
+        state.particles.push_back(p);
+    }
+    {
+        entities::Particle p{};
+        p.ttl      = 10;
+        p.position = { 0.0f, 4.0f, 5.0f };   // mid -> bin 5
+        state.particles.push_back(p);
+    }
+    {
+        entities::Particle p{};
+        p.ttl      = 10;
+        p.position = { 0.0f, 4.0f, 0.0f };   // near -> bin 10
+        state.particles.push_back(p);
+    }
+
+    const Vec3 camera = { 0.0f, 0.0f, 0.0f };
+    render::BinSorter<game::Drawable> sorter;
+
+    game::build_drawables(state, camera, sorter);
+
+    // Each of the three target bins must hold at least one particle.
+    // (Bin 0 also receives the terrain triangle; we assert >= 1, not == 1,
+    //  to keep this test orthogonal to AC-G15.)
+    CAPTURE(sorter.size(0), sorter.size(5), sorter.size(10),
+            sorter.total_size());
+    REQUIRE(sorter.size(0)  >= std::size_t{1});
+    REQUIRE(sorter.size(5)  >= std::size_t{1});
+    REQUIRE(sorter.size(10) >= std::size_t{1});
+}
