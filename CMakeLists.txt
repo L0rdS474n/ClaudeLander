@@ -112,6 +112,38 @@ target_link_libraries(claude_lander_render PRIVATE
 )
 
 # ----------------------------------------------------------------------------
+# physics/ kinematics layer -- pure stateless functions on Vec3/Mat3.
+# Depends on core/ only.  No raylib, no world/, no entities/, no <random>,
+# no <chrono>.  Boundary enforced by physics_no_forbidden_includes CTest
+# tripwire below.
+# (Pass 4 — src/physics/kinematics.cpp does not exist yet; red-state intentional)
+# ----------------------------------------------------------------------------
+add_library(claude_lander_physics OBJECT
+    src/physics/kinematics.cpp
+)
+target_include_directories(claude_lander_physics PUBLIC src)
+target_link_libraries(claude_lander_physics PRIVATE
+    claude_lander_core
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
+# entities/ ship layer -- Ship struct + step().
+# Depends on core/ and physics/.  No raylib, no world/, no render/.
+# Boundary enforced by entities_no_forbidden_includes CTest tripwire below.
+# (Pass 4 — src/entities/ship.cpp does not exist yet; red-state intentional)
+# ----------------------------------------------------------------------------
+add_library(claude_lander_entities OBJECT
+    src/entities/ship.cpp
+)
+target_include_directories(claude_lander_entities PUBLIC src)
+target_link_libraries(claude_lander_entities PRIVATE
+    claude_lander_core
+    claude_lander_physics
+    claude_lander_warnings
+)
+
+# ----------------------------------------------------------------------------
 # Game executable. As implementation milestones land, modules under src/
 # (core/, world/, render/, ...) will be added as object libraries and linked
 # in here.
@@ -124,6 +156,8 @@ if(CLAUDE_LANDER_BUILD_GAME)
         claude_lander_core
         claude_lander_world
         claude_lander_render
+        claude_lander_physics
+        claude_lander_entities
         claude_lander_warnings
     )
 
@@ -160,6 +194,8 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_lookup_tables.cpp
         tests/test_terrain.cpp
         tests/test_projection.cpp
+        tests/test_kinematics.cpp
+        tests/test_ship.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
@@ -167,6 +203,8 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         claude_lander_core
         claude_lander_world
         claude_lander_render
+        claude_lander_physics
+        claude_lander_entities
         claude_lander_warnings
     )
     catch_discover_tests(claude_lander_tests)
@@ -194,5 +232,25 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         NAME render_no_raylib_or_world_includes
         COMMAND ${CMAKE_COMMAND} -E env
                 bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|entities/)' ${CMAKE_SOURCE_DIR}/src/render/ ; then exit 1 ; else exit 0 ; fi"
+    )
+
+    # ------------------------------------------------------------------------
+    # AC-K80 boundary tripwire: src/physics/ must not include raylib, world/,
+    # entities/, render/, <random>, or <chrono>.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME physics_no_forbidden_includes
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|entities/|render/|random|chrono)' ${CMAKE_SOURCE_DIR}/src/physics/ ; then exit 1 ; else exit 0 ; fi"
+    )
+
+    # ------------------------------------------------------------------------
+    # AC-S80 boundary tripwire: src/entities/ must not include raylib, world/,
+    # or render/ headers.
+    # ------------------------------------------------------------------------
+    add_test(
+        NAME entities_no_forbidden_includes
+        COMMAND ${CMAKE_COMMAND} -E env
+                bash -c "if grep -RnE '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<\"](raylib|rlgl|raymath|world/|render/)' ${CMAKE_SOURCE_DIR}/src/entities/ ; then exit 1 ; else exit 0 ; fi"
     )
 endif()
