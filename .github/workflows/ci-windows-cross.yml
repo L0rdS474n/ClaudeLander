@@ -42,7 +42,8 @@ jobs:
                 -G Ninja \
                 -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-w64-x86_64.cmake \
                 -DCMAKE_BUILD_TYPE=Release \
-                -DCLAUDE_LANDER_BUILD_TESTS=OFF
+                -DCLAUDE_LANDER_BUILD_TESTS=OFF \
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: |
