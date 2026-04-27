@@ -468,7 +468,9 @@ TEST_CASE("AC-S18: classify_collision is deterministic over 100 fixed samples", 
             const float fi        = static_cast<float>(i);
             const float terrain_y = 5.0f + (fi / 200.0f);        // 5.0 .. 5.495
             const float lowest_y  = terrain_y - (fi / 100.0f);   // 0..1 tiles above
-            const float vel_v     = (fi % 10) * 0.002f;          // 0.000 .. 0.018
+            // Use the int counter `i` for the modulo (C++ has no float `%`);
+            // intent matches the inline comment "0.000 .. 0.018".
+            const float vel_v     = static_cast<float>(i % 10) * 0.002f;  // 0.000 .. 0.018
             const std::array<Vec3, 2> verts = {{
                 {0.0f, lowest_y, 0.0f},
                 {0.0f, lowest_y - 1.0f, 0.0f},

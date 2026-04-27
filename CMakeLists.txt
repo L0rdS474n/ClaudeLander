@@ -85,10 +85,17 @@ target_link_libraries(claude_lander_core PRIVATE claude_lander_warnings)
 # world/ procedural terrain layer -- depends on core/, no raylib (ADR-0004).
 # Declared unconditionally (not gated on BUILD_GAME) so the test executable
 # can link against it on a Linux box without raylib's X11/OpenGL deps.
+#
+# Note: src/world/shadow.cpp defines render::project_shadow.  The header is
+# in src/render/shadow.hpp but the body needs terrain::altitude, and src/
+# render/ is forbidden from including world/ headers by the
+# `render_no_raylib_or_world_includes` tripwire.  Hosting the .cpp here is
+# the agreed-upon compromise; see the banner in src/render/shadow.hpp.
 # ----------------------------------------------------------------------------
 add_library(claude_lander_world OBJECT
     src/world/terrain.cpp
     src/world/camera_follow.cpp
+    src/world/shadow.cpp
 )
 target_include_directories(claude_lander_world PUBLIC src)
 target_link_libraries(claude_lander_world PRIVATE
@@ -107,7 +114,6 @@ add_library(claude_lander_render OBJECT
     src/render/projection.cpp
     src/render/faces.cpp
     src/render/bin_sorter.cpp
-    src/render/shadow.cpp
 )
 target_include_directories(claude_lander_render PUBLIC src)
 target_link_libraries(claude_lander_render PRIVATE
