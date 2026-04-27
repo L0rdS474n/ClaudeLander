@@ -137,7 +137,15 @@ fi
 #
 # Other fields:
 #   enforce_admins                 -> applies the rules to repo admins too
-#   required_pull_request_reviews  -> require 1 approving review
+#   required_pull_request_reviews  -> a PR must exist before merging, but
+#                                     `required_approving_review_count` is
+#                                     0 because this is a solo-maintainer
+#                                     project: a maintainer cannot approve
+#                                     their own PR, and we still want CI
+#                                     to gate every merge through a PR.
+#                                     If you grow a team, raise this back to
+#                                     1 (or higher) and re-enable
+#                                     `require_code_owner_reviews`.
 #   required_linear_history        -> reject merge commits on main
 #   allow_force_pushes             -> false (no rewriting history on main)
 #   allow_deletions                -> false (cannot delete protected branch)
@@ -160,16 +168,16 @@ PAYLOAD="$(cat <<'JSON'
   "enforce_admins": true,
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": true,
-    "require_code_owner_reviews": true,
-    "required_approving_review_count": 1,
-    "require_last_push_approval": true
+    "require_code_owner_reviews": false,
+    "required_approving_review_count": 0,
+    "require_last_push_approval": false
   },
   "restrictions": null,
   "required_linear_history": true,
   "allow_force_pushes": false,
   "allow_deletions": false,
   "block_creations": false,
-  "required_conversation_resolution": true
+  "required_conversation_resolution": false
 }
 JSON
 )"
