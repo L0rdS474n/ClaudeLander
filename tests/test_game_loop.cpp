@@ -277,12 +277,20 @@ TEST_CASE("AC-G04: 50 no-input ticks at high altitude ship remains not-crashed",
 // ---------------------------------------------------------------------------
 // AC-G05 -- 1000 frames with same input sequence: bit-identical state.
 //   Given: two GameState instances initialized identically
-//   When:  both run the same 1000-tick sequence (alternating no_input / fire)
+//   When:  both run the same 1000-tick sequence
 //   Then:  all fields of GameState are bit-identical after 1000 ticks
+//
+//   Iter-3 fence (behaviour-fidelity): floats are compared with strict
+//   equality, NOT Catch::Approx with a margin.  A tolerance band would
+//   silently allow non-deterministic drift to creep in (the very thing
+//   this AC exists to prevent).  IEEE 754 guarantees that the same
+//   sequence of operations on the same CPU produces bit-identical
+//   outputs; if this test ever fails, determinism is genuinely broken
+//   and needs investigation, not tolerance widening.
 // ---------------------------------------------------------------------------
 TEST_CASE("AC-G05: 1000 frames with identical input sequence produces bit-identical GameState", "[game][game_loop]") {
     // Given: two identical starting states (default constructed)
-    auto run = [](int seed_mod) {
+    auto run = []() {
         game::GameState s{};
         // Mix some input variation but fully deterministic: no PRNG in test
         for (int i = 0; i < 1000; ++i) {
@@ -292,28 +300,37 @@ TEST_CASE("AC-G05: 1000 frames with identical input sequence produces bit-identi
             in.thrust_full = (i % 13 == 0);
             in.thrust_half = false;
             in.mouse_offset = { 0.0f, 0.0f };
-            (void)seed_mod; // suppress unused param warning
             game::tick(s, in);
         }
         return s;
     };
 
     // When: run the same sequence twice
-    const game::GameState a = run(0);
-    const game::GameState b = run(0);
+    const game::GameState a = run();
+    const game::GameState b = run();
 
-    // Then: bit-identical
+    // Then: bit-identical (strict ==, no tolerance — see AC docstring)
     REQUIRE(a.frame_counter == b.frame_counter);
     REQUIRE(a.score         == b.score);
     REQUIRE(a.ammo          == b.ammo);
     REQUIRE(a.crashed       == b.crashed);
     REQUIRE(a.landed        == b.landed);
-    REQUIRE(a.ship.position.x == Catch::Approx(b.ship.position.x).margin(kGameEps));
-    REQUIRE(a.ship.position.y == Catch::Approx(b.ship.position.y).margin(kGameEps));
-    REQUIRE(a.ship.position.z == Catch::Approx(b.ship.position.z).margin(kGameEps));
-    REQUIRE(a.ship.velocity.x == Catch::Approx(b.ship.velocity.x).margin(kGameEps));
-    REQUIRE(a.ship.velocity.y == Catch::Approx(b.ship.velocity.y).margin(kGameEps));
-    REQUIRE(a.ship.velocity.z == Catch::Approx(b.ship.velocity.z).margin(kGameEps));
+    REQUIRE(a.ship.position.x == b.ship.position.x);
+    REQUIRE(a.ship.position.y == b.ship.position.y);
+    REQUIRE(a.ship.position.z == b.ship.position.z);
+    REQUIRE(a.ship.velocity.x == b.ship.velocity.x);
+    REQUIRE(a.ship.velocity.y == b.ship.velocity.y);
+    REQUIRE(a.ship.velocity.z == b.ship.velocity.z);
+    // Orientation matrix and fuel are also part of the state; tighten too.
+    REQUIRE(a.fuel == b.fuel);
+    for (int c = 0; c < 3; ++c) {
+        REQUIRE(a.ship.orientation.col[c].x == b.ship.orientation.col[c].x);
+        REQUIRE(a.ship.orientation.col[c].y == b.ship.orientation.col[c].y);
+        REQUIRE(a.ship.orientation.col[c].z == b.ship.orientation.col[c].z);
+    }
+    // Rocks and particles vectors must match in size (count determinism).
+    REQUIRE(a.rocks.size()     == b.rocks.size());
+    REQUIRE(a.particles.size() == b.particles.size());
 }
 
 // ===========================================================================
