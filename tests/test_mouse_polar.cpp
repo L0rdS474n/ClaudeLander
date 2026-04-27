@@ -36,10 +36,20 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <numbers>
 
 #include "core/vec2.hpp"
 #include "core/matrix3.hpp"
 #include "input/mouse_polar.hpp"
+
+// M_PI is a POSIX extension and is not provided by Windows MinGW's <cmath>.
+// Define a portable double-precision pi locally so every existing
+// `static_cast<float>(M_PI / N)` site keeps its arithmetic shape.  We use
+// std::numbers::pi_v<double> (C++20) as the source of truth -- bit-identical
+// to glibc's M_PI on every platform we target.
+#ifndef M_PI
+#  define M_PI (std::numbers::pi_v<double>)
+#endif
 
 // ---------------------------------------------------------------------------
 // AC-I80: src/input/ must not pull in raylib, world/, entities/, render/,
