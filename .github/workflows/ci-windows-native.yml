@@ -44,7 +44,9 @@ jobs:
 
       - name: Configure (CMake / Ninja / Release)
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: |

@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/OWNER_TBD_PLACEHOLDER/ClaudeLander/security/advisories/new
+    about: |
+      Please do NOT open a public issue for security vulnerabilities.
+      Use the private advisory channel above, or follow SECURITY.md
+      for the email reporting path.
+  - name: Code of Conduct
+    url: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
+    about: |
+      ClaudeLander adopts Contributor Covenant 2.1 by reference.
+      See CODE_OF_CONDUCT.md in this repo for the contact email.
