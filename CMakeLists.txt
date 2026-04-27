@@ -115,6 +115,7 @@ add_library(claude_lander_render OBJECT
     src/render/projection.cpp
     src/render/faces.cpp
     src/render/bin_sorter.cpp
+    src/render/hud.cpp
 )
 target_include_directories(claude_lander_render PUBLIC src)
 target_link_libraries(claude_lander_render PRIVATE
@@ -237,6 +238,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_rock.cpp
         tests/test_particle.cpp
         tests/test_object_map.cpp
+        tests/test_hud.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
