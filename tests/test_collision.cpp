@@ -82,15 +82,9 @@ static_assert(false,
 //  D-Stateless: pure noexcept function, no globals.
 //  Verified at compile time here in the same TU as the #include.
 // ===========================================================================
-namespace {
-    void* _collision_noexcept_check() {
-        constexpr std::span<const Vec3> empty_span{};
-        static_assert(
-            noexcept(physics::classify_collision(empty_span, 0.0f, Vec3{})),
-            "AC-S82: physics::classify_collision must be declared noexcept");
-        return nullptr;
-    }
-}  // anonymous namespace
+static_assert(
+    noexcept(physics::classify_collision(std::span<const Vec3>{}, 0.0f, Vec3{})),
+    "AC-S82: physics::classify_collision must be declared noexcept");
 
 // ---------------------------------------------------------------------------
 // Tolerance constant (per planner spec §5)
@@ -101,22 +95,6 @@ static constexpr float kCollEps = 1e-5f;
 // Convenience alias
 // ---------------------------------------------------------------------------
 using CS = physics::CollisionState;
-
-// ---------------------------------------------------------------------------
-// Helper: build a simple set of N vertices all at the same y value.
-// The single lowest vertex will be at that y; all others can be set lower
-// in world space (smaller y in Y-DOWN = higher up).
-// ---------------------------------------------------------------------------
-static std::vector<Vec3> make_verts_at_y(float lowest_y, int n = 4, float other_y = -10.0f) {
-    // other_y < lowest_y in Y-DOWN means other vertices are ABOVE lowest_y
-    // (i.e., have smaller y values — higher in the world)
-    std::vector<Vec3> verts(static_cast<std::size_t>(n));
-    for (int i = 0; i < n - 1; ++i) {
-        verts[static_cast<std::size_t>(i)] = Vec3{0.0f, other_y, 0.0f};
-    }
-    verts[static_cast<std::size_t>(n - 1)] = Vec3{0.0f, lowest_y, 0.0f};
-    return verts;
-}
 
 // ===========================================================================
 // GROUP 1: Airborne (AC-S06..S08)

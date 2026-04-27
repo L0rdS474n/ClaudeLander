@@ -31,6 +31,7 @@
 #include <array>
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "core/vec2.hpp"
@@ -61,17 +62,13 @@ static_assert(false,
 // ---------------------------------------------------------------------------
 // AC-G82 -- game::tick must be declared noexcept.
 // Verified at compile time in this TU immediately after the #include.
+// std::declval is used because tick() takes an lvalue GameState& and a
+// FrameInput by value; declval can only appear in unevaluated contexts,
+// which noexcept(...) provides.
 // ---------------------------------------------------------------------------
-namespace {
-    void* _tick_noexcept_check() {
-        game::GameState s{};
-        game::FrameInput in{};
-        static_assert(
-            noexcept(game::tick(s, in)),
-            "AC-G82: game::tick(GameState&, FrameInput) must be declared noexcept");
-        return nullptr;
-    }
-} // anonymous namespace
+static_assert(
+    noexcept(game::tick(std::declval<game::GameState&>(), game::FrameInput{})),
+    "AC-G82: game::tick(GameState&, FrameInput) must be declared noexcept");
 
 // ---------------------------------------------------------------------------
 // Convenience helpers
@@ -86,11 +83,6 @@ static game::FrameInput no_input() {
 // A FrameInput with full thrust, no mouse movement, no fire.
 static game::FrameInput full_thrust_input() {
     return { {0.0f, 0.0f}, true, false, false };
-}
-
-// A FrameInput with half thrust, no mouse movement, no fire.
-static game::FrameInput half_thrust_input() {
-    return { {0.0f, 0.0f}, false, true, false };
 }
 
 // A FrameInput with fire pressed, no thrust, no mouse movement.

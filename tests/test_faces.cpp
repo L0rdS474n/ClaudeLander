@@ -118,16 +118,8 @@ static Vec3 compute_normal(Vec3 v0, Vec3 v1, Vec3 v2) noexcept {
     return normalize(c);
 }
 
-// ---------------------------------------------------------------------------
-// Helper: brightness formula, applied to a world-space normal.
-//   brightness = clamp(0.5f + 0.5f*(-normal.y) + 0.1f*(-normal.x), 0.0f, 1.0f)
-// ---------------------------------------------------------------------------
-static float expected_brightness(Vec3 n) noexcept {
-    const float raw = 0.5f + 0.5f * (-n.y) + 0.1f * (-n.x);
-    if (raw < 0.0f) return 0.0f;
-    if (raw > 1.0f) return 1.0f;
-    return raw;
-}
+// Helper expected_brightness was inlined into individual ACs.
+// (Removed during Pass 15.5 ralph iteration 1: -Wunused-function cleanup.)
 
 // ===========================================================================
 // GROUP 1: rotate_vertices (AC-F01..F05)
@@ -565,7 +557,6 @@ TEST_CASE("AC-F11 (AC-F-y-up): shade_face with normal_world={0,-1,0} gives brigh
     const core::ShipFace face{0, 1, 2, 0x080};
     // Camera at centroid + 10 * {0,-1,0}; centroid = {0, 0, 1/3}
     // camera = {0, 0 + 10*(-1), 1/3} = {0, -10, 1/3}
-    const Vec3 centroid{0.0f, 0.0f, 1.0f/3.0f};
     const Vec3 camera{0.0f, -10.0f, 1.0f/3.0f};
 
     // When

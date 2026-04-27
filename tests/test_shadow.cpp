@@ -64,17 +64,9 @@ static_assert(false,
 //  Verified at compile time here in the same TU as the #include.
 //  The static_assert fires immediately if the implementer forgets noexcept.
 // ===========================================================================
-namespace {
-    void* _shadow_noexcept_check() {
-        // Build a minimal span to form the expression; size 0 is fine.
-        constexpr std::span<const Vec3> empty_in{};
-        constexpr std::span<Vec3>       empty_out{};
-        static_assert(
-            noexcept(render::project_shadow(empty_in, empty_out)),
-            "AC-S82: render::project_shadow must be declared noexcept");
-        return nullptr;
-    }
-}  // anonymous namespace
+static_assert(
+    noexcept(render::project_shadow(std::span<const Vec3>{}, std::span<Vec3>{})),
+    "AC-S82: render::project_shadow must be declared noexcept");
 
 // ---------------------------------------------------------------------------
 // Tolerance constant (per planner spec §5)
