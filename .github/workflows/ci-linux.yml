@@ -54,3 +54,18 @@ jobs:
       - name: Run tests (ctest)
         run: |
           ctest --test-dir build --output-on-failure
+
+      - name: Verify Linux ELF binary exists
+        run: |
+          set -euo pipefail
+          BIN=build/bin/ClaudeLander
+          test -f "$BIN" || { echo "ERROR: $BIN not found"; exit 1; }
+          file "$BIN"
+          file "$BIN" | grep -q 'ELF 64-bit LSB.*x86-64'
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ClaudeLander-linux-x64
+          path: build/bin/ClaudeLander
+          if-no-files-found: error
