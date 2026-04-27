@@ -88,6 +88,7 @@ target_link_libraries(claude_lander_core PRIVATE claude_lander_warnings)
 # ----------------------------------------------------------------------------
 add_library(claude_lander_world OBJECT
     src/world/terrain.cpp
+    src/world/camera_follow.cpp
 )
 target_include_directories(claude_lander_world PUBLIC src)
 target_link_libraries(claude_lander_world PRIVATE
@@ -216,6 +217,7 @@ if(CLAUDE_LANDER_BUILD_TESTS AND NOT CMAKE_CROSSCOMPILING)
         tests/test_ship.cpp
         tests/test_mouse_polar.cpp
         tests/test_faces.cpp
+        tests/test_camera_follow.cpp
     )
     target_include_directories(claude_lander_tests PRIVATE src)
     target_link_libraries(claude_lander_tests PRIVATE
