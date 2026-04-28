@@ -35,6 +35,30 @@ Closes #
 ctest output goes here
 ```
 
+## Human verification (ADR-0007 -- mandatory, never skipped)
+
+<!--
+  Per ADR-0007, no PR meets DoD until a human has launched the produced
+  artefact and confirmed the change works as intended.  Tests passing,
+  CI green, lint clean, and review approved are NOT substitutes.
+
+  Fill in:
+    - Verifier (GitHub handle).
+    - Platform actually used (Linux native / Windows native / etc).
+    - Commit / branch verified (the SHA you actually ran).
+    - What was checked (concrete flow, not "smoke test").
+
+  An AI agent cannot tick this box on its own.  If the change is a
+  pure internal refactor with no observable behaviour, the verifier
+  must still demonstrate the artefact still behaves correctly under
+  the prior contract.
+-->
+
+- Verifier:
+- Platform:
+- Commit verified:
+- What was checked:
+
 ## AC IDs covered
 
 <!--
@@ -71,6 +95,9 @@ ctest output goes here
       this PR claims is complete.
 - [ ] Real-world validation evidence is captured, or an explicit
       `DEFERRED` note points at the pass that will validate.
+- [ ] **Human verification (ADR-0007) is recorded above** with verifier
+      handle, platform, commit, and what was checked.  This box cannot
+      be ticked by an AI agent on its own.
 - [ ] Architecture boundary respected: no `#ifdef _WIN32` or
       `#ifdef __linux__` outside `src/platform/`; layer dependency
       graph in `docs/ARCHITECTURE.md` is unchanged or updated.

@@ -249,6 +249,27 @@ the pass that will exercise it.
 
 ## Definition of Done (DoD)
 
+> **Hard rule (ADR-0007).**  No deliverable -- task, PR, milestone, or
+> release tag -- may be marked as meeting Definition of Done unless a
+> human has verified it against the real artefact.  Tests passing, CI
+> green, lint clean, type check clean, and code review approved are
+> *inputs* to verification.  They are never substitutes for it.
+>
+> Human verification means: a person launched the produced binary (or
+> executed the produced behaviour against real input), exercised the
+> relevant flow end-to-end, and confirmed in writing that it works as
+> intended.  The PR description must record (a) the platform used,
+> (b) the exact commit / branch verified, and (c) what was checked.
+>
+> AI agents are forbidden from declaring work Done on their own.  When
+> an agent believes a deliverable meets every other gate, it must
+> request the human verifier and wait for their written confirmation
+> before the work is merged or tagged.
+>
+> See `docs/adr/0007-dod-requires-human-verification.md` for the
+> reasoning, the v1.0.0 incident that drove this rule, and what counts
+> as "real artefact" verification per task type.
+
 Before a change is merged, every box must be ticked:
 
 - [ ] Acceptance criteria are all green (every AC-id covered by a passing
@@ -259,6 +280,10 @@ Before a change is merged, every box must be ticked:
 - [ ] Real-world validation evidence is captured (ctest output for code,
       screenshot or video for user-facing behaviour, or an explicit
       `DEFERRED` note pointing at the pass that will validate it).
+- [ ] **Human-verified against the real artefact.**  The PR body
+      records who launched what on which platform and what they
+      checked.  This box cannot be skipped, deferred, or ticked by an
+      AI agent on its own.  See ADR-0007.
 - [ ] Cross-platform build is verified, or explicitly `DEFERRED` with a
       reason and a pointer to the pass that will verify it.
 - [ ] PR has a linked issue using `Closes #N`, `Fixes #N`, or
@@ -277,6 +302,8 @@ Before a change is merged, every box must be ticked:
   decision for the Windows build.
 * `docs/adr/0003-repo-collaboration-policy.md` -- the seven decisions
   this file embodies.
+* `docs/adr/0007-dod-requires-human-verification.md` -- the
+  human-verification gate at the top of the DoD list.
 * `README.md` -- end-user-facing project description, build steps,
   acknowledgements.
 * `CONTRIBUTING.md` -- contributor-facing branch / commit / PR process.
