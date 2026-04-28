@@ -151,6 +151,16 @@ in [`AGENTS.md`](AGENTS.md). The reviewer (human or agent) verifies:
 * For user-facing behaviour, real-world validation evidence (screenshot,
   short video, or an explicit `DEFERRED` note pointing at the pass that
   will validate) is included.
+* **Human verification (ADR-0007) is recorded.**  No PR meets DoD
+  unless a human has launched the produced artefact and confirmed in
+  writing that it works as intended -- recording the verifier handle,
+  the platform used, the commit verified, and what was checked.  Tests
+  passing, CI green, and review approved are inputs to verification,
+  never substitutes for it.  AI agents may not tick this box on their
+  own; they must request a human verifier and wait for the written
+  confirmation.  See
+  [`docs/adr/0007-dod-requires-human-verification.md`](docs/adr/0007-dod-requires-human-verification.md)
+  for the full rule and the v1.0.0 incident that drove it.
 * The Reviewer checklist in `.github/pull_request_template.md` is
   explicitly ticked.
 
