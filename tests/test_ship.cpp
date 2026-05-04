@@ -71,11 +71,11 @@ static constexpr float kVertexEps = 5e-4f;   // vertex coordinate check toleranc
 // AC-S01: Ship{} defaults match D-InitialState exactly.
 //   position = {0, 5, 0}, velocity = {0, 0, 0}, orientation = identity()
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-S01: Ship{} default-constructs with position={0,5,0}, velocity={0,0,0}, orientation=identity", "[entities][ship]") {
+TEST_CASE("AC-S01: Ship{} default-constructs with position={0,-8,0}, velocity={0,0,0}, orientation=identity", "[entities][ship]") {
     // Given: a default-constructed Ship
     // When:  position, velocity, and orientation are read
     // Then:
-    //   position == {0.0f, 5.0f, 0.0f}
+    //   position == {0.0f, -8.0f, 0.0f}  -- 13 tiles above terrain in Y-DOWN
     //   velocity == {0.0f, 0.0f, 0.0f}
     //   orientation == identity()
     const entities::Ship ship{};
@@ -84,7 +84,7 @@ TEST_CASE("AC-S01: Ship{} default-constructs with position={0,5,0}, velocity={0,
     // Position
     CAPTURE(ship.position.x, ship.position.y, ship.position.z);
     REQUIRE(ship.position.x == Catch::Approx(0.0f).margin(kEps));
-    REQUIRE(ship.position.y == Catch::Approx(5.0f).margin(kEps));
+    REQUIRE(ship.position.y == Catch::Approx(-8.0f).margin(kEps));
     REQUIRE(ship.position.z == Catch::Approx(0.0f).margin(kEps));
 
     // Velocity

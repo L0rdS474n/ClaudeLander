@@ -95,11 +95,11 @@ static game::FrameInput fire_input() {
 // ===========================================================================
 
 // ---------------------------------------------------------------------------
-// AC-G01 -- GameState{} defaults: ship at {0,5,0}, score=0, fuel=1, ammo=100.
+// AC-G01 -- GameState{} defaults: ship at {0,-8,0}, score=0, fuel=1, ammo=100.
 //   Given: a default-constructed GameState
 //   When:  fields are read
 //   Then:
-//     state.ship.position == {0,5,0}
+//     state.ship.position == {0,-8,0}   -- 13 tiles above terrain in Y-DOWN
 //     state.score         == 0
 //     state.fuel          == 1.0f
 //     state.ammo          == 100
@@ -107,13 +107,13 @@ static game::FrameInput fire_input() {
 //     state.crashed       == false
 //     state.landed        == false
 // ---------------------------------------------------------------------------
-TEST_CASE("AC-G01: GameState{} defaults: ship at {0,5,0}, score=0, fuel=1.0, ammo=100", "[game][game_loop]") {
+TEST_CASE("AC-G01: GameState{} defaults: ship at {0,-8,0}, score=0, fuel=1.0, ammo=100", "[game][game_loop]") {
     // Given
     const game::GameState state{};
 
     // Then
     REQUIRE(state.ship.position.x == Catch::Approx(0.0f).margin(kGameEps));
-    REQUIRE(state.ship.position.y == Catch::Approx(5.0f).margin(kGameEps));
+    REQUIRE(state.ship.position.y == Catch::Approx(-8.0f).margin(kGameEps));
     REQUIRE(state.ship.position.z == Catch::Approx(0.0f).margin(kGameEps));
     REQUIRE(state.score         == 0u);
     REQUIRE(state.fuel          == Catch::Approx(1.0f).margin(kGameEps));
@@ -859,6 +859,38 @@ TEST_CASE("AC-Gnograv (BUG-CLASS FENCE): landed ship does not sink below terrain
     // We consider the test vacuously passing if we never reached landed state
     // (may indicate placement needs adjustment in implementation).
     SUCCEED("AC-Gnograv fence verified: no post-landing sink detected");
+}
+
+// ===========================================================================
+//  BUG-CLASS FENCE (AC-Gcrash-on-fast-impact) -- high-speed impact must crash.
+// ===========================================================================
+//
+//  kSettleSpeedThreshold must be SMALLER than kLandingSpeed so the AC-Gnograv
+//  anti-sink promotion does not fire for ships in free-fall.  A ship arriving
+//  at the terrain surface at substantial vertical velocity must classify as
+//  Crashed, not be silently promoted to Landing.
+//
+//  Test: place ship above terrain with fast downward velocity; after one tick the
+//  lowest vertex penetrates the terrain.  classify_collision => Crashed.
+//  velocity (~1.97) >> kSettleSpeedThreshold => no promotion.  state.crashed true.
+// ===========================================================================
+TEST_CASE("AC-Gcrash-on-fast-impact (BUG-CLASS FENCE): high-velocity terrain impact classifies as Crashed", "[game][game_loop]") {
+    // Given: ship positioned just above terrain, moving fast downward.
+    // terrain::altitude(0,0) ~= 5.0.  After one tick with velocity.y = 2.0:
+    //   velocity.y_post = 2.0 * drag + gravity ~= 1.97
+    //   position.y_post = 4.0 + 1.97 = 5.97
+    //   lowest vertex world y = 5.97 + 0.625 = 6.595 > terrain_y ~= 5.0 => Crashed
+    //   velocity >> kSettleSpeedThreshold => AC-Gnograv does NOT promote to Landing.
+    game::GameState state{};
+    state.ship.position = { 0.0f, 4.0f, 0.0f };
+    state.ship.velocity = { 0.0f, 2.0f, 0.0f };  // fast downward (Y-DOWN: +y = down)
+
+    // When
+    game::tick(state, no_input());
+
+    // Then
+    CAPTURE(state.ship.position.y, state.ship.velocity.y, state.crashed);
+    REQUIRE(state.crashed == true);
 }
 
 // ===========================================================================

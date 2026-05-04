@@ -86,11 +86,14 @@ constexpr std::uint64_t kRockSpawnPeriod = 60;
 // Anti-sink clamp threshold (AC-Gnograv).  If the post-step velocity has
 // per-axis |v| <= kSettleSpeedThreshold AND the lowest vertex would be
 // below the terrain, we treat this as a soft landing: clamp the position
-// so the lowest vertex sits exactly at the terrain altitude.  Tuned at
-// 4 * kLandingSpeed so a ship arriving with a tiny gravity-only delta
-// settles instead of crashing on contact, while a ship with substantial
-// vertical velocity still classifies as Crashed.
-constexpr float kSettleSpeedThreshold = 4.0f * physics::kLandingSpeed;
+// so the lowest vertex sits exactly at the terrain altitude.
+//
+// Must be SMALLER than kLandingSpeed (0.01f) so that a ship in free-fall
+// (which classify_collision correctly marks Crashed) is not silently promoted
+// to Landing.  Gravity accumulates ~0.000244 tiles/frame; a threshold of
+// kLandingSpeed/4 = 0.0025 captures near-stationary ships (a few frames after
+// contact) without swallowing genuine hard impacts.
+constexpr float kSettleSpeedThreshold = physics::kLandingSpeed / 4.0f;
 
 // Compute the centroid x and z of a span of world-space vertices.  Used
 // for terrain altitude lookups under the ship.  Empty input returns the

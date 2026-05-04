@@ -92,12 +92,12 @@ inline constexpr std::array<ShipFace, kShipFaceCount> kShipFaces = {{
 // ---------------------------------------------------------------------------
 //
 // Default-initialised state matches the spawn position used by AC-S01:
-//   position    = {0, 5, 0}     -- altitude(0,0) per Pass 2 terrain
+//   position    = {0, -8, 0}    -- 13 tiles above terrain (Y-DOWN: smaller y = higher)
 //   velocity    = {0, 0, 0}
 //   orientation = identity()    -- nose along +x, roof along +y, side along +z
 
 struct Ship {
-    Vec3 position    { 0.0f, 5.0f, 0.0f };
+    Vec3 position    { 0.0f, -8.0f, 0.0f };
     Vec3 velocity    { 0.0f, 0.0f, 0.0f };
     Mat3 orientation { identity() };
 };
